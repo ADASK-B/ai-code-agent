@@ -1,0 +1,16 @@
+{
+  "concept": "Repository Analysis",
+  "steps": [
+    "1. Scan all files in the repository",
+    "2. Analyze file types and purposes (README, docs, code files)",
+    "3. Create a context map of the repository structure",
+    "4. When user says 'Albert', suggest most likely target files",
+    "5. Ask for confirmation or auto-select based on heuristics"
+  ],
+  "example": {
+    "input": "Albert",
+    "analysis": "Found: README.md (main), docs/contributors.md, about.md",
+    "suggestion": "Add 'Albert' to README.md? Or specify target file.",
+    "fallback": "Auto-add to main README.md as it's the primary documentation"
+  }
+}

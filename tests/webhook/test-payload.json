@@ -1,0 +1,67 @@
+{
+  "subscriptionId": "12345678-1234-1234-1234-123456789012",
+  "notificationId": 1,
+  "id": "12345678-1234-1234-1234-123456789012", 
+  "eventType": "git.pullrequest.created",
+  "publisherId": "tfs",
+  "message": {
+    "text": "/edit Fix the bug in the authentication module",
+    "html": "<div>/edit Fix the bug in the authentication module</div>",
+    "markdown": "/edit Fix the bug in the authentication module"
+  },
+  "detailedMessage": {
+    "text": "/edit Fix the bug in the authentication module - we need to handle null values better",
+    "html": "<div>/edit Fix the bug in the authentication module - we need to handle null values better</div>",
+    "markdown": "/edit Fix the bug in the authentication module - we need to handle null values better"
+  },
+  "resource": {
+    "repository": {
+      "id": "12345678-1234-1234-1234-123456789012",
+      "name": "AIForCoding",
+      "url": "https://dev.azure.com/yourorg/_git/AIForCoding",
+      "project": {
+        "id": "12345678-1234-1234-1234-123456789012",
+        "name": "YourProject",
+        "state": "wellFormed"
+      }
+    },
+    "pullRequest": {
+      "pullRequestId": 123,
+      "title": "Fix authentication bug",
+      "description": "This PR fixes the authentication module",
+      "sourceRefName": "refs/heads/feature/fix-auth",
+      "targetRefName": "refs/heads/main",
+      "status": "active",
+      "createdBy": {
+        "displayName": "Test User",
+        "uniqueName": "testuser@company.com"
+      },
+      "repository": {
+        "id": "12345678-1234-1234-1234-123456789012",
+        "name": "AIForCoding",
+        "url": "https://dev.azure.com/yourorg/_git/AIForCoding",
+        "project": {
+          "id": "12345678-1234-1234-1234-123456789012",
+          "name": "YourProject",
+          "state": "wellFormed"
+        }
+      }
+    }
+  },
+  "resourceVersion": "1.0",
+  "resourceContainers": {
+    "collection": {
+      "id": "12345678-1234-1234-1234-123456789012",
+      "baseUrl": "https://dev.azure.com/yourorg/"
+    },
+    "account": {
+      "id": "12345678-1234-1234-1234-123456789012",
+      "baseUrl": "https://dev.azure.com/yourorg/"
+    },
+    "project": {
+      "id": "12345678-1234-1234-1234-123456789012",
+      "baseUrl": "https://dev.azure.com/yourorg/"
+    }
+  },
+  "createdDate": "2025-09-01T15:24:00.000Z"
+}

@@ -1,0 +1,138 @@
+# =============================================================================
+# Code Agent MVP - Security .gitignore
+# =============================================================================
+
+# KRITISCH: Environment-Dateien mit Tokens/Secrets
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+*.env
+!.env.example
+
+# Azure Functions & Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime & Build
+dist/
+build/
+coverage/
+*.tgz
+*.tar.gz
+
+# Azure Functions Local
+.azure/
+local.settings.json
+bin/
+obj/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Development Tools
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+.npm
+.eslintcache
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Security & Keys (NIEMALS committen!)
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+tokens/
+
+# Azure Storage Emulator
+__azurite_db*
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
+
+# Supabase Local
+.supabase/
+
+# Health Check Runtime
+health-check.log
+monitoring.log
+
+# Git-specific
+.git/
+.gitconfig
+
+# =============================================================================
+# Service-specific ignores
+# =============================================================================
+
+# Gateway Service
+services/gateway/.env
+services/gateway/dist/
+services/gateway/logs/
+
+# Orchestrator Service  
+services/orchestrator/.env
+services/orchestrator/dist/
+services/orchestrator/logs/
+
+# Adapter Service
+services/adapter/.env
+services/adapter/dist/
+services/adapter/logs/
+
+# LLM-Patch Service
+services/llm-patch/.env
+services/llm-patch/dist/
+services/llm-patch/logs/
+
+# Operations
+ops/compose/.env
+ops/server/.env
+ops/k8s/secrets/
+ops/terraform/terraform.tfstate*
+ops/terraform/.terraform/
+
+# =============================================================================
+# WICHTIG: Was NICHT ignoriert wird (explizit committen)
+# =============================================================================
+# !.env.example
+# !.env.template
+# !docker-compose.yml
+# !Dockerfile
+# !README.md

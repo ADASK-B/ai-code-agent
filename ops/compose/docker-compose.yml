@@ -1,0 +1,367 @@
+version: '3.8'
+
+networks:
+  agent-network:
+    driver: bridge
+
+volumes:
+  azurite-data:
+  traefik-data:
+  local-llm-models:
+  supabase-db-data:
+
+services:
+  # Reverse Proxy & Load Balancer
+  traefik:
+    image: traefik:v3.0
+    container_name: agent-traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "8080:8080"  # Traefik Dashboard
+    networks:
+      - agent-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-data:/data
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik.dynamic.yml:/etc/traefik/dynamic.yml:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Gateway Service - Webhook Receiver
+  gateway:
+    build:
+      context: ../../services/gateway
+      dockerfile: Dockerfile
+    container_name: agent-gateway
+    restart: unless-stopped
+    ports:
+      - "3001:8080"  # External port mapping for development
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - ORCHESTRATOR_URL=http://orchestrator:7071/api/pr-comment
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - DEV_ID=${DEV_ID:-dev}
+    networks:
+      - agent-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gateway.rule=PathPrefix(`/gateway`)"
+      - "traefik.http.routers.gateway.entrypoints=web"
+      - "traefik.http.middlewares.gateway-strip.stripprefix.prefixes=/gateway"
+      - "traefik.http.routers.gateway.middlewares=gateway-strip"
+      - "traefik.http.services.gateway.loadbalancer.server.port=8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - orchestrator
+
+  # Orchestrator - Azure Durable Functions
+  orchestrator:
+    build:
+      context: ../../services/orchestrator
+      dockerfile: Dockerfile
+    container_name: agent-orchestrator
+    restart: unless-stopped
+    environment:
+      - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;
+      - FUNCTIONS_WORKER_RUNTIME=node
+      - WEBSITE_RUN_FROM_PACKAGE=0
+      - NODE_ENV=development
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ADAPTER_URL=http://adapter:8080
+      - LLM_PATCH_URL=http://llm-patch:8080
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - DEV_ID=${DEV_ID:-dev}
+      - MAX_VARIANTS=${MAX_VARIANTS:-5}
+      - VARIANT_TIMEOUT_MINUTES=${VARIANT_TIMEOUT_MINUTES:-8}
+    ports:
+      - "7071:80"
+    networks:
+      - agent-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.orchestrator.rule=PathPrefix(`/orchestrator`)"
+      - "traefik.http.routers.orchestrator.entrypoints=web"
+      - "traefik.http.middlewares.orchestrator-strip.stripprefix.prefixes=/orchestrator"
+      - "traefik.http.routers.orchestrator.middlewares=orchestrator-strip"
+      - "traefik.http.services.orchestrator.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - azurite
+      - adapter
+      - llm-patch
+
+  # Adapter - Azure DevOps Integration
+  adapter:
+    build:
+      context: ../../services/adapter
+      dockerfile: Dockerfile
+    container_name: agent-adapter
+    restart: unless-stopped
+    ports:
+      - "3002:8080"  # External port mapping for development
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ADO_ORG=${ADO_ORG}
+      - ADO_PROJECT=${ADO_PROJECT}
+      - ADO_TOKEN=${ADO_TOKEN}
+      - RATE_SOFT_RPS=${RATE_SOFT_RPS:-10}
+      - RATE_BURST_RPS=${RATE_BURST_RPS:-20}
+      - CIRCUIT_BREAKER_THRESHOLD=${CIRCUIT_BREAKER_THRESHOLD:-5}
+      - CIRCUIT_BREAKER_TIMEOUT=${CIRCUIT_BREAKER_TIMEOUT:-30000}
+      - DEV_ID=${DEV_ID:-dev}
+      - MAX_PATCH_SIZE_BYTES=${MAX_PATCH_SIZE_BYTES:-200000}
+    networks:
+      - agent-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.adapter.rule=PathPrefix(`/adapter`)"
+      - "traefik.http.routers.adapter.entrypoints=web"
+      - "traefik.http.middlewares.adapter-strip.stripprefix.prefixes=/adapter"
+      - "traefik.http.routers.adapter.middlewares=adapter-strip"
+      - "traefik.http.services.adapter.loadbalancer.server.port=8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # LLM-Patch Service - Code Generation
+  llm-patch:
+    build:
+      context: ../../services/llm-patch
+      dockerfile: Dockerfile
+    container_name: agent-llm-patch
+    restart: unless-stopped
+    ports:
+      - "3003:8080"  # External port mapping for development
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LLM_PROVIDER=${LLM_PROVIDER:-stub}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-3-5-sonnet-20240620}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
+      - LOCAL_LLM_URL=${LOCAL_LLM_URL}
+      - PATCH_MAX_BYTES=${PATCH_MAX_BYTES:-200000}
+      - LLM_TIMEOUT_MS=${LLM_TIMEOUT_MS:-30000}
+      - MAX_FILES_IN_PATCH=${MAX_FILES_IN_PATCH:-50}
+      - DEV_ID=${DEV_ID:-dev}
+    networks:
+      - agent-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.llm.rule=PathPrefix(`/llm`)"
+      - "traefik.http.routers.llm.entrypoints=web"
+      - "traefik.http.middlewares.llm-strip.stripprefix.prefixes=/llm"
+      - "traefik.http.routers.llm.middlewares=llm-strip"
+      - "traefik.http.services.llm.loadbalancer.server.port=8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Azure Storage Emulator
+  azurite:
+    build:
+      context: .
+      dockerfile: azurite.Dockerfile
+    container_name: agent-azurite
+    restart: unless-stopped
+    environment:
+      - AZURITE_ACCOUNTS=devstoreaccount1:Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+    ports:
+      - "10000:10000"  # Blob
+      - "10001:10001"  # Queue  
+      - "10002:10002"  # Table
+    networks:
+      - agent-network
+    volumes:
+      - azurite-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:10000/devstoreaccount1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Health Check Service - Monitor all services
+  health-monitor:
+    build:
+      context: ../../health-check
+      dockerfile: Dockerfile
+    container_name: agent-health-monitor
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - "8888:8888"  # Health Dashboard
+    networks:
+      - agent-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.health.rule=PathPrefix(`/health-monitor`)"
+      - "traefik.http.routers.health.entrypoints=web"
+      - "traefik.http.middlewares.health-strip.stripprefix.prefixes=/health-monitor"
+      - "traefik.http.routers.health.middlewares=health-strip"
+      - "traefik.http.services.health.loadbalancer.server.port=8888"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - gateway
+      - orchestrator
+      - adapter
+      - llm-patch
+      - traefik
+      - azurite
+
+  # ngrok Tunnel Service - External Connectivity
+  ngrok:
+    build:
+      context: ../dev/ngrok
+      dockerfile: Dockerfile
+    container_name: agent-ngrok
+    restart: unless-stopped
+    environment:
+      - NGROK_DOMAIN=${NGROK_DOMAIN:-}
+      - NGROK_TRAEFIK_DOMAIN=${NGROK_TRAEFIK_DOMAIN:-}
+    ports:
+      - "4040:4040"  # ngrok Web Interface
+    networks:
+      - agent-network
+    volumes:
+      - ../dev/ngrok/ngrok.yml:/etc/ngrok.yml:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ngrok.rule=PathPrefix(`/ngrok`)"
+      - "traefik.http.routers.ngrok.entrypoints=web"
+      - "traefik.http.middlewares.ngrok-strip.stripprefix.prefixes=/ngrok"
+      - "traefik.http.routers.ngrok.middlewares=ngrok-strip"
+      - "traefik.http.services.ngrok.loadbalancer.server.port=4040"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4040/api/tunnels"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - traefik
+      - gateway
+
+  # Local LLM Service - Ollama for Code Generation
+  local-llm:
+    build:
+      context: ../../services/local-llm
+      dockerfile: Dockerfile
+    container_name: agent-local-llm
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_MODELS=/usr/share/ollama/.ollama/models
+    ports:
+      - "11434:11434"  # Ollama API
+    networks:
+      - agent-network
+    volumes:
+      - local-llm-models:/usr/share/ollama/.ollama/models
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.local-llm.rule=PathPrefix(`/local-llm`)"
+      - "traefik.http.routers.local-llm.entrypoints=web"
+      - "traefik.http.middlewares.local-llm-strip.stripprefix.prefixes=/local-llm"
+      - "traefik.http.routers.local-llm.middlewares=local-llm-strip"
+      - "traefik.http.services.local-llm.loadbalancer.server.port=11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    profiles:
+      - local-llm
+
+  # Optional: Supabase Local (Alternative zu Cloud)
+  supabase-db:
+    image: supabase/postgres:15.1.0.117
+    container_name: agent-supabase-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=${SUPABASE_DB_PASSWORD:-your-super-secret-and-long-postgres-password}
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - agent-network
+    volumes:
+      - ./supabase/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    profiles:
+      - supabase-local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  supabase-studio:
+    image: supabase/studio:20240101-ce42139
+    container_name: agent-supabase-studio  
+    restart: unless-stopped
+    environment:
+      - SUPABASE_URL=http://supabase-kong:8000
+      - SUPABASE_REST_URL=http://localhost:3000/rest/v1/
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+    ports:
+      - "3000:3000"
+    networks:
+      - agent-network
+    profiles:
+      - supabase-local
+    depends_on:
+      - supabase-db
+
+  # Development Tools Container (optional)
+  devtools:
+    image: alpine:latest
+    container_name: agent-devtools
+    restart: "no"
+    networks:
+      - agent-network
+    volumes:
+      - ../../:/workspace:ro
+    command: ["tail", "-f", "/dev/null"]
+    profiles:
+      - devtools
+
+# Profile Configurations for Multi-Developer Setup
+# Usage: docker compose --profile dev-alice up -d
+
+# Developer-specific port mappings
+# alice: default ports (80, 7071, etc.)
+# bob: +10 offset (81, 7072, etc.)  
+# charlie: +20 offset (82, 7073, etc.)

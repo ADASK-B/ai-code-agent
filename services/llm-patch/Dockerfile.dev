@@ -1,0 +1,85 @@
+# Multi-stage Dockerfile for LLM-Patch Development with Hot Reload
+FROM node:20-alpine AS base
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create app directory and user
+WORKDIR /app
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S llmpatch -u 1001
+
+# =============================================================================
+# Development Stage - with hot reload and debugging
+# =============================================================================
+FROM base AS development
+
+# Install development tools
+RUN apk add --no-cache git curl
+
+# Enable Node.js debugging
+ENV NODE_ENV=development
+ENV NODE_OPTIONS="--inspect=0.0.0.0:9229"
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install ALL dependencies (including dev)
+RUN npm ci && npm cache clean --force
+
+# Create directories for volume mounts
+RUN mkdir -p src dist && chown -R llmpatch:nodejs /app
+
+# Switch to non-root user
+USER llmpatch
+
+# Expose application and debug ports
+EXPOSE 3003 9229
+
+# Use nodemon for hot reload
+CMD ["dumb-init", "npm", "run", "dev"]
+
+# =============================================================================
+# Production Build Stage
+# =============================================================================
+FROM base AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Install dev dependencies for build
+RUN npm ci && npm cache clean --force
+
+# Copy source code
+COPY src/ ./src/
+
+# Build TypeScript
+RUN npm run build
+
+# =============================================================================
+# Production Stage
+# =============================================================================
+FROM base AS production
+
+# Copy built application and production dependencies
+COPY --from=builder --chown=llmpatch:nodejs /app/dist ./dist
+COPY --from=builder --chown=llmpatch:nodejs /app/package.json ./
+COPY --from=builder --chown=llmpatch:nodejs /app/node_modules ./node_modules
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:${PORT:-3003}/health || exit 1
+
+# Switch to non-root user
+USER llmpatch
+
+EXPOSE 3003
+
+CMD ["dumb-init", "node", "dist/index.js"]

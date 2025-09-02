@@ -1,0 +1,131 @@
+{
+  "subscriptionId": "82dacfbe-1c26-4ed1-b6fc-107ca43979ec",
+  "notificationId": 999,
+  "id": "test-webhook-id-999",
+  "eventType": "ms.vss-code.git-pullrequest-comment-event",
+  "publisherId": "tfs",
+  "message": {
+    "text": "Arthur-schwan has commented on a pull request",
+    "html": "Arthur-schwan has <a href=\"https://dev.azure.com/Arthur-Schwan/AIAgentProject/_git/AIAgentProject/pullrequest/4?discussionId=999\">commented</a> on a pull request",
+    "markdown": "Arthur-schwan has [commented](https://dev.azure.com/Arthur-Schwan/AIAgentProject/_git/AIAgentProject/pullrequest/4?discussionId=999) on a pull request"
+  },
+  "detailedMessage": {
+    "text": "Arthur-schwan has commented on a pull request\r\n@AICodingAgent /edit /1 Final Test - Fix File Commit 2025\n\r\n",
+    "html": "Arthur-schwan has <a href=\"https://dev.azure.com/Arthur-Schwan/AIAgentProject/_git/AIAgentProject/pullrequest/4?discussionId=999\">commented</a> on a pull request<p>@AICodingAgent /edit /1 Final Test - Fix File Commit 2025\n</p>",
+    "markdown": "Arthur-schwan has [commented](https://dev.azure.com/Arthur-Schwan/AIAgentProject/_git/AIAgentProject/pullrequest/4?discussionId=999) on a pull request\r\n@AICodingAgent /edit /1 Final Test - Fix File Commit 2025\n\r\n"
+  },
+  "resource": {
+    "comment": {
+      "id": 1,
+      "parentCommentId": 0,
+      "content": "@AICodingAgent /edit /1 FINAL SUCCESS TEST - File Commit Fixed 2025\n",
+      "author": {
+        "displayName": "Arthur-schwan",
+        "uniqueName": "Arthur-schwan@web.de",
+        "id": "7a6ec901-f106-6d82-92dd-c3abbc5cf60f",
+        "url": "https://spsprodneu1.vssps.visualstudio.com/Ae6786e42-2e5d-4c68-9687-9e0943d70901/_apis/Identities/7a6ec901-f106-6d82-92dd-c3abbc5cf60f",
+        "imageUrl": "https://dev.azure.com/Arthur-Schwan/_apis/GraphProfile/MemberAvatars/msa.N2E2ZWM5MDEtZjEwNi03ZDgyLTkyZGQtYzNhYmJjNWNmNjBm",
+        "descriptor": "msa.N2E2ZWM5MDEtZjEwNi03ZDgyLTkyZGQtYzNhYmJjNWNmNjBm",
+        "_links": {
+          "avatar": {
+            "href": "https://dev.azure.com/Arthur-Schwan/_apis/GraphProfile/MemberAvatars/msa.N2E2ZWM5MDEtZjEwNi03ZDgyLTkyZGQtYzNhYmJjNWNmNjBm"
+          }
+        }
+      },
+      "publishedDate": "2025-09-02T05:15:00.000Z",
+      "lastUpdatedDate": "2025-09-02T05:15:00.000Z",
+      "lastContentUpdatedDate": "2025-09-02T05:15:00.000Z",
+      "commentType": "text",
+      "usersLiked": []
+    },
+    "pullRequest": {
+      "pullRequestId": 4,
+      "codeReviewId": 4,
+      "status": "active",
+      "sourceRefName": "refs/heads/AiTest",
+      "targetRefName": "refs/heads/main",
+      "title": "Updated README.md",
+      "description": "Updated README.md",
+      "creationDate": "2025-09-01T21:01:10.9507045Z",
+      "mergeStatus": "succeeded",
+      "isDraft": false,
+      "repository": {
+        "id": "460c2aab-d785-43d8-b496-19bed82d8d69",
+        "name": "AIAgentProject",
+        "url": "https://dev.azure.com/Arthur-Schwan/0fb7eda7-55bc-424b-80fc-5e48a4165513/_apis/git/repositories/460c2aab-d785-43d8-b496-19bed82d8d69",
+        "project": {
+          "id": "0fb7eda7-55bc-424b-80fc-5e48a4165513",
+          "name": "AIAgentProject",
+          "url": "https://dev.azure.com/Arthur-Schwan/_apis/projects/0fb7eda7-55bc-424b-80fc-5e48a4165513",
+          "state": "wellFormed",
+          "revision": 11,
+          "visibility": "private",
+          "lastUpdateTime": "2025-08-28T09:59:44.01Z"
+        },
+        "size": 695981,
+        "remoteUrl": "https://Arthur-Schwan@dev.azure.com/Arthur-Schwan/AIAgentProject/_git/AIAgentProject",
+        "sshUrl": "git@ssh.dev.azure.com:v3/Arthur-Schwan/AIAgentProject/AIAgentProject",
+        "webUrl": "https://dev.azure.com/Arthur-Schwan/AIAgentProject/_git/AIAgentProject",
+        "isDisabled": false,
+        "isInMaintenance": false
+      },
+      "createdBy": {
+        "displayName": "Arthur-schwan",
+        "uniqueName": "Arthur-schwan@web.de",
+        "id": "7a6ec901-f106-6d82-92dd-c3abbc5cf60f",
+        "url": "https://spsprodneu1.vssps.visualstudio.com/Ae6786e42-2e5d-4c68-9687-9e0943d70901/_apis/Identities/7a6ec901-f106-6d82-92dd-c3abbc5cf60f",
+        "imageUrl": "https://dev.azure.com/Arthur-Schwan/_api/_common/identityImage?id=7a6ec901-f106-6d82-92dd-c3abbc5cf60f",
+        "descriptor": "msa.N2E2ZWM5MDEtZjEwNi03ZDgyLTkyZGQtYzNhYmJjNWNmNjBm",
+        "_links": {
+          "avatar": {
+            "href": "https://dev.azure.com/Arthur-Schwan/_apis/GraphProfile/MemberAvatars/msa.N2E2ZWM5MDEtZjEwNi03ZDgyLTkyZGQtYzNhYmJjNWNmNjBm"
+          }
+        }
+      },
+      "reviewers": [],
+      "lastMergeSourceCommit": {
+        "commitId": "eeb4a4c44d03850a1fb2fba089d6daf640f92503",
+        "url": "https://dev.azure.com/Arthur-Schwan/0fb7eda7-55bc-424b-80fc-5e48a4165513/_apis/git/repositories/460c2aab-d785-43d8-b496-19bed82d8d69/commits/eeb4a4c44d03850a1fb2fba089d6daf640f92503"
+      },
+      "lastMergeTargetCommit": {
+        "commitId": "a6b10c282efb48f333abb87bac3d0ab50dc91c2c",
+        "url": "https://dev.azure.com/Arthur-Schwan/0fb7eda7-55bc-424b-80fc-5e48a4165513/_apis/git/repositories/460c2aab-d785-43d8-b496-19bed82d8d69/commits/a6b10c282efb48f333abb87bac3d0ab50dc91c2c"
+      },
+      "lastMergeCommit": {
+        "commitId": "61316c969d4cb24ebd0f816417462c96f06eb97a",
+        "author": {
+          "name": "Arthur-schwan",
+          "email": "Arthur-schwan@web.de",
+          "date": "2025-09-01T21:01:11Z"
+        },
+        "committer": {
+          "name": "Arthur-schwan",
+          "email": "Arthur-schwan@web.de",
+          "date": "2025-09-01T21:01:11Z"
+        },
+        "comment": "Merge pull request 4 from AiTest into main",
+        "url": "https://dev.azure.com/Arthur-Schwan/0fb7eda7-55bc-424b-80fc-5e48a4165513/_apis/git/repositories/460c2aab-d785-43d8-b496-19bed82d8d69/commits/61316c969d4cb24ebd0f816417462c96f06eb97a"
+      },
+      "mergeId": "3600b042-5bb1-468e-ab7c-0d0e607e47a2",
+      "url": "https://dev.azure.com/Arthur-Schwan/0fb7eda7-55bc-424b-80fc-5e48a4165513/_apis/git/repositories/460c2aab-d785-43d8-b496-19bed82d8d69/pullRequests/4",
+      "supportsIterations": true,
+      "artifactId": "vstfs:///Git/PullRequestId/0fb7eda7-55bc-424b-80fc-5e48a4165513%2f460c2aab-d785-43d8-b496-19bed82d8d69%2f4"
+    }
+  },
+  "resourceVersion": "2.0",
+  "resourceContainers": {
+    "collection": {
+      "id": "73666a07-97a4-49b9-a753-3a9054add6c4",
+      "baseUrl": "https://dev.azure.com/Arthur-Schwan/"
+    },
+    "account": {
+      "id": "e6786e42-2e5d-4c68-9687-9e0943d70901",
+      "baseUrl": "https://dev.azure.com/Arthur-Schwan/"
+    },
+    "project": {
+      "id": "0fb7eda7-55bc-424b-80fc-5e48a4165513",
+      "baseUrl": "https://dev.azure.com/Arthur-Schwan/"
+    }
+  },
+  "createdDate": "2025-09-02T05:15:00.000Z"
+}

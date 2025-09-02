@@ -1,0 +1,15 @@
+{
+  "intent": "Add in README the Name Arthur and say something nice",
+  "variantNumber": 1,
+  "prMeta": {
+    "repoUrn": "ado:Arthur-Schwan:AIAgentProject:AIAgentProject",
+    "prNumber": 999,
+    "title": "Test Arthur Response",
+    "description": "Testing Arthur intent",
+    "sourceRef": "refs/heads/test-arthur",
+    "targetRef": "main",
+    "files": ["README.md"],
+    "author": "test@example.com"
+  },
+  "correlationId": "test-arthur-direct-999"
+}

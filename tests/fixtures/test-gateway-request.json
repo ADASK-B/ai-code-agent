@@ -1,0 +1,12 @@
+{
+  "repoUrn": "TestOrg/TestProject/AIForCoding",
+  "prNumber": 42,
+  "comment": {
+    "content": "@AICodingAgent /edit /1 Claudia",
+    "author": {
+      "displayName": "TestUser",
+      "emailAddress": "test@example.com"
+    }
+  },
+  "correlationId": "test-gateway-001"
+}

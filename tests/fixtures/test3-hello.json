@@ -1,0 +1,15 @@
+{
+  "intent": "Add Hello World example to README",
+  "variantNumber": 1,
+  "prMeta": {
+    "repoUrn": "test",
+    "prNumber": 3,
+    "title": "Test PR",
+    "description": "Test",
+    "sourceRef": "main",
+    "targetRef": "main",
+    "files": ["README.md"],
+    "author": "test"
+  },
+  "correlationId": "test-hello"
+}

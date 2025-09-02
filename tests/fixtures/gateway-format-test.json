@@ -1,0 +1,20 @@
+{
+  "repoUrn": "ado:TestOrg:TestProject:test-repo",
+  "prNumber": 123,
+  "sourceRef": "refs/heads/feature/test",
+  "actor": "test@example.com",
+  "intent": "Add Hello World to README",
+  "variants": 1,
+  "correlationId": "gw-test-999",
+  "webhookEvent": {
+    "eventType": "ms.vss-code.git-pullrequest-comment-event",
+    "resource": {
+      "comment": {
+        "id": 789
+      },
+      "pullRequest": {
+        "pullRequestId": 123
+      }
+    }
+  }
+}

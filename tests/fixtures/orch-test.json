@@ -1,0 +1,10 @@
+{
+  "repoUrn": "ado:test:project:repo",
+  "prNumber": 2,
+  "sourceRef": "refs/heads/feature/test",
+  "actor": "test@example.com",
+  "intent": "Add Hello World to README",
+  "variants": 1,
+  "correlationId": "test-123",
+  "webhookEvent": {}
+}

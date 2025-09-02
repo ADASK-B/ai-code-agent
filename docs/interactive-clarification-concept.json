@@ -1,0 +1,26 @@
+{
+  "concept": "Interactive Clarification System",
+  "trigger_conditions": [
+    "Intent is too vague (single word like 'Albert')",
+    "Multiple high-scoring target files",
+    "Ambiguous action (add/modify/create unclear)",
+    "Missing context (where to place content)"
+  ],
+  "response_format": {
+    "type": "clarification_request",
+    "message": "Clarification needed",
+    "options": [
+      "1) Add 'Albert' to README.md Contributors section",
+      "2) Add 'Albert' to package.json author field", 
+      "3) Create new CONTRIBUTORS.md file",
+      "4) Specify exact file and location"
+    ],
+    "fallback": "If no response in 5min, use most likely option (README)"
+  },
+  "improvements": [
+    "Smart suggestions based on repository analysis",
+    "Learn from user choices",
+    "Context-aware options",
+    "Multiple clarification rounds if needed"
+  ]
+}

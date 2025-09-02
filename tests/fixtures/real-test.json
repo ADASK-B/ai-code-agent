@@ -1,0 +1,58 @@
+{
+  "subscriptionId": "550e8400-e29b-41d4-a716-446655440000",
+  "notificationId": 123,
+  "id": "660e8400-e29b-41d4-a716-446655440000",
+  "eventType": "ms.vss-code.git-pullrequest-comment-event",
+  "publisherId": "tfs",
+  "message": {
+    "text": "Test Comment"
+  },
+  "detailedMessage": {
+    "text": "Details"
+  },
+  "resource": {
+    "comment": {
+      "id": 3,
+      "content": "@AICodingAgent /edit /1 Add Hello World to README",
+      "publishedDate": "2025-01-09T16:16:00Z",
+      "author": {
+        "id": "770e8400-e29b-41d4-a716-446655440000",
+        "displayName": "Arthur Schwan",
+        "uniqueName": "Arthur-schwan@web.de"
+      }
+    },
+    "pullRequest": {
+      "pullRequestId": 3,
+      "title": "Test PR",
+      "description": "Test Description", 
+      "status": "active",
+      "sourceRefName": "refs/heads/Test/AIAIAGENT",
+      "targetRefName": "refs/heads/main",
+      "repository": {
+        "id": "880e8400-e29b-41d4-a716-446655440000",
+        "name": "AIAgentProject",
+        "url": "https://dev.azure.com/Arthur-Schwan/AIAgentProject/_git/AIAgentProject",
+        "project": {
+          "id": "990e8400-e29b-41d4-a716-446655440000",
+          "name": "AIAgentProject"
+        }
+      }
+    }
+  },
+  "resourceVersion": "1.0",
+  "resourceContainers": {
+    "collection": {
+      "id": "aa0e8400-e29b-41d4-a716-446655440000",
+      "baseUrl": "https://dev.azure.com/Arthur-Schwan/"
+    },
+    "account": {
+      "id": "bb0e8400-e29b-41d4-a716-446655440000",
+      "baseUrl": "https://dev.azure.com/Arthur-Schwan/"
+    },
+    "project": {
+      "id": "990e8400-e29b-41d4-a716-446655440000",
+      "baseUrl": "https://dev.azure.com/Arthur-Schwan/"
+    }
+  },
+  "createdDate": "2025-01-09T16:16:00Z"
+}

@@ -1,0 +1,29 @@
+{
+  "name": "code-agent-tests",
+  "version": "1.0.0",
+  "description": "Test suite for Code Agent MVP",
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/run-tests.js all",
+    "test:unit": "node scripts/run-tests.js unit",
+    "test:integration": "node scripts/run-tests.js integration",
+    "test:webhook": "node scripts/run-tests.js webhook",
+    "health": "node scripts/health-check.js check",
+    "health:watch": "node scripts/health-check.js watch",
+    "health:tunnels": "node scripts/health-check.js tunnels",
+    "webhook:start": "node webhook/webhook-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "chai": "^4.3.8",
+    "supertest": "^6.3.3",
+    "sinon": "^17.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

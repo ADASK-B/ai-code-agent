@@ -1,0 +1,22 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "WEBSITE_RUN_FROM_PACKAGE": "0",
+    "NODE_ENV": "development",
+    "LOG_LEVEL": "info",
+    "ADAPTER_URL": "http://adapter:8080",
+    "LLM_PATCH_URL": "http://llm-patch:8080",
+    "SUPABASE_URL": "https://your-project.supabase.co",
+    "SUPABASE_ANON_KEY": "your-anon-key",
+    "DEV_ID": "dev",
+    "MAX_VARIANTS": "5",
+    "VARIANT_TIMEOUT_MINUTES": "8",
+    "APPINSIGHTS_INSTRUMENTATIONKEY": ""
+  },
+  "Host": {
+    "LocalHttpPort": 7071,
+    "CORS": "*"
+  }
+}

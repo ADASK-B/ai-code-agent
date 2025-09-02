@@ -1,0 +1,37 @@
+version: 2
+authtoken: YOUR_NGROK_AUTH_TOKEN_HERE
+
+tunnels:
+  # Main gateway tunnel - ADO webhooks point here
+  gateway:
+    proto: http
+    addr: 80
+    schemes:
+      - https
+    inspect: false
+    # Optional: Reserve a subdomain (requires ngrok Pro)
+    # subdomain: code-agent-alice
+    
+  # Optional: Traefik dashboard tunnel  
+  dashboard:
+    proto: http
+    addr: 8080
+    schemes:
+      - https
+    inspect: false
+    # subdomain: code-agent-alice-dash
+    
+# Optional: Custom domain (requires ngrok Pro)
+# hostname: alice.code-agent.dev
+
+# Region optimization (choose closest to your ADO instance)
+# region: us  # us, eu, ap, au, sa, jp, in
+
+# Advanced configuration
+update_channel: stable
+console_ui: true
+log_level: info
+log_format: term
+
+# Web interface (optional, for tunnel management)
+web_addr: localhost:4040

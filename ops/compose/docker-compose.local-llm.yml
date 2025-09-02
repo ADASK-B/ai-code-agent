@@ -1,0 +1,62 @@
+# Local LLM Setup mit Ollama + CodeQwen1.5-7B
+# Kleinstes, aber gutes Coding-Model für lokale Entwicklung
+
+version: '3.8'
+
+services:
+  # Ollama Server mit CodeQwen1.5-7B Model
+  ollama:
+    image: ollama/ollama:latest
+    container_name: code-agent-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+    networks:
+      - code-agent
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  # Model Downloader (läuft einmal und beendet sich)
+  ollama-setup:
+    image: ollama/ollama:latest
+    container_name: code-agent-ollama-setup
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    command: >
+      sh -c "
+        echo 'Downloading CodeQwen1.5-7B-Chat model...' &&
+        ollama pull codeqwen:7b-chat &&
+        echo 'Model download complete!' &&
+        ollama list
+      "
+    networks:
+      - code-agent
+    restart: "no"
+
+volumes:
+  ollama_data:
+    name: code-agent-ollama-data
+
+networks:
+  code-agent:
+    name: code-agent-network
+    external: true

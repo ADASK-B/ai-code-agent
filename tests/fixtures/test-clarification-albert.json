@@ -1,0 +1,15 @@
+{
+  "intent": "@Arthur-schwan Albert",
+  "variantNumber": 1,
+  "prMeta": {
+    "repoUrn": "ado:Arthur-Schwan:AIAgentProject:AIAgentProject",
+    "prNumber": 3,
+    "title": "Generated PR",
+    "description": "AI generated code changes",
+    "sourceRef": "refs/heads/Test/AIAIAGENT",
+    "targetRef": "main",
+    "files": ["README.md"],
+    "author": "Arthur-schwan@web.de"
+  },
+  "correlationId": "test-clarification-albert"
+}

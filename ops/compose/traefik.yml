@@ -1,0 +1,49 @@
+# Traefik Configuration for Code Agent MVP
+# Static configuration - loaded at startup
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+api:
+  dashboard: true
+  insecure: true  # Only for development
+
+entryPoints:
+  web:
+    address: ":80"
+  traefik:
+    address: ":8080"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: "agent-network"
+  file:
+    filename: "/etc/traefik/dynamic.yml"
+    watch: true
+
+log:
+  level: INFO
+  format: json
+
+accessLog:
+  format: json
+  fields:
+    headers:
+      defaultMode: drop
+      names:
+        User-Agent: keep
+        X-Forwarded-For: keep
+        X-Real-IP: keep
+
+metrics:
+  prometheus:
+    addEntryPointsLabels: true
+    addServicesLabels: true
+    addRoutersLabels: true
+
+# Health check
+ping:
+  entryPoint: "traefik"

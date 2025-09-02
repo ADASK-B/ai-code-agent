@@ -1,0 +1,6 @@
+{
+  "repoUrn": "TestOrg/TestProject/AIForCoding",
+  "prNumber": 42,
+  "message": "🤖 @ADASK-B Ich benötige eine Klarstellung für deine Anfrage 'Thomas':\n\n**Wo soll ich 'Thomas' hinzufügen?**\n\n1) README.md Contributors/Authors\n2) package.json author field\n3) docs/team.md oder about.md\n4) Neue Sektion erstellen\n5) Andere Datei (bitte angeben)\n\n📁 Verfügbare Dateien: README.md, package.json, src/main.ts",
+  "threadId": 123
+}

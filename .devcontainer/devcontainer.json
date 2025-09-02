@@ -1,0 +1,60 @@
+{
+  "name": "Code Agent MVP",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "ms-vscode.azure-account",
+        "ms-azuretools.vscode-azurefunctions"
+      ],
+      "settings": {
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        }
+      }
+    }
+  },
+  "forwardPorts": [
+    80,
+    3001,
+    3002,
+    3003,
+    7071,
+    8080,
+    11434,
+    54322
+  ],
+  "portsAttributes": {
+    "80": {
+      "label": "Code Agent Gateway",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Traefik Dashboard",
+      "onAutoForward": "silent"
+    },
+    "11434": {
+      "label": "Ollama LLM Server",
+      "onAutoForward": "silent"
+    }
+  },
+  "postCreateCommand": "npm install -g @azure/functions-core-tools@4 --unsafe-perm true",
+  "postStartCommand": "echo 'Code Agent MVP ready! Run: cd ops/compose && docker compose up -d'",
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspaces/AIForCoding"
+}

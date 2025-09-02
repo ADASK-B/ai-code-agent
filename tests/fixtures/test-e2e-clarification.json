@@ -1,0 +1,25 @@
+{
+  "intent": "@Arthur-schwan Albert",
+  "repoUrn": "ado:Arthur-Schwan:AIAgentProject:AIAgentProject",
+  "prNumber": 3,
+  "sourceRef": "refs/heads/Test/AIAIAGENT",
+  "actor": "Arthur-schwan@web.de",
+  "correlationId": "test-e2e-clarification-flow",
+  "webhookEvent": {
+    "resource": {
+      "pullRequest": {
+        "repository": {
+          "name": "AIAgentProject"
+        },
+        "pullRequestId": 3
+      },
+      "comment": {
+        "id": 12345,
+        "content": "@AICodingAgent /edit /1 Albert",
+        "author": {
+          "displayName": "Arthur-schwan"
+        }
+      }
+    }
+  }
+}

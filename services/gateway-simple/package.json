@@ -1,0 +1,13 @@
+{
+  "name": "code-agent-gateway-simple",
+  "version": "1.0.0",
+  "description": "Simple gateway for local development",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

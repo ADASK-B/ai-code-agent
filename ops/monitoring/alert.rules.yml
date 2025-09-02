@@ -1,0 +1,111 @@
+groups:
+  # 🚨 Critical Service Alerts
+  - name: code-agent-critical
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Service {{ $labels.job }} has error rate > 10% for 2 minutes"
+
+  # ⚠️ Performance Alerts
+  - name: code-agent-performance
+    rules:
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for service {{ $labels.job }}"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+  # 🔧 Business Logic Alerts
+  - name: code-agent-business
+    rules:
+      - alert: NoADOWebhooks
+        expr: increase(ado_webhooks_total[30m]) == 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No ADO webhooks received"
+          description: "No ADO webhooks have been received in the last 30 minutes"
+
+      - alert: OrchestratorBacklog
+        expr: orchestrator_queue_size > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Orchestrator queue backlog"
+          description: "Orchestrator has {{ $value }} items in queue"
+
+      - alert: LLMServiceErrors
+        expr: rate(llm_requests_total{status="error"}[10m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "LLM service errors"
+          description: "LLM service error rate is {{ $value }} requests/sec"
+
+  # 🐳 Container Health
+  - name: code-agent-containers
+    rules:
+      - alert: ContainerKilled
+        expr: time() - container_last_seen{name=~"agent-.*"} > 60
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container killed"
+          description: "Container {{ $labels.name }} has been killed"
+
+      - alert: ContainerCpuThrottling
+        expr: rate(container_cpu_cfs_throttled_seconds_total{name=~"agent-.*"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container CPU throttling"
+          description: "Container {{ $labels.name }} is being CPU throttled"
+
+      - alert: ContainerMemoryUsage
+        expr: (container_memory_usage_bytes{name=~"agent-.*"} / container_spec_memory_limit_bytes{name=~"agent-.*"}) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container memory usage high"
+          description: "Container {{ $labels.name }} memory usage is {{ $value }}%"

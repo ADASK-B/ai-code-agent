@@ -1,0 +1,151 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Code Agent MVP - Production Overview",
+    "tags": ["code-agent", "microservices", "production"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "🏥 Service Health Status",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "up{job=~\"gateway|orchestrator|adapter|llm-patch\"}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"options": {"0": {"text": "DOWN", "color": "red"}}, "type": "value"},
+              {"options": {"1": {"text": "UP", "color": "green"}}, "type": "value"}
+            ],
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "📊 Request Rate (RPS)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (job)",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "yAxes": [
+          {"label": "Requests/sec", "min": 0}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "⏱️ Response Time P95",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job))",
+            "legendFormat": "{{job}} P95"
+          },
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job))",
+            "legendFormat": "{{job}} P50"
+          }
+        ],
+        "yAxes": [
+          {"label": "Seconds", "min": 0}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "🚨 Error Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (job) / sum(rate(http_requests_total[5m])) by (job) * 100",
+            "legendFormat": "{{job}} Error %"
+          }
+        ],
+        "yAxes": [
+          {"label": "Error %", "min": 0, "max": 100}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "🔗 ADO Webhook Processing",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "sum(rate(ado_webhooks_total[5m])) by (event_type)",
+            "legendFormat": "{{event_type}}"
+          }
+        ],
+        "yAxes": [
+          {"label": "Webhooks/sec", "min": 0}
+        ]
+      },
+      {
+        "id": 6,
+        "title": "💻 CPU Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+            "legendFormat": "CPU Usage %"
+          }
+        ],
+        "yAxes": [
+          {"label": "CPU %", "min": 0, "max": 100}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "🧠 Memory Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "targets": [
+          {
+            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+            "legendFormat": "Memory Usage %"
+          }
+        ],
+        "yAxes": [
+          {"label": "Memory %", "min": 0, "max": 100}
+        ]
+      },
+      {
+        "id": 8,
+        "title": "🐳 Container Resource Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 28},
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"agent-.*\"}[5m])) by (name) * 100",
+            "legendFormat": "{{name}} CPU %"
+          },
+          {
+            "expr": "sum(container_memory_usage_bytes{name=~\"agent-.*\"}) by (name) / 1024 / 1024",
+            "legendFormat": "{{name}} Memory MB"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "10s"
+  }
+}
