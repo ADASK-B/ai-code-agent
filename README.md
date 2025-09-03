@@ -74,8 +74,6 @@ docker-compose up -d --build
 | Service | URL | Purpose |
 |---------|-----|---------|
 | 🌐 **ngrok Tunnel** | http://localhost:4040 | **Webhook URL for Azure DevOps** |
-| 📊 **Monitoring** | http://localhost:3000 | Grafana Dashboard |
-| ⚙️ **Gateway** | http://localhost:8080 | System Health Check |
 
 ### 3. Configure Azure DevOps
 1. Go to **Project Settings → Service Hooks**
