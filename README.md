@@ -209,9 +209,18 @@ graph TB
 - **ngrok Account** with Auth Token (Free tier works)
 - **Azure DevOps** Project with Admin rights
 
-### Optional (for LLM Features)
+### LLM Agent (Choose One - Required for Code Generation)
+**You need at least one LLM option:**
+
+#### 🐳 **Container-based LLMs**
+- **Ollama Container** - `aiforcoding-ollama-1` (included, Port 11434)
+- **vLLM Container** - High-performance inference server
+- **Text Generation Inference (TGI)** - HuggingFace production server  
+- **LocalAI** - OpenAI-compatible API for local models
+
+#### 🌐 **External API Keys**
 - OpenAI API Key
-- Anthropic Claude API Key
+- Anthropic Claude API Key  
 - Azure OpenAI Credentials
 
 ## 📖 Additional Documentation
