@@ -68,6 +68,18 @@ cp .env.example .env
 
 # Start all services
 docker-compose up -d --build
+
+# Wait for services to initialize (especially Ollama)
+echo "Waiting for services to start..."
+sleep 45
+
+# IMPORTANT: Check if Ollama model is installed
+echo "Checking Ollama LLM Models..."
+docker exec agent-local-llm ollama list | grep -q "llama3.2:1b" && echo "✅ Ollama Model: Ready" || {
+    echo "📥 Installing llama3.2:1b model (1.3GB download)..."
+    docker exec agent-local-llm ollama pull llama3.2:1b
+    echo "✅ Model installation complete"
+}
 ```
 
 ### 2. Access Important Services
@@ -212,16 +224,22 @@ graph TB
 ### LLM Agent (Choose One - Required for Code Generation)
 **You need at least one LLM option:**
 
-#### 🐳 **Container-based LLMs**
-- **Ollama Container** - `aiforcoding-ollama-1` (included, Port 11434)
+#### 🐳 **Container-based LLMs (Recommended)**
+- **Ollama Container** - `agent-local-llm` (included, Port 11434)
+  - ✅ **Free & Private** - No API costs, runs completely offline
+  - ✅ **Auto-configured** - Works out of the box with llama3.2:1b
+  - ⚠️ **Requires model download** - 1.3GB download on first run
+  - ⚠️ **Hardware requirements** - 4GB+ RAM recommended
 - **vLLM Container** - High-performance inference server
 - **Text Generation Inference (TGI)** - HuggingFace production server  
 - **LocalAI** - OpenAI-compatible API for local models
 
 #### 🌐 **External API Keys**
-- OpenAI API Key
+- OpenAI API Key (GPT-4)
 - Anthropic Claude API Key  
 - Azure OpenAI Credentials
+
+**💡 Recommendation:** Use the included Ollama container for development - it's free, private, and already configured!
 
 ## 📖 Additional Documentation
 

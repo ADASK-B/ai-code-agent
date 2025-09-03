@@ -27,13 +27,56 @@ cp .env.example .env
 - **AZURE_OPENAI_API_KEY**: For Azure OpenAI service
 - **Local Ollama**: No API key needed (runs locally)
 
+**🤖 Local Ollama Setup (Recommended for Privacy):**
+The system includes a local Ollama instance that runs completely offline. 
+- ✅ **No API costs** - completely free
+- ✅ **Privacy-first** - your code never leaves your machine
+- ✅ **Auto-configured** - works out of the box
+- ⚠️ **Requires model download** - llama3.2:1b (1.3GB) will be downloaded automatically
+- ⚠️ **Performance** - slower than cloud APIs but sufficient for code generation
+
+**Model Requirements:**
+- The system requires `llama3.2:1b` model (1.3GB download)
+- Model is automatically downloaded during first startup
+- Alternative models can be configured via `OLLAMA_MODEL` environment variable
+
 ## System Startup
 
-### 1. Start All Services
+### 1. Start Complete System (ONE Command)
+
+**🚀 EMPFOHLEN: Startet ALLES (Core + Monitoring)**
 ```bash
-# In project root directory
+# THE PERFECT COMMAND - Starts EVERYTHING with ONE command
+docker-compose -f docker-compose.full.yml --env-file .env up -d --build
+```
+
+**Was wird gestartet:**
+- ✅ **8 Core Services:** Traefik, Gateway, Adapter, LLM-Patch, Orchestrator, ngrok, **Ollama**, Azurite
+- ✅ **7 Monitoring Services:** Grafana, Prometheus, Node-Exporter, cAdvisor, Loki, Promtail, AlertManager
+
+---
+
+**Alternative Optionen (für Entwicklung):**
+
+**📊 Nur Monitoring Services:**
+```bash
+# Start only monitoring stack
+docker-compose -f ops/monitoring/docker-compose.monitoring.yml up -d
+```
+
+**⚡ Nur Core Services (schneller Start):**
+```bash
+# Start only core application services (without monitoring)
 docker-compose -f ops/compose/docker-compose.yml --env-file .env up -d --build
 ```
+
+**🔧 Multi-File Ansatz (alter Weg):**
+```bash
+# Combine core + monitoring with multiple files (komplizierter)
+docker-compose -f ops/compose/docker-compose.yml -f ops/monitoring/docker-compose.monitoring.yml --env-file .env up -d --build
+```
+
+**💡 EMPFEHLUNG:** Verwende den ersten Befehl (`docker-compose.full.yml`) - er ist am einfachsten und startet das komplette System mit allen Features!
 
 ### 2. Wait for Services to Initialize
 ```bash
@@ -41,6 +84,14 @@ docker-compose -f ops/compose/docker-compose.yml --env-file .env up -d --build
 # Some services need time to initialize (especially Ollama and Orchestrator)
 echo "Waiting for services to start..."
 Start-Sleep -Seconds 45
+
+# IMPORTANT: Check if Ollama model is installed
+echo "Checking Ollama LLM Models..."
+docker exec agent-local-llm ollama list | grep -q "llama3.2:1b" && echo "✅ Ollama Model: Ready" || {
+    echo "📥 Installing llama3.2:1b model (1.3GB download)..."
+    docker exec agent-local-llm ollama pull llama3.2:1b
+    echo "✅ Model installation complete"
+}
 ```
 
 ### 3. Complete Health Check
@@ -62,6 +113,17 @@ curl -s -o /dev/null -w "✅ ngrok: %{http_code}\n" http://localhost:4040/api/tu
 curl -s -o /dev/null -w "✅ Ollama: %{http_code}\n" http://localhost:11434/api/version || echo "❌ Ollama: ERROR"
 docker logs agent-orchestrator --tail 2 | grep -q "Application started" && echo "✅ Orchestrator: Running" || echo "❌ Orchestrator: Error"
 
+# === CRITICAL: Ollama Model Check ===
+echo "Checking Ollama LLM Models:"
+docker exec agent-local-llm ollama list | grep -q "llama3.2:1b" && echo "✅ Ollama Model (llama3.2:1b): Installed" || {
+    echo "❌ CRITICAL: No Ollama model found!"
+    echo "🔧 Installing llama3.2:1b model (this may take a few minutes)..."
+    docker exec agent-local-llm ollama pull llama3.2:1b
+    echo "✅ Model installation complete"
+}
+echo "Available models:"
+docker exec agent-local-llm ollama list
+
 # === Monitoring & Observability (4) ===
 echo "Monitoring Services:"
 curl -s -o /dev/null -w "✅ Grafana: %{http_code}\n" http://localhost:3000 || echo "❌ Grafana: ERROR"
@@ -74,12 +136,18 @@ echo "Infrastructure Services:"
 docker logs agent-azurite --tail 2 | grep -q "successfully listening" && echo "✅ Azurite: Running" || echo "❌ Azurite: Error"
 
 echo "=== HEALTH CHECK COMPLETE ==="
-echo "Expected: 11 services with Status 200 or 'Running'"
+echo "Expected: 12 services with Status 200 or 'Running'"
+
+echo "=== AUTOMATED HEALTH MONITOR ==="
+echo "🏥 Comprehensive Health Monitor available at: http://localhost:8888"
+curl -s -o /dev/null -w "✅ Health Monitor API: %{http_code}\n" http://localhost:8888/health || echo "❌ Health Monitor: ERROR"
+echo "This monitors all 12 services automatically every 30 seconds"
+
 echo "If any service shows ERROR, check container logs: docker logs <container-name>"
 ```
 
 **Service Status Requirements:**
-- ✅ **All 11 Services Running (Status 200)** = System ready for Azure DevOps integration
+- ✅ **All 12 Services Running (Status 200)** = System ready for Azure DevOps integration  
 - ⚠️ **1-2 Services with errors** = System may work but check logs
 - ❌ **3+ Services with errors** = Fix issues before proceeding
 
@@ -93,12 +161,13 @@ echo "If any service shows ERROR, check container logs: docker logs <container-n
 | 3002 | Adapter | agent-adapter | Azure DevOps Integration (Branch/PR) | `curl http://localhost:3002/health` |
 | 3003 | LLM-Patch | agent-llm-patch | Code Generation & Intent Analysis | `curl http://localhost:3003/health` |
 | 4040 | ngrok Tunnel | agent-ngrok | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
-| 11434 | Ollama | agent-local-llm | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
+| 11434 | Ollama | agent-local-llm | Local LLM (llama3.2:1b) - AI Code Generation | `curl http://localhost:11434/api/version` |
 | Internal (7071) | Orchestrator | agent-orchestrator | Azure Functions Workflow Orchestration | `docker logs agent-orchestrator --tail 5` |
 
 ### Monitoring & Observability
 | Port | Service | Container | Purpose | Status Check |
 |------|---------|-----------|---------|--------------|
+| 8888 | **Health Monitor** | agent-health-monitor | **Automated Health Monitoring of All Services** | `curl http://localhost:8888/health` |
 | 3000 | Grafana | agent-grafana | Monitoring Dashboard | `curl http://localhost:3000` |
 | 9090 | Prometheus | agent-prometheus | Metrics Collection | `curl http://localhost:9090` |
 | 9100 | Node Exporter | agent-node-exporter | System Metrics | `curl http://localhost:9100/metrics` |
@@ -141,13 +210,49 @@ The agent will:
 
 If containers already exist but are stopped:
 ```bash
-# Start existing containers (includes ngrok!)
-docker start agent-gateway agent-adapter agent-llm-patch agent-orchestrator agent-ngrok agent-ollama agent-grafana agent-prometheus agent-cadvisor agent-node-exporter agent-azurite agent-traefik
+# Restart complete system (Core + Monitoring)
+docker-compose -f ops/compose/docker-compose.yml -f ops/monitoring/docker-compose.monitoring.yml start
+
+# Or restart core services only
+docker-compose -f ops/compose/docker-compose.yml start
 ```
+
+## Troubleshooting
+
+### Ollama Model Issues
+If you see "No LLM APIs configured - using mock responses" in logs:
+
+```bash
+# 1. Check if Ollama is running
+curl http://localhost:11434/api/version
+
+# 2. Check available models
+docker exec agent-local-llm ollama list
+
+# 3. Install model if missing
+docker exec agent-local-llm ollama pull llama3.2:1b
+
+# 4. Restart LLM-Patch service
+docker-compose -f docker-compose.full.yml restart llm-patch
+
+# 5. Test AI generation
+curl -X POST http://localhost:3003/generate-patch \
+  -H "Content-Type: application/json" \
+  -d '{"intent":"Add console.log hello world","variantNumber":1,"prMeta":{"title":"Test","description":"Test","repoUrn":"test/repo","prNumber":123,"sourceRef":"feature/test","targetRef":"main","files":["test.js"],"author":"test-user"},"correlationId":"test-123"}'
+```
+
+### Common Issues
+- **503 Service Unavailable**: Wait 30-60 seconds for services to initialize
+- **ngrok tunnel expired**: Restart ngrok service: `docker-compose -f docker-compose.full.yml restart ngrok`
+- **Azure DevOps webhook fails**: Check webhook URL and secret in Azure DevOps settings
 
 ## Stop System
 ```bash
-docker-compose -f ops/compose/docker-compose.yml down
+# Stop complete system
+docker-compose -f docker-compose.full.yml down
+
+# Stop with cleanup (removes containers, networks, volumes)
+docker-compose -f docker-compose.full.yml down --volumes --remove-orphans
 ```
 
 ---

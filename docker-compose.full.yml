@@ -1,0 +1,364 @@
+version: '3.8'
+
+# 🚀 AI Code Agent - Complete System
+# ONE command to start EVERYTHING: docker-compose -f docker-compose.full.yml --env-file .env up -d --build
+
+networks:
+  agent-network:
+    driver: bridge
+
+volumes:
+  azurite-data:
+  traefik-data:
+  local-llm-models:
+  supabase-db-data:
+  prometheus-data:
+  grafana-data:
+  alertmanager-data:
+  loki-data:
+
+services:
+  # === CORE APPLICATION SERVICES ===
+  
+  # Reverse Proxy & Load Balancer
+  traefik:
+    image: traefik:v3.0
+    container_name: agent-traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "8080:8080"  # Traefik Dashboard
+    networks:
+      - agent-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-data:/data
+      - ./ops/compose/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./ops/compose/traefik.dynamic.yml:/etc/traefik/dynamic.yml:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Gateway Service - Webhook Receiver
+  gateway:
+    build:
+      context: ./services/gateway
+      dockerfile: Dockerfile
+    container_name: agent-gateway
+    restart: unless-stopped
+    ports:
+      - "3001:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - ORCHESTRATOR_URL=http://agent-orchestrator:80/api/orchestrators/editVariants
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - DEV_ID=${DEV_ID:-dev}
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://0.0.0.0:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - orchestrator
+
+  # Adapter Service - Azure DevOps Integration
+  adapter:
+    build:
+      context: ./services/adapter
+      dockerfile: Dockerfile
+    container_name: agent-adapter
+    restart: unless-stopped
+    ports:
+      - "3002:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ADO_ORG_URL=${ADO_ORG_URL}
+      - ADO_PAT=${ADO_PAT}
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://0.0.0.0:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # LLM-Patch Service - Code Generation
+  llm-patch:
+    build:
+      context: ./services/llm-patch
+      dockerfile: Dockerfile
+    container_name: agent-llm-patch
+    restart: unless-stopped
+    ports:
+      - "3003:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
+      - OLLAMA_URL=http://agent-local-llm:11434
+      - OLLAMA_MODEL=llama3.1:8b
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://0.0.0.0:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Orchestrator Service - Workflow Management
+  orchestrator:
+    build:
+      context: ./services/orchestrator
+      dockerfile: Dockerfile
+    container_name: agent-orchestrator
+    restart: unless-stopped
+    ports:
+      - "7071:80"
+    environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - FUNCTIONS_WORKER_RUNTIME=node
+      - AzureWebJobsSecretStorageType=files
+      - ADO_ORG_URL=${ADO_ORG_URL}
+      - ADO_PAT=${ADO_PAT}
+      - ADAPTER_BASE_URL=http://adapter:8080
+      - LLM_PATCH_BASE_URL=http://llm-patch:8080
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/api/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+    depends_on:
+      - azurite
+
+  # ngrok Tunnel Service
+  ngrok:
+    build:
+      context: ./ops/dev/ngrok
+      dockerfile: Dockerfile
+    container_name: agent-ngrok
+    restart: unless-stopped
+    ports:
+      - "4040:4040"  # ngrok inspector
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    command: >
+      sh -c "sed 's/\$${NGROK_AUTHTOKEN}/${NGROK_AUTHTOKEN}/g' /tmp/ngrok.yml.template > /etc/ngrok.yml &&
+             ngrok start --all --config /etc/ngrok.yml"
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4040/api/tunnels"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - gateway
+
+  # Local LLM Service (Ollama)
+  local-llm:
+    build:
+      context: ./services/local-llm
+      dockerfile: Dockerfile
+    container_name: agent-local-llm
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=http://0.0.0.0:11434
+      - OLLAMA_ORIGINS=*
+    volumes:
+      - local-llm-models:/usr/share/ollama/.ollama/models
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:11434/api/version"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  # Azure Storage Emulator
+  azurite:
+    build:
+      context: ./ops/compose
+      dockerfile: azurite.Dockerfile
+    container_name: agent-azurite
+    restart: unless-stopped
+    ports:
+      - "10000:10000"  # Blob service
+      - "10001:10001"  # Queue service
+      - "10002:10002"  # Table service
+    volumes:
+      - azurite-data:/data
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:10000/devstoreaccount1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Health Monitor Service
+  health-monitor:
+    build:
+      context: ./health-check
+      dockerfile: Dockerfile
+    container_name: agent-health-monitor
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - agent-network
+    environment:
+      - HEALTH_CHECK_INTERVAL=30000
+      - SERVICES_TO_CHECK=gateway,adapter,llm-patch,traefik,azurite
+    depends_on:
+      - gateway
+      - adapter
+      - llm-patch
+
+  # === MONITORING & OBSERVABILITY SERVICES ===
+
+  # Metrics Collection & Storage
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: agent-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./ops/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./ops/monitoring/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-admin-api'
+    networks:
+      - agent-network
+
+  # Professional Dashboards & Alerting
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: agent-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./ops/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./ops/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - agent-network
+    depends_on:
+      - prometheus
+
+  # Alert Manager
+  alertmanager:
+    image: prom/alertmanager:v0.25.0
+    container_name: agent-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./ops/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    networks:
+      - agent-network
+
+  # Host Metrics (CPU, Memory, Disk)
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: agent-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.textfile.directory=/host/proc'
+    networks:
+      - agent-network
+
+  # Docker Container Metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: agent-cadvisor
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    networks:
+      - agent-network
+
+  # Log Aggregation
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: agent-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./ops/monitoring/loki.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/tmp/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - agent-network
+
+  # Log Collection
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: agent-promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./ops/monitoring/promtail.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - agent-network
+    depends_on:
+      - loki

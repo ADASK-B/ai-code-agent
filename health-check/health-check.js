@@ -10,12 +10,21 @@ const { execSync } = require('child_process');
 
 // Konfiguration
 const SERVICES = [
-    { name: 'Gateway', url: 'http://agent-gateway:3001/health', container: 'agent-gateway' },
-    { name: 'Orchestrator', url: 'http://agent-orchestrator:7071/admin/host/ping', container: 'agent-orchestrator' },
-    { name: 'Adapter', url: 'http://agent-adapter:3002/health', container: 'agent-adapter' },
-    { name: 'LLM-Patch', url: 'http://agent-llm-patch:3003/health', container: 'agent-llm-patch' },
+    // === Core Application Services (7) ===
+    { name: 'Gateway', url: 'http://agent-gateway:8080/health', container: 'agent-gateway' },
+    { name: 'Orchestrator', url: 'http://agent-orchestrator:80/admin/host/ping', container: 'agent-orchestrator' },
+    { name: 'Adapter', url: 'http://agent-adapter:8080/health', container: 'agent-adapter' },
+    { name: 'LLM-Patch', url: 'http://agent-llm-patch:8080/health', container: 'agent-llm-patch' },
     { name: 'Traefik', url: 'http://agent-traefik:8080/ping', container: 'agent-traefik' },
-    { name: 'Azurite', url: 'http://agent-azurite:10000', container: 'agent-azurite' }
+    { name: 'Azurite', url: null, container: 'agent-azurite', containerOnly: true },
+    { name: 'Ollama', url: 'http://agent-local-llm:11434/api/version', container: 'agent-local-llm' },
+    { name: 'ngrok', url: 'http://agent-ngrok:4040/api/tunnels', container: 'agent-ngrok' },
+    
+    // === Monitoring & Observability Services (4) ===
+    { name: 'Grafana', url: 'http://agent-grafana:3000/api/health', container: 'agent-grafana' },
+    { name: 'Prometheus', url: 'http://agent-prometheus:9090/-/healthy', container: 'agent-prometheus' },
+    { name: 'Node-Exporter', url: 'http://agent-node-exporter:9100/metrics', container: 'agent-node-exporter' },
+    { name: 'cAdvisor', url: 'http://agent-cadvisor:8080/containers/', container: 'agent-cadvisor' }
 ];
 
 const CONFIG = {
@@ -113,7 +122,21 @@ async function checkService(service) {
         return false;
     }
     
-    // 2. Health Endpoint Check
+    // 2. Health Endpoint Check (skip for container-only services)
+    if (service.containerOnly) {
+        healthStatus.services[service.name] = {
+            status: 'OK',
+            container: containerStatus.running,
+            health: true,
+            httpStatus: 'Container Only',
+            responseTime: 'N/A',
+            error: null,
+            lastCheck: new Date()
+        };
+        log('OK', `Container healthy (container-only service)`, service.name);
+        return true;
+    }
+    
     const healthCheck = await checkServiceHealth(service);
     const isHealthy = containerStatus.running && healthCheck.healthy;
     

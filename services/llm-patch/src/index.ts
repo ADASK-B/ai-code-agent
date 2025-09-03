@@ -425,10 +425,11 @@ Make sure the diff follows standard unified diff format with proper headers.`;
 
 User request: "${intent}"
 
-IMPORTANT: The user's request might be vague (like just "Albert"). You need to:
-1. Determine WHAT they want to add/change
-2. Determine WHERE it should go (which section of which file)
-3. Determine HOW to integrate it properly
+IMPORTANT: Follow the user's request EXACTLY. Pay attention to:
+1. WHAT they want to add/change (content, stories, code, features)
+2. WHICH LANGUAGE they specified (English, German, Russian, etc.)
+3. WHERE it should go (which section of which file)
+4. HOW MANY sentences/lines they requested
 
 Current repository context:
 - Files available: ${prMeta.files.join(', ')}
@@ -439,10 +440,13 @@ Current ${prMeta.files[0] || 'README.md'} content:
 
 Project description here.
 
-If the request is vague (like just a name), make intelligent assumptions:
-- Names like "Albert" → likely go in a contributors/authors/team section
-- Code terms → go in code examples or documentation
-- Features → go in features section or implementation
+EXAMPLES:
+- "Add a story in Russian" → Write actual Russian text
+- "Add 3 sentences about X" → Write exactly 3 sentences
+- "Add code example" → Write actual code
+- "Add German documentation" → Write in German
+
+Generate the complete modified file content. Be specific and creative based on the request.
 
 Provide the complete modified file content. No JSON format needed.`;
     
@@ -453,7 +457,7 @@ Provide the complete modified file content. No JSON format needed.`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama3.1:8b',
+          model: process.env.OLLAMA_MODEL || 'llama3.2:1b',
           prompt: simplePrompt,
           stream: false,
           options: {
