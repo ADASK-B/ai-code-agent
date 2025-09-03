@@ -6,7 +6,6 @@
 
 🚧 **This project is currently in active development** but already functional for core workflows.
 
-
 ## 🎯 What does this Agent do?
 
 The AI Code Agent **responds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests **from the same codebase context** where the comment was posted.
@@ -29,190 +28,308 @@ The AI Code Agent **responds to natural language** in Azure DevOps Pull Request 
    - Immediately testable code variants **built on your existing changes**
    - Detailed explanations of the changes **relevant to your current work**
 
-## 🔄 How does it work?
+## 🏗️ System Architecture & Service Interactions
+
+### 🔄 Main Workflow - Azure DevOps to AI Code Generation
 
 ```mermaid
 graph TB
-    A[👤 Developer writes PR comment<br/>@username /edit /N description] --> B[🌐 Azure DevOps Webhook]
-    B --> C[🚪 Gateway Service]
-    C --> D[🎯 Orchestrator]
+    subgraph "🌍 External World"
+        USER[👤 Developer<br/>Writes PR Comment<br/>@user /edit /N description]
+        ADO[🔵 Azure DevOps<br/>Pull Request System]
+    end
     
-    D --> E[📋 Adapter: Fetch PR data]
-    D --> F[🤖 LLM-Patch: Generate code]
-    D --> G[🌳 Adapter: Create branches]
-    D --> H[📝 Adapter: Commit code]
-    D --> I[🔄 Adapter: Create Draft PRs]
+    subgraph "🌐 Entry & Routing"
+        NGROK[🟢 ngrok Tunnel<br/>Port 4040<br/>External → Local]
+        TRAEFIK[🔷 Traefik Load Balancer<br/>Port 80/8080<br/>Request Routing]
+    end
     
-    E --> J[📊 Azure DevOps API]
-    F --> K[🧠 Claude/OpenAI/Ollama/vLLM/TGI]
-    G --> J
-    H --> J
-    I --> J
+    subgraph "🚪 API Gateway Layer"
+        GATEWAY[🟡 Gateway Service<br/>Port 3001<br/>Webhook Processing]
+    end
     
-    style A fill:#e1f5fe
-    style D fill:#f3e5f5
-    style F fill:#fff3e0
-    style J fill:#e8f5e8
+    subgraph "🎯 Core Orchestration"
+        ORCHESTRATOR[🔴 Orchestrator<br/>Port 7071<br/>Azure Functions<br/>Workflow Coordination]
+    end
+    
+    subgraph "⚙️ Business Logic Services"
+        ADAPTER[🟠 Adapter Service<br/>Port 3002<br/>Azure DevOps Integration<br/>Branch/PR Management]
+        LLMPATCH[🟣 LLM-Patch Service<br/>Port 3003<br/>AI Code Generation<br/>Intent Analysis]
+    end
+    
+    subgraph "🤖 AI Infrastructure"
+        OLLAMA[🧠 Ollama LLM<br/>Port 11434<br/>Local AI Models<br/>llama3.1:8b + llama3.2:1b]
+    end
+    
+    subgraph "💾 Storage & Infrastructure"
+        AZURITE[💽 Azurite<br/>Port 10000-10002<br/>Azure Storage Emulator<br/>Orchestrator Data]
+    end
+    
+    %% Main Workflow
+    USER -->|1. Writes Comment| ADO
+    ADO -->|2. Webhook| NGROK
+    NGROK -->|3. Tunnel| TRAEFIK
+    TRAEFIK -->|4. Route| GATEWAY
+    GATEWAY -->|5. Process| ORCHESTRATOR
+    
+    %% Orchestrator Coordination
+    ORCHESTRATOR -->|6a. Fetch PR Data| ADAPTER
+    ORCHESTRATOR -->|6b. Generate Code| LLMPATCH
+    ORCHESTRATOR -->|6c. Create Branches| ADAPTER
+    ORCHESTRATOR -->|6d. Create PRs| ADAPTER
+    
+    %% Service Dependencies
+    ADAPTER -.->|Git Operations| ADO
+    LLMPATCH -->|AI Requests| OLLAMA
+    ORCHESTRATOR -.->|State Storage| AZURITE
+    
+    %% Styling
+    style USER fill:#e3f2fd
+    style ADO fill:#0078d4,color:#fff
+    style NGROK fill:#1db954,color:#fff
+    style TRAEFIK fill:#326ce5,color:#fff
+    style GATEWAY fill:#ffeb3b
+    style ORCHESTRATOR fill:#f44336,color:#fff
+    style ADAPTER fill:#ff9800,color:#fff
+    style LLMPATCH fill:#9c27b0,color:#fff
+    style OLLAMA fill:#4caf50,color:#fff
+    style AZURITE fill:#607d8b,color:#fff
+```
+
+### 📊 Monitoring & Observability Stack
+
+```mermaid
+graph TB
+    subgraph "🐳 All Container Services"
+        CORE[Core Services<br/>Gateway, Adapter, LLM-Patch<br/>Orchestrator, Ollama, etc.]
+    end
+    
+    subgraph "📝 Log Collection & Analysis"
+        PROMTAIL[📋 Promtail<br/>Internal<br/>Docker Log Collector]
+        LOKI[📚 Loki<br/>Port 3100<br/>Log Aggregation & Search]
+    end
+    
+    subgraph "📈 Metrics Collection"
+        CADVISOR[📊 cAdvisor<br/>Port 8081<br/>Container Metrics<br/>CPU, RAM, Network]
+        NODEEXP[🖥️ Node Exporter<br/>Port 9100<br/>Host System Metrics<br/>Disk, CPU, RAM]
+        PROMETHEUS[⚡ Prometheus<br/>Port 9090<br/>Metrics Database<br/>Alert Rules]
+    end
+    
+    subgraph "🚨 Alerting & Notifications"
+        ALERTMGR[🔔 Alertmanager<br/>Port 9093<br/>Alert Routing<br/>Notifications]
+    end
+    
+    subgraph "📈 Visualization & Dashboards"
+        GRAFANA[📊 Grafana<br/>Port 3000<br/>Dashboards & Visualization<br/>Logs + Metrics]
+    end
+    
+    subgraph "🏥 Health Monitoring"
+        HEALTHMON[❤️ Health Monitor<br/>Port 8888<br/>Service Status Checks<br/>All 15 Services]
+    end
+    
+    %% Log Flow
+    CORE -->|Docker Logs| PROMTAIL
+    PROMTAIL -->|Ship Logs| LOKI
+    LOKI -->|Query Logs| GRAFANA
+    
+    %% Metrics Flow
+    CORE -->|Container Stats| CADVISOR
+    CORE -->|Host Stats| NODEEXP
+    CADVISOR -->|Metrics| PROMETHEUS
+    NODEEXP -->|Metrics| PROMETHEUS
+    PROMETHEUS -->|Visualize| GRAFANA
+    
+    %% Alerting Flow
+    PROMETHEUS -->|Alert Rules| ALERTMGR
+    ALERTMGR -.->|Email/Slack/Webhook| EXTERNAL[📧 External Notifications]
+    
+    %% Health Monitoring
+    CORE -.->|Status Checks| HEALTHMON
+    
+    %% Styling
+    style CORE fill:#e8f5e8
+    style PROMTAIL fill:#ff9800
+    style LOKI fill:#2196f3,color:#fff
+    style CADVISOR fill:#4caf50,color:#fff
+    style NODEEXP fill:#9c27b0,color:#fff
+    style PROMETHEUS fill:#e74c3c,color:#fff
+    style ALERTMGR fill:#ff5722,color:#fff
+    style GRAFANA fill:#ff8c00,color:#fff
+    style HEALTHMON fill:#f50057,color:#fff
+```
+
+### 🔗 Complete Service Interaction Map
+
+```mermaid
+graph TB
+    subgraph "🎯 Core Application Services (7)"
+        TRAEFIK[🔷 Traefik<br/>Port 80/8080<br/>Load Balancer]
+        GATEWAY[🟡 Gateway<br/>Port 3001<br/>API Gateway]
+        ADAPTER[🟠 Adapter<br/>Port 3002<br/>Azure DevOps Integration]
+        LLMPATCH[🟣 LLM-Patch<br/>Port 3003<br/>Code Generation]
+        ORCHESTRATOR[🔴 Orchestrator<br/>Port 7071<br/>Workflow Coordination]
+        NGROK[🟢 ngrok<br/>Port 4040<br/>External Tunnel]
+        OLLAMA[🧠 Ollama<br/>Port 11434<br/>Local LLM]
+    end
+    
+    subgraph "📊 Monitoring & Observability (8)"
+        HEALTHMON[❤️ Health Monitor<br/>Port 8888<br/>Status Checks]
+        GRAFANA[📊 Grafana<br/>Port 3000<br/>Dashboards]
+        PROMETHEUS[⚡ Prometheus<br/>Port 9090<br/>Metrics DB]
+        NODEEXP[🖥️ Node Exporter<br/>Port 9100<br/>System Metrics]
+        CADVISOR[📊 cAdvisor<br/>Port 8081<br/>Container Metrics]
+        LOKI[📚 Loki<br/>Port 3100<br/>Log Storage]
+        ALERTMGR[🔔 Alertmanager<br/>Port 9093<br/>Notifications]
+        PROMTAIL[📋 Promtail<br/>Internal<br/>Log Collector]
+    end
+    
+    subgraph "💾 Infrastructure & Storage (1)"
+        AZURITE[💽 Azurite<br/>Port 10000-10002<br/>Storage Emulator]
+    end
+    
+    subgraph "🌍 External Systems"
+        ADO[🔵 Azure DevOps<br/>Git Repository<br/>Pull Requests]
+    end
+    
+    %% Main Application Flow
+    ADO -.->|Webhook| NGROK
+    NGROK --> TRAEFIK
+    TRAEFIK --> GATEWAY
+    GATEWAY --> ORCHESTRATOR
+    ORCHESTRATOR --> ADAPTER
+    ORCHESTRATOR --> LLMPATCH
+    ADAPTER -.->|Git Ops| ADO
+    LLMPATCH --> OLLAMA
+    ORCHESTRATOR -.->|Data| AZURITE
+    
+    %% Monitoring Connections
+    GATEWAY --> PROMETHEUS
+    ADAPTER --> PROMETHEUS
+    LLMPATCH --> PROMETHEUS
+    ORCHESTRATOR --> PROMETHEUS
+    OLLAMA --> PROMETHEUS
+    TRAEFIK --> PROMETHEUS
+    CADVISOR --> PROMETHEUS
+    NODEEXP --> PROMETHEUS
+    
+    %% Log Collection
+    GATEWAY --> PROMTAIL
+    ADAPTER --> PROMTAIL
+    LLMPATCH --> PROMTAIL
+    ORCHESTRATOR --> PROMTAIL
+    OLLAMA --> PROMTAIL
+    TRAEFIK --> PROMTAIL
+    PROMTAIL --> LOKI
+    
+    %% Visualization & Alerting
+    PROMETHEUS --> GRAFANA
+    LOKI --> GRAFANA
+    PROMETHEUS --> ALERTMGR
+    
+    %% Health Monitoring
+    HEALTHMON -.->|Check| GATEWAY
+    HEALTHMON -.->|Check| ADAPTER
+    HEALTHMON -.->|Check| LLMPATCH
+    HEALTHMON -.->|Check| ORCHESTRATOR
+    HEALTHMON -.->|Check| OLLAMA
+    HEALTHMON -.->|Check| TRAEFIK
+    HEALTHMON -.->|Check| GRAFANA
+    HEALTHMON -.->|Check| PROMETHEUS
+    HEALTHMON -.->|Check| LOKI
+    HEALTHMON -.->|Check| ALERTMGR
+    
+    %% Styling
+    style ADO fill:#0078d4,color:#fff
+    style NGROK fill:#1db954,color:#fff
+    style TRAEFIK fill:#326ce5,color:#fff
+    style GATEWAY fill:#ffeb3b
+    style ORCHESTRATOR fill:#f44336,color:#fff
+    style ADAPTER fill:#ff9800,color:#fff
+    style LLMPATCH fill:#9c27b0,color:#fff
+    style OLLAMA fill:#4caf50,color:#fff
+    style AZURITE fill:#607d8b,color:#fff
+    style HEALTHMON fill:#f50057,color:#fff
+    style GRAFANA fill:#ff8c00,color:#fff
+    style PROMETHEUS fill:#e74c3c,color:#fff
+    style LOKI fill:#2196f3,color:#fff
+    style ALERTMGR fill:#ff5722,color:#fff
 ```
 
 ## 🚀 Quick Start
 
-### 1. Start System
+### 1. Start Complete System
 ```bash
 git clone <repository>
 cd ai-code-agent
 
 # Configure environment
 cp .env.example .env
-# Add your tokens (ngrok, OpenAI, etc.)
+# Add your tokens (ngrok, Azure DevOps PAT, etc.)
 
-# Start all services
-docker-compose up -d --build
+# Start ALL 16 services with ONE command
+docker-compose -f docker-compose.full.yml up -d --build
 
-# Wait for services to initialize (especially Ollama)
+# Wait for services to initialize
 echo "Waiting for services to start..."
-sleep 45
+Start-Sleep -Seconds 60
 
-# IMPORTANT: Check if Ollama model is installed
-echo "Checking Ollama LLM Models..."
-docker exec agent-local-llm ollama list | grep -q "llama3.2:1b" && echo "✅ Ollama Model: Ready" || {
-    echo "📥 Installing llama3.2:1b model (1.3GB download)..."
-    docker exec agent-local-llm ollama pull llama3.2:1b
-    echo "✅ Model installation complete"
-}
+# Check if Ollama models are installed
+docker exec agent-local-llm ollama list
 ```
 
-### 2. Access Important Services
-| Service | URL | Purpose |
-|---------|-----|---------|
-| 🌐 **ngrok Tunnel** | http://localhost:4040 | **Webhook URL for Azure DevOps** |
+### 2. Health Check & Service Verification
+```bash
+# Quick health check of all 15 services
+curl http://localhost:8888/health
 
-### 3. Configure Azure DevOps
-1. Go to **Project Settings → Service Hooks**
-2. Create **"Pull request commented"** Webhook
-3. URL: `<ngrok-tunnel-url>/webhook/ado` (from http://localhost:4040)
-4. Secret: From your `.env` file
+# Access monitoring dashboards
+# Grafana: http://localhost:3000 (admin/admin)
+# Prometheus: http://localhost:9090
+# Health Monitor: http://localhost:8888
+```
 
-### 4. Test
+### 3. Configure Azure DevOps Webhook
+1. Get ngrok tunnel URL: http://localhost:4040
+2. Go to **Project Settings → Service Hooks** in Azure DevOps
+3. Create **"Pull request commented"** Webhook
+4. URL: `<ngrok-tunnel-url>/webhook/ado`
+5. Secret: From your `.env` file (`WEBHOOK_SECRET`)
+
+### 4. Test the System
 Write in a PR comment:
 ```
-@Arthur-schwan /edit /1 Add error handling to the login function
+@YourUsername /edit /1 Add error handling to the login function
 ```
 
-## 📋 Service Overview
+## 📋 Complete Service Overview
 
-### Core Application Services
-| Port | Service | Container | Purpose | Status Check |
-|------|---------|-----------|---------|--------------|
-| 80 | Proxy | aiforcoding-proxy-1 | Reverse Proxy & Load Balancer | `curl http://localhost:80` |
-| 8080 | Gateway | aiforcoding-gateway-1 | API Gateway for Azure DevOps Webhooks | `curl http://localhost:8080/health` |
-| 8082 | Adapter | aiforcoding-adapter-1 | Azure DevOps Integration (Branch/PR) | `curl http://localhost:8082/health` |
-| 4040 | ngrok Tunnel | aiforcoding-ngrok-1 | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
-| 11434 | Ollama | aiforcoding-ollama-1 | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
-| Internal (7071) | Orchestrator | aiforcoding-orchestrator-1 | Azure Functions Workflow Orchestration | `docker logs aiforcoding-orchestrator-1 --tail 5` |
-| Internal | LLM-Patch | aiforcoding-llm-patch-1 | Code Generation & Intent Analysis | `docker logs aiforcoding-llm-patch-1 --tail 5` |
+### 🎯 Core Application Services (7)
+| Port | Service | Container | Purpose | Interactions |
+|------|---------|-----------|---------|-------------|
+| 80/8080 | **Traefik** | agent-traefik | Load Balancer & Reverse Proxy | ← ngrok → Gateway |
+| 3001 | **Gateway** | agent-gateway | API Gateway for Azure DevOps Webhooks | ← Traefik → Orchestrator |
+| 3002 | **Adapter** | agent-adapter | Azure DevOps Integration (Branch/PR Management) | ← Orchestrator ↔ Azure DevOps |
+| 3003 | **LLM-Patch** | agent-llm-patch | AI Code Generation & Intent Analysis | ← Orchestrator → Ollama |
+| 7071 | **Orchestrator** | agent-orchestrator | Azure Functions Workflow Coordination | ← Gateway → Adapter + LLM-Patch |
+| 4040 | **ngrok** | agent-ngrok | External Tunnel (Azure DevOps → Local) | ← Azure DevOps → Traefik |
+| 11434 | **Ollama** | agent-local-llm | Local LLM (llama3.1:8b + llama3.2:1b) | ← LLM-Patch (AI Generation) |
 
-### Monitoring & Observability
-| Port | Service | Container | Purpose | Status Check |
-|------|---------|-----------|---------|--------------|
-| 3000 | Grafana | agent-grafana | Monitoring Dashboard | `curl http://localhost:3000` |
-| 9090 | Prometheus | agent-prometheus | Metrics Collection | `curl http://localhost:9090` |
-| 9100 | Node Exporter | agent-node-exporter | System Metrics | `curl http://localhost:9100/metrics` |
-| 8081 | cAdvisor | agent-cadvisor | Container Metrics | `curl http://localhost:8081/containers/` |
+### 📊 Monitoring & Observability (8)
+| Port | Service | Container | Purpose | Data Sources |
+|------|---------|-----------|---------|-------------|
+| 8888 | **Health Monitor** | agent-health-monitor | Automated Health Checks of All Services | → All 15 services |
+| 3000 | **Grafana** | agent-grafana | Monitoring Dashboards & Visualization | ← Prometheus + Loki |
+| 9090 | **Prometheus** | agent-prometheus | Metrics Database & Alert Rules | ← cAdvisor + Node Exporter |
+| 9100 | **Node Exporter** | agent-node-exporter | Host System Metrics (CPU, RAM, Disk) | → Prometheus |
+| 8081 | **cAdvisor** | agent-cadvisor | Container Metrics (CPU, RAM, Network) | → Prometheus |
+| 3100 | **Loki** | agent-loki | Log Aggregation & Search Engine | ← Promtail |
+| 9093 | **Alertmanager** | agent-alertmanager | Alert Notifications & Routing | ← Prometheus |
+| Internal | **Promtail** | agent-promtail | Docker Log Collection Agent | ← All containers → Loki |
 
-### Infrastructure & Storage
-| Port | Service | Container | Purpose | Status Check |
-|------|---------|-----------|---------|--------------|
-| 8090 | Traefik Dashboard | aiforcoding-traefik-1 | Load Balancer UI | `curl http://localhost:8090` |
-| 8088 | Traefik API | aiforcoding-traefik-1 | Routing API | `curl http://localhost:8088/api/version` |
-| 8443 | Traefik HTTPS | aiforcoding-traefik-1 | SSL/TLS Endpoint | `docker logs aiforcoding-traefik-1` (SSL config needed ) |
-| 10000-10002 | Azurite | aiforcoding-azurite-1 | Azure Storage Emulator | `docker logs aiforcoding-azurite-1 --tail 3` |
-
-## 🏗️ Detailed Architecture
-
-```mermaid
-graph TB
-    subgraph "🌍 External"
-        ADO[Azure DevOps]
-        LLM_API[Claude/OpenAI APIs]
-    end
-    
-    subgraph "🌐 Entry Point"
-        NGROK[ngrok Tunnel<br/>Port 4040]
-        PROXY[Traefik Proxy<br/>Port 80]
-    end
-    
-    subgraph "🚪 API Layer"
-        GW[Gateway Service<br/>Port 8080]
-        ADAPTER[Adapter Service<br/>Port 8082]
-    end
-    
-    subgraph "🎯 Core Logic"
-        ORC[Orchestrator<br/>Azure Functions<br/>Port 7071]
-        LLM[LLM-Patch Service<br/>Internal]
-    end
-    
-    subgraph "🤖 LLM Infrastructure (Scalable)"
-        OLLAMA[Local Ollama<br/>Port 11434]
-        VLLM[vLLM Container<br/>Port 8000]
-        TGI[Text Generation Inference<br/>Port 8080]
-        LOCALAI[LocalAI<br/>Port 8080]
-    end
-    
-    subgraph "📊 Monitoring"
-        GRAFANA[Grafana<br/>Port 3000]
-        PROMETHEUS[Prometheus<br/>Port 9090]
-        CADVISOR[cAdvisor<br/>Port 8081]
-        NODE[Node Exporter<br/>Port 9100]
-    end
-    
-    subgraph "💾 Storage"
-        AZURITE[Azurite Emulator<br/>Ports 10000-10002]
-    end
-    
-    %% External connections
-    ADO -.->|Webhook| NGROK
-    LLM -->|External APIs| LLM_API
-    LLM -->|Local Ollama| OLLAMA
-    LLM -->|Scalable vLLM| VLLM
-    LLM -->|HuggingFace TGI| TGI
-    LLM -->|OpenAI Compatible| LOCALAI
-    
-    %% Traffic flow
-    NGROK --> PROXY
-    PROXY --> GW
-    GW --> ORC
-    ORC --> ADAPTER
-    ORC --> LLM
-    ADAPTER -.->|Git Operations| ADO
-    
-    %% Monitoring connections
-    GW --> PROMETHEUS
-    ADAPTER --> PROMETHEUS
-    LLM --> PROMETHEUS
-    ORC --> PROMETHEUS
-    OLLAMA --> PROMETHEUS
-    VLLM --> PROMETHEUS
-    TGI --> PROMETHEUS
-    CADVISOR --> PROMETHEUS
-    NODE --> PROMETHEUS
-    PROMETHEUS --> GRAFANA
-    
-    %% Storage
-    ORC --> AZURITE
-    
-    style ADO fill:#0078d4
-    style NGROK fill:#1DB954
-    style ORC fill:#FF6B6B
-    style LLM fill:#FFE66D
-    style VLLM fill:#9C27B0
-    style TGI fill:#4CAF50
-    style LOCALAI fill:#FF5722
-    style GRAFANA fill:#FF8C00
-    style PROMETHEUS fill:#E74C3C
-    style GRAFANA fill:#FF8C00
-    style PROMETHEUS fill:#E74C3C
-```
+### 💾 Infrastructure & Storage (1)
+| Port | Service | Container | Purpose | Used By |
+|------|---------|-----------|---------|---------|
+| 10000-10002 | **Azurite** | agent-azurite | Azure Storage Emulator | ← Orchestrator (State Storage) |
 
 ## 🔧 System Requirements
 
@@ -221,68 +338,47 @@ graph TB
 - **ngrok Account** with Auth Token (Free tier works)
 - **Azure DevOps** Project with Admin rights
 
-### LLM Agent (Choose One - Required for Code Generation)
-**You need at least one LLM option:**
-
-#### 🐳 **Container-based LLMs (Recommended)**
-- **Ollama Container** - `agent-local-llm` (included, Port 11434)
-  - ✅ **Free & Private** - No API costs, runs completely offline
-  - ✅ **Auto-configured** - Works out of the box with llama3.2:1b
-  - ⚠️ **Requires model download** - 1.3GB download on first run
-  - ⚠️ **Hardware requirements** - 4GB+ RAM recommended
-- **vLLM Container** - High-performance inference server
-- **Text Generation Inference (TGI)** - HuggingFace production server  
-- **LocalAI** - OpenAI-compatible API for local models
-
-#### 🌐 **External API Keys**
-- OpenAI API Key (GPT-4)
-- Anthropic Claude API Key  
-- Azure OpenAI Credentials
-
-**💡 Recommendation:** Use the included Ollama container for development - it's free, private, and already configured!
+### LLM Configuration
+The system includes **Ollama** for local AI generation:
+- ✅ **Free & Private** - No API costs, runs completely offline
+- ✅ **Auto-configured** - llama3.1:8b + llama3.2:1b models
+- ⚠️ **Hardware requirements** - 8GB+ RAM recommended for llama3.1:8b
 
 ## 📖 Additional Documentation
 
-- **[Agent.md](Agent.md)** - Detailed service overview and navigation
-- **[AgentDocs/](AgentDocs/)** - Technical documentation
-  - [System Start & Initialization](./AgentDocs/Agent_Init.md)
-  - [ngrok Container Configuration](./AgentDocs/Agent_Ngrok.md)
-  - [Troubleshooting Guide](./AgentDocs/Agent_Troubleshooting.md)
+- **[AgentDocs/Agent_Init.md](./AgentDocs/Agent_Init.md)** - Complete system startup & health checks
+- **[Agent.md](Agent.md)** - Detailed service overview
+- **[AgentDocs/](AgentDocs/)** - Technical documentation & troubleshooting
 
-## 🎯 Examples
+## 🎯 Usage Examples
 
 ### Simple Code Change
 ```
 @"User" /edit /1 Add null checks to the user validation function
 ```
 
-### Multiple Variants
+### Multiple Variants  
 ```
 @"User" /edit /3 Refactor the authentication logic to use JWT tokens
 ```
 
 ### UI Changes
 ```
-@"User" /edit /2 Make the navigation menu responsive and add dark mode support
+@"User" /edit /2 Make the navigation menu responsive and add dark mode
 ```
 
----
+## 📊 Service Health & Monitoring
+
+- **Real-time Health**: http://localhost:8888
+- **Application Metrics**: http://localhost:9090 (Prometheus)
+- **Dashboards**: http://localhost:3000 (Grafana - admin/admin)
+- **Log Search**: http://localhost:3000/explore (Loki in Grafana)
+- **ngrok Inspector**: http://localhost:4040/inspect/http
 
 ## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
-### What this means:
-- ✅ **Free to use** - Commercial and personal projects
-- ✅ **Modify freely** - Adapt to your needs
-- ✅ **Distribute** - Share with others  
-- ✅ **Private use** - Use in closed-source projects
-- ⚠️ **No warranty** - Use at your own risk
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ---
 
-*For technical details and troubleshooting see [Agent.md](Agent.md)*
+*For technical details and troubleshooting see [AgentDocs/Agent_Init.md](./AgentDocs/Agent_Init.md)*
