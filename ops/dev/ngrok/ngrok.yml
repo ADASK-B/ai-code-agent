@@ -1,0 +1,9 @@
+version: 2
+authtoken: 
+web_addr: 0.0.0.0:4040
+
+tunnels:
+  web:
+    proto: http
+    addr: gateway:8080
+    schemes: [https]

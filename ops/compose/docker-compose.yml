@@ -249,6 +249,7 @@ services:
     container_name: agent-ngrok
     restart: unless-stopped
     environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
       - NGROK_DOMAIN=${NGROK_DOMAIN:-}
       - NGROK_TRAEFIK_DOMAIN=${NGROK_TRAEFIK_DOMAIN:-}
     ports:

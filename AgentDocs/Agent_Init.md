@@ -1,11 +1,27 @@
 # 🚀 AI Code Agent - System Start
 
+## Prerequisites
+
+### 1. Setup Environment Configuration
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env and configure at minimum:
+# NGROK_AUTHTOKEN=your_ngrok_token_here
+# WEBHOOK_SECRET=your_secure_webhook_secret_here
+```
+
+**Required Configuration:**
+- **NGROK_AUTHTOKEN**: Get from https://dashboard.ngrok.com/get-started/your-authtoken
+- **WEBHOOK_SECRET**: Create a secure secret (minimum 16 characters)
+
 ## Quick Start (1 Command)
 
 ### 1. Start All Services
 ```bash
 # In project root directory
-docker-compose -f ops/compose/docker-compose.yml up -d --build
+docker-compose -f ops/compose/docker-compose.yml --env-file .env up -d --build
 ```
 
 ### 2. Complete Health Check
@@ -15,13 +31,13 @@ docker-compose -f ops/compose/docker-compose.yml up -d --build
 docker ps
 
 # === Core Application Services ===
-curl http://localhost:80                    # Proxy
-curl http://localhost:8080/health           # Gateway  
-curl http://localhost:8082/health           # Adapter
+curl http://localhost:80                    # Proxy (Traefik)
+curl http://localhost:3001/health           # Gateway  
+curl http://localhost:3002/health           # Adapter
 curl http://localhost:4040/api/tunnels      # ngrok
 curl http://localhost:11434/api/version     # Ollama
-docker logs aiforcoding-orchestrator-1 --tail 3    # Orchestrator
-docker logs aiforcoding-llm-patch-1 --tail 3       # LLM-Patch
+docker logs agent-orchestrator --tail 3    # Orchestrator (Azure Functions)
+docker logs agent-llm-patch --tail 3       # LLM-Patch
 
 # === Monitoring & Observability ===
 curl http://localhost:3000                  # Grafana
@@ -30,9 +46,9 @@ curl http://localhost:9100/metrics          # Node Exporter
 curl http://localhost:8081/containers/      # cAdvisor
 
 # === Infrastructure & Storage ===
-curl http://localhost:8090                  # Traefik Dashboard
+curl http://localhost:8080                  # Traefik Dashboard
 curl http://localhost:8088/api/version      # Traefik API
-docker logs aiforcoding-azurite-1 --tail 3 # Azurite
+docker logs agent-azurite --tail 3         # Azurite
 
 # All services healthy? ✅ System ready!
 ```
@@ -42,13 +58,13 @@ docker logs aiforcoding-azurite-1 --tail 3 # Azurite
 ### Core Application Services
 | Port | Service | Container | Purpose | Status Check |
 |------|---------|-----------|---------|--------------|
-| 80 | Proxy | aiforcoding-proxy-1 | Reverse Proxy & Load Balancer | `curl http://localhost:80` |
-| 8080 | Gateway | aiforcoding-gateway-1 | API Gateway for Azure DevOps Webhooks | `curl http://localhost:8080/health` |
-| 8082 | Adapter | aiforcoding-adapter-1 | Azure DevOps Integration (Branch/PR) | `curl http://localhost:8082/health` |
-| 4040 | ngrok Tunnel | aiforcoding-ngrok-1 | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
-| 11434 | Ollama | aiforcoding-ollama-1 | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
-| Internal (7071) | Orchestrator | aiforcoding-orchestrator-1 | Azure Functions Workflow Orchestration | `docker logs aiforcoding-orchestrator-1 --tail 5` |
-| Internal | LLM-Patch | aiforcoding-llm-patch-1 | Code Generation & Intent Analysis | `docker logs aiforcoding-llm-patch-1 --tail 5` |
+| 80 | Proxy | agent-traefik | Reverse Proxy & Load Balancer | `curl http://localhost:80` |
+| 3001 | Gateway | agent-gateway | API Gateway for Azure DevOps Webhooks | `curl http://localhost:3001/health` |
+| 3002 | Adapter | agent-adapter | Azure DevOps Integration (Branch/PR) | `curl http://localhost:3002/health` |
+| 4040 | ngrok Tunnel | agent-ngrok | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
+| 11434 | Ollama | agent-ollama | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
+| Internal (7071) | Orchestrator | agent-orchestrator | Azure Functions Workflow Orchestration | `docker logs agent-orchestrator --tail 5` |
+| Internal | LLM-Patch | agent-llm-patch | Code Generation & Intent Analysis | `docker logs agent-llm-patch --tail 5` |
 
 ### Monitoring & Observability
 | Port | Service | Container | Purpose | Status Check |
@@ -61,10 +77,10 @@ docker logs aiforcoding-azurite-1 --tail 3 # Azurite
 ### Infrastructure & Storage
 | Port | Service | Container | Purpose | Status Check |
 |------|---------|-----------|---------|--------------|
-| 8090 | Traefik Dashboard | aiforcoding-traefik-1 | Load Balancer UI | `curl http://localhost:8090` |
-| 8088 | Traefik API | aiforcoding-traefik-1 | Routing API | `curl http://localhost:8088/api/version` |
-| 8443 | Traefik HTTPS | aiforcoding-traefik-1 | SSL/TLS Endpoint | `docker logs aiforcoding-traefik-1` (SSL config needed ) |
-| 10000-10002 | Azurite | aiforcoding-azurite-1 | Azure Storage Emulator | `docker logs aiforcoding-azurite-1 --tail 3` |
+| 8080 | Traefik Dashboard | agent-traefik | Load Balancer UI | `curl http://localhost:8080` |
+| 8088 | Traefik API | agent-traefik | Routing API | `curl http://localhost:8088/api/version` |
+| 8443 | Traefik HTTPS | agent-traefik | SSL/TLS Endpoint | `docker logs agent-traefik` (SSL config needed ) |
+| 10000-10002 | Azurite | agent-azurite | Azure Storage Emulator | `docker logs agent-azurite --tail 3` |
 
 ## Azure DevOps Configuration
 
@@ -97,7 +113,7 @@ The agent will:
 If containers already exist but are stopped:
 ```bash
 # Start existing containers (includes ngrok!)
-docker start aiforcoding-gateway-1 aiforcoding-adapter-1 aiforcoding-llm-patch-1 aiforcoding-orchestrator-1 aiforcoding-proxy-1 aiforcoding-traefik-1 aiforcoding-ollama-1 aiforcoding-ngrok-1 agent-grafana agent-prometheus agent-cadvisor agent-node-exporter aiforcoding-azurite-1
+docker start agent-gateway agent-adapter agent-llm-patch agent-orchestrator agent-traefik agent-ollama agent-ngrok agent-grafana agent-prometheus agent-cadvisor agent-node-exporter agent-azurite
 ```
 
 ## Stop System
