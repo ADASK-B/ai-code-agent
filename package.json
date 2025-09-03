@@ -1,4 +1,38 @@
 {
+  "name": "ai-code-agent",
+  "version": "1.0.0",
+  "description": "An intelligent AI agent that automatically creates code changes in Azure DevOps Pull Requests",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ADASK-B/ai-code-agent.git"
+  },
+  "keywords": [
+    "ai-agent",
+    "code-generation",
+    "azure-devops",
+    "webhook-automation",
+    "llm",
+    "local-llm",
+    "container-llm",
+    "ollama",
+    "vllm",
+    "typescript",
+    "fastify",
+    "docker",
+    "pull-request",
+    "code-assistant",
+    "devops-automation",
+    "natural-language-processing",
+    "git-automation",
+    "self-hosted",
+    "enterprise-ai",
+    "ci-cd",
+    "development-workflow",
+    "ai-powered-coding",
+    "automated-code-review",
+    "llm-integration"
+  ],
   "dependencies": {
     "axios": "^1.11.0"
   }

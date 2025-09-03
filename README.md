@@ -250,4 +250,21 @@ graph TB
 
 ---
 
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### What this means:
+- ✅ **Free to use** - Commercial and personal projects
+- ✅ **Modify freely** - Adapt to your needs
+- ✅ **Distribute** - Share with others  
+- ✅ **Private use** - Use in closed-source projects
+- ⚠️ **No warranty** - Use at your own risk
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
 *For technical details and troubleshooting see [Agent.md](Agent.md)*

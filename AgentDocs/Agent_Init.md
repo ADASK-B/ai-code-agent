@@ -1,76 +1,110 @@
-# 🚀 System Initialization Guide
+# 🚀 AI Code Agent - System Start
 
-## Quick Start (IMMER ZUERST!)
+## Quick Start (1 Command)
 
-**1. System starten:**
+### 1. Start All Services
 ```bash
-docker-compose up -d --build
+# In project root directory
+docker-compose -f ops/compose/docker-compose.yml up -d --build
 ```
 
-**2. Status prüfen:**
+### 2. Complete Health Check
+
 ```bash
-docker-compose ps
+# Check all containers are running
+docker ps
+
+# === Core Application Services ===
+curl http://localhost:80                    # Proxy
+curl http://localhost:8080/health           # Gateway  
+curl http://localhost:8082/health           # Adapter
+curl http://localhost:4040/api/tunnels      # ngrok
+curl http://localhost:11434/api/version     # Ollama
+docker logs aiforcoding-orchestrator-1 --tail 3    # Orchestrator
+docker logs aiforcoding-llm-patch-1 --tail 3       # LLM-Patch
+
+# === Monitoring & Observability ===
+curl http://localhost:3000                  # Grafana
+curl http://localhost:9090                  # Prometheus
+curl http://localhost:9100/metrics          # Node Exporter  
+curl http://localhost:8081/containers/      # cAdvisor
+
+# === Infrastructure & Storage ===
+curl http://localhost:8090                  # Traefik Dashboard
+curl http://localhost:8088/api/version      # Traefik API
+docker logs aiforcoding-azurite-1 --tail 3 # Azurite
+
+# All services healthy? ✅ System ready!
 ```
 
-**3. ngrok Tunnel Status prüfen:**
-- **Web Interface**: http://localhost:4040 (läuft im Container!)
-- **Traffic Inspector**: http://localhost:4040/inspect/http
-- **API Tunnels**: http://localhost:4040/api/tunnels
-- Kopiere die "public_url" (z.B. `https://xxxxx.ngrok-free.app`)
-- **Diese URL ist für Azure DevOps Webhooks zu verwenden!**
+## Service Access Points
 
-**4. Webhook URL für ADO:**
+### Core Application Services
+| Port | Service | Container | Purpose | Status Check |
+|------|---------|-----------|---------|--------------|
+| 80 | Proxy | aiforcoding-proxy-1 | Reverse Proxy & Load Balancer | `curl http://localhost:80` |
+| 8080 | Gateway | aiforcoding-gateway-1 | API Gateway for Azure DevOps Webhooks | `curl http://localhost:8080/health` |
+| 8082 | Adapter | aiforcoding-adapter-1 | Azure DevOps Integration (Branch/PR) | `curl http://localhost:8082/health` |
+| 4040 | ngrok Tunnel | aiforcoding-ngrok-1 | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
+| 11434 | Ollama | aiforcoding-ollama-1 | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
+| Internal (7071) | Orchestrator | aiforcoding-orchestrator-1 | Azure Functions Workflow Orchestration | `docker logs aiforcoding-orchestrator-1 --tail 5` |
+| Internal | LLM-Patch | aiforcoding-llm-patch-1 | Code Generation & Intent Analysis | `docker logs aiforcoding-llm-patch-1 --tail 5` |
+
+### Monitoring & Observability
+| Port | Service | Container | Purpose | Status Check |
+|------|---------|-----------|---------|--------------|
+| 3000 | Grafana | agent-grafana | Monitoring Dashboard | `curl http://localhost:3000` |
+| 9090 | Prometheus | agent-prometheus | Metrics Collection | `curl http://localhost:9090` |
+| 9100 | Node Exporter | agent-node-exporter | System Metrics | `curl http://localhost:9100/metrics` |
+| 8081 | cAdvisor | agent-cadvisor | Container Metrics | `curl http://localhost:8081/containers/` |
+
+### Infrastructure & Storage
+| Port | Service | Container | Purpose | Status Check |
+|------|---------|-----------|---------|--------------|
+| 8090 | Traefik Dashboard | aiforcoding-traefik-1 | Load Balancer UI | `curl http://localhost:8090` |
+| 8088 | Traefik API | aiforcoding-traefik-1 | Routing API | `curl http://localhost:8088/api/version` |
+| 8443 | Traefik HTTPS | aiforcoding-traefik-1 | SSL/TLS Endpoint | `docker logs aiforcoding-traefik-1` (SSL config needed ) |
+| 10000-10002 | Azurite | aiforcoding-azurite-1 | Azure Storage Emulator | `docker logs aiforcoding-azurite-1 --tail 3` |
+
+## Azure DevOps Configuration
+
+### Get Webhook URL
+1. Open http://localhost:4040
+2. Copy the public tunnel URL (e.g., `https://abc123.ngrok-free.app`)
+3. Use this URL for Azure DevOps webhook: `https://abc123.ngrok-free.app/webhook/ado`
+
+### Setup Azure DevOps Webhook
+1. Go to **Project Settings → Service Hooks**
+2. Add **"Pull request commented"** webhook
+3. URL: `<your-ngrok-url>/webhook/ado`
+4. Secret: From your `.env` file (`WEBHOOK_SECRET`)
+
+## Test the System
+
+Write a comment in any Azure DevOps Pull Request:
 ```
-https://xxxxx.ngrok-free.app/webhook/ado
+@YourUsername /edit /1 Add error handling to the login function
 ```
 
-## Alternative: GitHub Codespaces
+The agent will:
+- ✅ Create a new branch
+- ✅ Generate AI-powered code changes
+- ✅ Create a Draft Pull Request
+- ✅ Post status updates
+
+## Restart Existing System
+
+If containers already exist but are stopped:
 ```bash
-cd ops/compose
-docker compose up -d --build
+# Start existing containers (includes ngrok!)
+docker start aiforcoding-gateway-1 aiforcoding-adapter-1 aiforcoding-llm-patch-1 aiforcoding-orchestrator-1 aiforcoding-proxy-1 aiforcoding-traefik-1 aiforcoding-ollama-1 aiforcoding-ngrok-1 agent-grafana agent-prometheus agent-cadvisor agent-node-exporter aiforcoding-azurite-1
 ```
-- ✅ Automatisches Port-Forwarding
-- ✅ HTTPS URLs out-of-the-box  
-- ✅ Kein ngrok nötig!
 
-## Troubleshooting
+## Stop System
 ```bash
-# Alles neu starten
-docker-compose down
-docker-compose up -d --build
-
-# ngrok Container Status prüfen
-docker logs aiforcoding-ngrok-1
-
-# ngrok Web Interface testen
-curl http://localhost:4040/api/tunnels
+docker-compose -f ops/compose/docker-compose.yml down
 ```
 
-## ngrok Container Setup (NEW!)
+---
 
-**Das ngrok System läuft jetzt vollständig containerized:**
-
-### Konfiguration
-- **Config File**: `services/ngrok/ngrok.yml` 
-- **Key Setting**: `web_addr: 0.0.0.0:4040` (ermöglicht externe Zugriffe)
-- **Auth Token**: Automatisch aus Environment Variable `NGROK_AUTHTOKEN`
-- **Target**: Gateway Service (`gateway:8080`) im Docker Network
-
-### Web Interface Features
-- **Dashboard**: http://localhost:4040
-- **Live Traffic**: http://localhost:4040/inspect/http
-- **API**: http://localhost:4040/api/tunnels
-- **Tunnel Configuration**: Automatisch beim Container Start
-
-### Vorteile der Container-Lösung
-- ✅ **Automatischer Start** mit `docker-compose up -d`
-- ✅ **Persistente Konfiguration** (überlebt Neustarts)
-- ✅ **Integriert in Docker Network** (direkter Gateway Zugriff)
-- ✅ **Web Interface immer verfügbar** auf localhost:4040
-- ✅ **Keine manuelle ngrok Installation** nötig
-
-**ngrok läuft jetzt vollständig im Container:**
-- ✅ Automatischer Start mit docker-compose
-- ✅ Web Interface erreichbar über localhost:4040
-- ✅ Konfiguration über ngrok.yml mit web_addr: 0.0.0.0:4040
-- ✅ Environment Variable NGROK_AUTHTOKEN wird automatisch eingesetzt
+*System ready for AI-powered code generation! 🎉*

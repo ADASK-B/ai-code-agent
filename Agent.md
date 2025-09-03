@@ -3,25 +3,11 @@
 ## 📋 Quick Navigation
 
 ### 🚀 [System Start & Initialization](./AgentDocs/Agent_Init.md)
-**Sofortiger System-Start in 4 Schritten**
-- Docker-compose Befehle
-- ngrok Tunnel Setup (Container-basiert) 
-- Webhook URLs für Azure DevOps
-- GitHub Codespaces Alternative
-
-### 🔧 [ngrok Container Configuration](./AgentDocs/Agent_Ngrok.md)  
-**Detaillierte ngrok Implementierung**
-- Container Setup (Dockerfile, entrypoint.sh, ngrok.yml)
-- Web Interface Features (localhost:4040)
-- API Endpoints & Traffic Inspector
-- Migration von Native zu Container
-
-### 🐛 [Troubleshooting Guide](./AgentDocs/Agent_Troubleshooting.md)
-**Problem-Lösung & Diagnostics** 
-- Common Issues (ngrok, Gateway, Webhooks)
-- Performance & Network Debugging
-- Emergency Reset Procedures
-- Log Analysis Patterns
+**Simple System Start - One Command**
+- Docker Compose Start Command
+- Health Check Verification
+- Service URLs & Access Points
+- Ready for Azure DevOps Integration
 
 ---
 
