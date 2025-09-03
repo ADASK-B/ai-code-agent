@@ -32,20 +32,11 @@ receivers:
     webhook_configs:
       - url: 'http://localhost:5001/critical'
         send_resolved: true
-        title: '🚨 CRITICAL: Code Agent MVP Alert'
-        text: |
-          {{ range .Alerts }}
-          Alert: {{ .Annotations.summary }}
-          Service: {{ .Labels.job }}
-          Severity: {{ .Labels.severity }}
-          Description: {{ .Annotations.description }}
-          {{ end }}
 
   - name: 'warning-alerts'
     webhook_configs:
       - url: 'http://localhost:5001/warning'
         send_resolved: true
-        title: '⚠️ WARNING: Code Agent MVP Alert'
 
 # Inhibition rules (suppress lower severity alerts when higher severity alerts are firing)
 inhibit_rules:

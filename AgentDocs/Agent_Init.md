@@ -124,32 +124,78 @@ docker exec agent-local-llm ollama list | grep -q "llama3.2:1b" && echo "✅ Oll
 echo "Available models:"
 docker exec agent-local-llm ollama list
 
-# === Monitoring & Observability (4) ===
+# === Monitoring & Observability (7) ===
 echo "Monitoring Services:"
 curl -s -o /dev/null -w "✅ Grafana: %{http_code}\n" http://localhost:3000 || echo "❌ Grafana: ERROR"
 curl -s -o /dev/null -w "✅ Prometheus: %{http_code}\n" http://localhost:9090 || echo "❌ Prometheus: ERROR"
 curl -s -o /dev/null -w "✅ Node Exporter: %{http_code}\n" http://localhost:9100/metrics || echo "❌ Node Exporter: ERROR"
 curl -s -o /dev/null -w "✅ cAdvisor: %{http_code}\n" http://localhost:8081/containers/ || echo "❌ cAdvisor: ERROR"
+curl -s -o /dev/null -w "✅ Loki: %{http_code}\n" http://localhost:3100/ready || echo "❌ Loki: ERROR"
+curl -s -o /dev/null -w "✅ Alertmanager: %{http_code}\n" http://localhost:9093/-/healthy || echo "❌ Alertmanager: ERROR"
+docker logs agent-promtail --tail 2 | grep -q "finished transferring logs" && echo "✅ Promtail: Collecting logs" || echo "❌ Promtail: Not collecting logs"
 
 # === Infrastructure & Storage (1) ===
 echo "Infrastructure Services:"
 docker logs agent-azurite --tail 2 | grep -q "successfully listening" && echo "✅ Azurite: Running" || echo "❌ Azurite: Error"
 
 echo "=== HEALTH CHECK COMPLETE ==="
-echo "Expected: 12 services with Status 200 or 'Running'"
+echo "Expected: 15 services with Status 200 or 'Running'"
 
 echo "=== AUTOMATED HEALTH MONITOR ==="
 echo "🏥 Comprehensive Health Monitor available at: http://localhost:8888"
 curl -s -o /dev/null -w "✅ Health Monitor API: %{http_code}\n" http://localhost:8888/health || echo "❌ Health Monitor: ERROR"
-echo "This monitors all 12 services automatically every 30 seconds"
+echo "This monitors all 15 services automatically every 30 seconds"
 
 echo "If any service shows ERROR, check container logs: docker logs <container-name>"
 ```
 
 **Service Status Requirements:**
-- ✅ **All 12 Services Running (Status 200)** = System ready for Azure DevOps integration  
+- ✅ **All 15 Services Running (Status 200)** = System ready for Azure DevOps integration  
 - ⚠️ **1-2 Services with errors** = System may work but check logs
 - ❌ **3+ Services with errors** = Fix issues before proceeding
+
+### 4. Verify Monitoring Data Collection (Optional)
+After all services are running, verify that monitoring services are actually collecting data:
+
+```bash
+echo "=== MONITORING DATA VERIFICATION ==="
+
+# Check if Loki is collecting logs from containers
+echo "📝 Loki - Checking Log Collection:"
+curl -s "http://localhost:3100/loki/api/v1/label" | grep -q "job" && echo "✅ Loki: Collecting logs from services" || echo "⚠️ Loki: No logs yet (may need 1-2 minutes)"
+
+# List available log streams
+echo "Available log streams:"
+curl -s "http://localhost:3100/loki/api/v1/label/job/values" | head -3
+
+# Check recent logs from a service (example: gateway)
+echo "Recent Gateway logs (last 5 minutes):"
+curl -s "http://localhost:3100/loki/api/v1/query_range?query={job=\"agent-gateway\"}&start=$(date -d '5 minutes ago' -u +%s)000000000&end=$(date -u +%s)000000000&limit=3" | head -2
+
+echo ""
+echo "🚨 Alertmanager - Checking Alert Rules:"
+# Check if Alertmanager can receive test alerts
+curl -s "http://localhost:9093/api/v1/status" | grep -q "ready" && echo "✅ Alertmanager: Ready to receive alerts" || echo "❌ Alertmanager: Not ready"
+
+# List active alerts (should be empty initially)
+echo "Current active alerts:"
+curl -s "http://localhost:9093/api/v1/alerts" | head -2
+
+# Check Alertmanager configuration
+echo "Alertmanager config status:"
+curl -s "http://localhost:9093/api/v1/status" | head -2
+
+echo ""
+echo "📊 Access Monitoring Dashboards:"
+echo "🔗 Grafana Dashboard: http://localhost:3000 (admin/admin)"
+echo "🔗 Prometheus Metrics: http://localhost:9090"
+echo "🔗 Loki Logs: http://localhost:3000/explore (select Loki datasource)"
+echo "🔗 Alertmanager: http://localhost:9093"
+
+echo "=== MONITORING VERIFICATION COMPLETE ==="
+```
+
+**Note:** If log collection shows "No logs yet", wait 1-2 minutes for Promtail to start collecting and Loki to index them.
 
 ## Service Access Points
 
@@ -161,7 +207,7 @@ echo "If any service shows ERROR, check container logs: docker logs <container-n
 | 3002 | Adapter | agent-adapter | Azure DevOps Integration (Branch/PR) | `curl http://localhost:3002/health` |
 | 3003 | LLM-Patch | agent-llm-patch | Code Generation & Intent Analysis | `curl http://localhost:3003/health` |
 | 4040 | ngrok Tunnel | agent-ngrok | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
-| 11434 | Ollama | agent-local-llm | Local LLM (llama3.2:1b) - AI Code Generation | `curl http://localhost:11434/api/version` |
+| 11434 | Ollama | agent-local-llm | Local LLM (llama3.1:8b + llama3.2:1b) - AI Code Generation | `curl http://localhost:11434/api/version` |
 | Internal (7071) | Orchestrator | agent-orchestrator | Azure Functions Workflow Orchestration | `docker logs agent-orchestrator --tail 5` |
 
 ### Monitoring & Observability
@@ -172,6 +218,9 @@ echo "If any service shows ERROR, check container logs: docker logs <container-n
 | 9090 | Prometheus | agent-prometheus | Metrics Collection | `curl http://localhost:9090` |
 | 9100 | Node Exporter | agent-node-exporter | System Metrics | `curl http://localhost:9100/metrics` |
 | 8081 | cAdvisor | agent-cadvisor | Container Metrics | `curl http://localhost:8081/containers/` |
+| 3100 | Loki | agent-loki | Log Aggregation & Search | `curl http://localhost:3100/ready` |
+| 9093 | Alertmanager | agent-alertmanager | Alert Notifications & Routing | `curl http://localhost:9093/-/healthy` |
+| Internal | Promtail | agent-promtail | Log Collection Agent (Docker → Loki) | `docker logs agent-promtail --tail 3` |
 
 ### Infrastructure & Storage
 | Port | Service | Container | Purpose | Status Check |
