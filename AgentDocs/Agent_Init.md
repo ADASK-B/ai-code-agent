@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-### 1. Setup Environment Configuration
+### Setup Environment Configuration
 ```bash
 # Copy environment template
 cp .env.example .env
@@ -10,13 +10,24 @@ cp .env.example .env
 # Edit .env and configure at minimum:
 # NGROK_AUTHTOKEN=your_ngrok_token_here
 # WEBHOOK_SECRET=your_secure_webhook_secret_here
+# AZURE_DEVOPS_ORG=your_organization  
+# AZURE_DEVOPS_PAT=your_personal_access_token
+# OPENAI_API_KEY=your_openai_api_key_here (or other LLM service)
 ```
 
 **Required Configuration:**
 - **NGROK_AUTHTOKEN**: Get from https://dashboard.ngrok.com/get-started/your-authtoken
 - **WEBHOOK_SECRET**: Create a secure secret (minimum 16 characters)
+- **AZURE_DEVOPS_ORG**: Your Azure DevOps organization name
+- **AZURE_DEVOPS_PAT**: Personal Access Token from Azure DevOps (Repos: Read/Write, Pull Requests: Read/Write)
 
-## Quick Start (1 Command)
+**Optional LLM Configuration (choose one):**
+- **OPENAI_API_KEY**: For GPT-4 (recommended)
+- **CLAUDE_API_KEY**: For Anthropic Claude
+- **AZURE_OPENAI_API_KEY**: For Azure OpenAI service
+- **Local Ollama**: No API key needed (runs locally)
+
+## System Startup
 
 ### 1. Start All Services
 ```bash
@@ -24,39 +35,53 @@ cp .env.example .env
 docker-compose -f ops/compose/docker-compose.yml --env-file .env up -d --build
 ```
 
-### 2. Complete Health Check
+### 2. Wait for Services to Initialize
+```bash
+# Wait 30-60 seconds for all containers to fully start
+# Some services need time to initialize (especially Ollama and Orchestrator)
+echo "Waiting for services to start..."
+Start-Sleep -Seconds 45
+```
+
+### 3. Complete Health Check
+Verify all 11 services are running properly:
 
 ```bash
-# Check all containers are running
+# Check running containers first
 docker ps
 
-# === Core Application Services ===
-curl http://localhost:8080                  # Traefik Dashboard (checks if running)
-curl http://localhost:3001/health           # Gateway  
-curl http://localhost:3002/health           # Adapter
-curl http://localhost:3003/health           # LLM-Patch
-docker logs agent-orchestrator --tail 3    # Orchestrator (Azure Functions)
+echo "=== HEALTH CHECK - ALL SERVICES ==="
 
-# === ngrok Tunnel (External Access) ===
-curl http://localhost:4040/api/tunnels      # ngrok API
-# Visit http://localhost:4040 for ngrok Web Interface
+# === Core Application Services (6) ===
+echo "Core Application Services:"
+curl -s -o /dev/null -w "✅ Traefik Dashboard: %{http_code}\n" http://localhost:8080 || echo "❌ Traefik: ERROR"
+curl -s -o /dev/null -w "✅ Gateway: %{http_code}\n" http://localhost:3001/health || echo "❌ Gateway: ERROR"  
+curl -s -o /dev/null -w "✅ Adapter: %{http_code}\n" http://localhost:3002/health || echo "❌ Adapter: ERROR"
+curl -s -o /dev/null -w "✅ LLM-Patch: %{http_code}\n" http://localhost:3003/health || echo "❌ LLM-Patch: ERROR"
+curl -s -o /dev/null -w "✅ ngrok: %{http_code}\n" http://localhost:4040/api/tunnels || echo "❌ ngrok: ERROR"
+curl -s -o /dev/null -w "✅ Ollama: %{http_code}\n" http://localhost:11434/api/version || echo "❌ Ollama: ERROR"
+docker logs agent-orchestrator --tail 2 | grep -q "Application started" && echo "✅ Orchestrator: Running" || echo "❌ Orchestrator: Error"
 
-# === Local LLM Service ===
-# NOTE: Ollama is optional and may not be running
-curl http://localhost:11434/api/version || echo "⚠️ Ollama not running (optional)"
+# === Monitoring & Observability (4) ===
+echo "Monitoring Services:"
+curl -s -o /dev/null -w "✅ Grafana: %{http_code}\n" http://localhost:3000 || echo "❌ Grafana: ERROR"
+curl -s -o /dev/null -w "✅ Prometheus: %{http_code}\n" http://localhost:9090 || echo "❌ Prometheus: ERROR"
+curl -s -o /dev/null -w "✅ Node Exporter: %{http_code}\n" http://localhost:9100/metrics || echo "❌ Node Exporter: ERROR"
+curl -s -o /dev/null -w "✅ cAdvisor: %{http_code}\n" http://localhost:8081/containers/ || echo "❌ cAdvisor: ERROR"
 
-# === Monitoring & Observability ===
-curl http://localhost:3000                  # Grafana
-curl http://localhost:9090                  # Prometheus
-curl http://localhost:9100/metrics          # Node Exporter  
-curl http://localhost:8081/containers/      # cAdvisor
+# === Infrastructure & Storage (1) ===
+echo "Infrastructure Services:"
+docker logs agent-azurite --tail 2 | grep -q "successfully listening" && echo "✅ Azurite: Running" || echo "❌ Azurite: Error"
 
-# === Infrastructure & Storage ===
-curl http://localhost:8080                  # Traefik Dashboard
-docker logs agent-azurite --tail 3         # Azurite
-
-# All services healthy? ✅ System ready!
+echo "=== HEALTH CHECK COMPLETE ==="
+echo "Expected: 11 services with Status 200 or 'Running'"
+echo "If any service shows ERROR, check container logs: docker logs <container-name>"
 ```
+
+**Service Status Requirements:**
+- ✅ **All 11 Services Running (Status 200)** = System ready for Azure DevOps integration
+- ⚠️ **1-2 Services with errors** = System may work but check logs
+- ❌ **3+ Services with errors** = Fix issues before proceeding
 
 ## Service Access Points
 
@@ -68,7 +93,7 @@ docker logs agent-azurite --tail 3         # Azurite
 | 3002 | Adapter | agent-adapter | Azure DevOps Integration (Branch/PR) | `curl http://localhost:3002/health` |
 | 3003 | LLM-Patch | agent-llm-patch | Code Generation & Intent Analysis | `curl http://localhost:3003/health` |
 | 4040 | ngrok Tunnel | agent-ngrok | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
-| 11434 | Ollama | agent-ollama | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
+| 11434 | Ollama | agent-local-llm | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
 | Internal (7071) | Orchestrator | agent-orchestrator | Azure Functions Workflow Orchestration | `docker logs agent-orchestrator --tail 5` |
 
 ### Monitoring & Observability
