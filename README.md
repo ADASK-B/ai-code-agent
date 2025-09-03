@@ -1,320 +1,226 @@
-# Code Agent MVP
+# 🤖 AI Code Agent
 
-Ein AI-basierter Code-Editor Agent für Azure DevOps, der automatisch Code-Varianten basierend auf natürlichen Intent-Beschreibungen erstellt.
+> **Ein intelligenter AI-Agent, der automatisch Code-Änderungen in Azure DevOps Pull Requests erstellt**
 
-## 🚀 Quick Start
+## 🎯 Was macht dieser Agent?
 
-### 1. Repository Setup
-```bash
-git clone https://github.com/ADASK-B/AIForCoding.git
-cd AIForCoding
-```
+Der AI Code Agent **reagiert auf natürliche Sprache** in Azure DevOps Pull Request Kommentaren und erstellt **automatisch Code-Varianten** als separate Draft Pull Requests.
 
-### 2. Environment Configuration
-```bash
-# Copy environment template
-cp .env.example .env
+### ✨ Einfache Anwendung
 
-# Edit .env file and add your tokens:
-# - NGROK_AUTHTOKEN (required) - get from https://dashboard.ngrok.com/get-started/your-authtoken
-# - LLM API keys (optional) - OpenAI, Claude, etc.
-```
+1. **Schreibe einen Kommentar** in deinen Azure DevOps Pull Request:
+   ```
+   @Arthur-schwan /edit /2 Make all buttons red and add hover effects
+   ```
 
-### 3. Start System
-```bash
-# Start all services
-docker-compose up -d --build
+2. **Der Agent erstellt automatisch:**
+   - 🔀 2 separate Branches (`agents/edit-123-1`, `agents/edit-123-2`)
+   - 📝 Code-Patches mit AI-generierten Änderungen
+   - 🔄 Draft Pull Requests mit den Varianten
+   - 💬 Status-Updates im ursprünglichen PR
 
-# Check status
-docker-compose ps
-```
+3. **Du erhältst:**
+   - Verschiedene Lösungsansätze zum Vergleichen
+   - Sofort testbare Code-Varianten
+   - Detaillierte Erklärungen der Änderungen
 
-### 4. Access System
-| Service | URL | Zweck |
-|---------|-----|-------|
-| 🌐 **ngrok Tunnel** | http://localhost:4040 | **Copy webhook URL for Azure DevOps** |
-| 📊 **Monitoring** | http://localhost:3000 | Grafana Dashboard (admin:admin123) |
-| ⚙️ **Gateway** | http://localhost:8080 | Service Health Check |
-
-## 📚 Documentation
-
-- **[Agent.md](Agent.md)** - Complete service overview and navigation
-- **[AgentDocs/](AgentDocs/)** - Detailed technical documentation
-- **[SECURITY.md](SECURITY.md)** - Security guidelines and setup
-- **[GITHUB_PREPARATION.md](GITHUB_PREPARATION.md)** - Development notes
-
-## 🔧 Requirements
-
-### Required
-- **Docker & Docker Compose** (latest)
-- **ngrok Account** with auth token (free tier works)
-
-### Optional (for LLM features)
-- OpenAI API key
-- Anthropic Claude API key
-- Azure OpenAI credentials
-
-| Service | URL | Zweck |
-|---------|-----|-------|
-| 🌐 **Webhook URL** | `http://localhost:4040` → Tunnel URL kopieren | **Für Azure DevOps konfigurieren** |
-| 📊 Monitoring | http://localhost:3000 | Grafana Dashboard (admin:admin123) |
-| ⚙️ Gateway Direct | http://localhost:8080 | Service Health Check |
-
-## Tech Stack & Komponenten
-
-### Technology Stack
-
-| **Kategorie** | **Technologie** | **Version** | **Zweck** |
-|---------------|-----------------|-------------|-----------|
-| **Runtime** | Node.js | 20+ | JavaScript Runtime für alle Services |
-| **Sprache** | TypeScript | 5.3+ | Typisierte Entwicklung und bessere DX |
-| **Web Framework** | Fastify | 4.x | Hochperformante HTTP Services (Gateway, Adapter, LLM-Patch) |
-| **Orchestration** | Azure Durable Functions | v4 | Zuverlässige Workflow-Orchestrierung mit State Management |
-| **Database** | Supabase (PostgreSQL) | Latest | Job-Tracking, Audit-Logs, Performance-Metriken |
-| **Containerization** | Docker & Docker Compose | Latest | Lokale Entwicklung und Service-Isolation |
-| **Local Tunneling** | ngrok | Latest | Webhook-Empfang während lokaler Entwicklung |
-| **LLM APIs** | Claude/OpenAI/Local LLMs | Latest | Code-Patch-Generierung (vLLM, TGI, Ollama Support) |
-| **Cloud Platform** | Azure | Latest | Container Apps, Functions, Key Vault, Storage |
-| **🚀 Monitoring** | **Prometheus + Grafana** | **Latest** | **Enterprise-Grade Observability Stack** |
-| **🚀 Metrics** | **prom-client** | **15.x** | **Production Metrics Collection** |
-| **🚀 Logging** | **Loki + Promtail** | **Latest** | **Centralized Log Aggregation** |
-| **🚀 Alerting** | **AlertManager** | **Latest** | **Real-time Incident Management** |
-
-### Komponenten-Übersicht
-
-| **Service** | **Technologie** | **Port** | **Local URL** | **Public URL** | **Zweck** | **Inputs** | **Outputs** |
-|-------------|-----------------|----------|---------------|----------------|-----------|------------|-------------|
-| **Gateway** | Fastify + TypeScript | 3001 | [localhost:3001](http://localhost:3001) | [ngrok Gateway](https://b6d721982c6a.ngrok-free.app) | Webhook-Empfang von Azure DevOps | ADO Webhooks (HMAC-verifiziert) | Orchestrator-Trigger |
-| **Orchestrator** | Azure Durable Functions | 7071 | [localhost:7071](http://localhost:7071) | - | Workflow-Management für N Varianten | EditVariantsInput | Status-Updates + Variant-Results |
-| **Adapter** | Fastify + TypeScript | 3002 | [localhost:3002](http://localhost:3002) | - | Azure DevOps API Integration | Branch/PR/Comment-Requests | Git-Operationen + PR-Management |
-| **LLM-Patch** | Fastify + TypeScript | 3003 | [localhost:3003](http://localhost:3003) | - | AI-basierte Code-Generierung | Intent + PR-Metadata | Unified Diffs + Explanations |
-| **Shared** | TypeScript Library | N/A | - | - | Gemeinsame Types & Utilities | N/A | Contracts, Utils, Error-Handling |
-| **Supabase** | PostgreSQL | 54322 | [localhost:54322](http://localhost:54322) | - | Persistente Datenhaltung | Job/Variant-Data | Audit-Logs + Metriken |
-| **Traefik** | Reverse Proxy | 80/443 | [localhost:80](http://localhost:80) | [ngrok Dashboard](http://localhost:4040) | Load Balancing & TLS | HTTP-Requests | Service-Routing |
-| **🚀 Prometheus** | **Metrics DB** | **9090** | **[localhost:9090](http://localhost:9090)** | - | **Time-Series Metrics Storage** | **Service Metrics** | **Queryable Data** |
-| **🚀 Grafana** | **Dashboards** | **3000** | **[localhost:3000](http://localhost:3000)** | - | **Professional Monitoring UI** | **Prometheus Data** | **Visual Dashboards** |
-| **🚀 AlertManager** | **Alerting** | **9093** | **[localhost:9093](http://localhost:9093)** | - | **Alert Routing & Notifications** | **Alert Rules** | **Slack/Email Alerts** |
-| **🚀 Azurite** | **Storage Emulator** | **10000-10002** | **[Blob:10000](http://localhost:10000)** | - | **Local Azure Storage Development** | **Blob/Queue/Table** | **Storage Services** |
-| **🚀 Ngrok** | **Tunnel Service** | **4040** | **[localhost:4040](http://localhost:4040)** | **[Gateway Tunnel](https://b6d721982c6a.ngrok-free.app)** | **Public Webhook Access** | **Local Services** | **Public URLs** |
-
-### Komponenten-Interaktion
+## 🔄 Wie funktioniert es?
 
 ```mermaid
 graph TB
-    ADO[Azure DevOps] -->|PR Comment Webhook| GW[Gateway Service]
-    GW -->|HMAC Verify| GW
-    GW -->|Trigger| ORC[Orchestrator]
+    A[👤 Developer schreibt PR Kommentar<br/>@username /edit /N beschreibung] --> B[🌐 Azure DevOps Webhook]
+    B --> C[🚪 Gateway Service]
+    C --> D[🎯 Orchestrator]
     
-    ORC -->|Get PR Data| ADP[Adapter Service]
-    ORC -->|Generate Patch| LLM[LLM-Patch Service]
-    ORC -->|Create Branch| ADP
-    ORC -->|Commit Patch| ADP
-    ORC -->|Create Draft PR| ADP
-    ORC -->|Post Status| ADP
+    D --> E[📋 Adapter: PR-Daten abrufen]
+    D --> F[🤖 LLM-Patch: Code generieren]
+    D --> G[🌳 Adapter: Branches erstellen]
+    D --> H[📝 Adapter: Code committen]
+    D --> I[🔄 Adapter: Draft PRs erstellen]
     
-    ADP -->|Git Operations| ADO
-    LLM -->|API Calls| CLAUDE[Claude API]
-    LLM -->|Fallback| OPENAI[OpenAI API]
-    LLM -->|Local| LOCAL[vLLM/TGI/Ollama]
+    E --> J[📊 Azure DevOps API]
+    F --> K[🧠 Claude/OpenAI/Ollama]
+    G --> J
+    H --> J
+    I --> J
     
-    ALL[All Services] -->|Logging| SUPA[Supabase DB]
-    ALL -->|Metrics| AZURE[Application Insights]
-    
-    ORC -.->|State Management| AZURE_STORAGE[Azure Storage]
-    NGINX[Traefik] -->|Route| GW
-    NGINX -->|Route| ADP
-    NGINX -->|Route| LLM
+    style A fill:#e1f5fe
+    style D fill:#f3e5f5
+    style F fill:#fff3e0
+    style J fill:#e8f5e8
 ```
 
-### Workflow-Ablauf
+## 🚀 Quick Start
 
-| **Schritt** | **Service** | **Aktion** | **Dauer** | **Retry** |
-|-------------|-------------|------------|-----------|-----------|
-| 1 | Gateway | Webhook empfangen & validieren | ~50ms | 3x |
-| 2 | Orchestrator | Job erstellen & N Varianten starten | ~100ms | 5x |
-| 3 | Adapter | PR-Metadaten abrufen | ~500ms | 5x |
-| 4 | LLM-Patch | Code-Patch für Variante K generieren | ~10-30s | 3x |
-| 5 | Adapter | Branch `agents/edit-{job}-{k}` erstellen | ~200ms | 5x |
-| 6 | Adapter | Patch committen | ~300ms | 5x |
-| 7 | Adapter | Draft-PR öffnen | ~400ms | 5x |
-| 8 | Adapter | Status-Kommentar posten | ~200ms | 5x |
-| 9 | Orchestrator | Final-Status aggregieren | ~100ms | 5x |
-
-## Überblick
-
-Der Agent reagiert auf PR-Kommentare im Format `/edit /N <intent>` und erstellt N Varianten als separate Draft-PRs mit angewendeten Code-Patches von LLM-Services (Claude/eigene LLMs).
-
-### Kernfeatures
-
-- **Durable Orchestration** mit Azure Functions für zuverlässige Verarbeitung
-- **Horizontal skalierbar** von lokaler Entwicklung bis Cloud-Deployment
-- **Multi-Developer** Support mit isolierten Umgebungen
-- **Flexibles LLM Backend** (Claude, eigene LLMs, Stubs)
-- **Comprehensive Security** mit HMAC, Token-Management, Rate-Limiting
-
-## 🚀 Quick Start (Lokal)
-
-### 🌐 **Quick Access - Live Services**
-| **🎯 Hauptzugang** | **📊 Monitoring** | **🔧 Development** | **🌐 Public Access** |
-|-------------------|-------------------|-------------------|---------------------|
-| [🚀 Gateway](http://localhost:3001) | [📊 Grafana](http://localhost:3000) | [⚡ Functions](http://localhost:7071) | [🌍 Public Gateway](https://b6d721982c6a.ngrok-free.app) |
-| [🔧 Adapter](http://localhost:3002) | [📈 Prometheus](http://localhost:9090) | [💾 Storage](http://localhost:10000) | [🎛️ Ngrok UI](http://localhost:4040) |
-| [🤖 LLM-Patch](http://localhost:3003) | [🎯 Targets](http://localhost:9090/targets) | [🔍 Debug](http://localhost:9230) | [🎛️ Ngrok UI](http://localhost:4040) |
-
-### 📋 **Setup Steps**
-
-1. **Prerequisites**
-   - Node.js 20+
-   - Docker & Docker Compose
-   - ngrok Account & Token
-   - Azure DevOps Projekt mit Admin-Rechten
-
-2. **System Setup (Alles starten)**
-   ```bash
-   cd ops/compose
-   cp .env.example .env
-   # .env editieren (Tokens, Secrets)
-   
-   # Basic Services starten
-   docker-compose -f docker-compose.simple.yml up -d
-   
-   # 🎯 State-of-the-Art Monitoring starten
-   cd ../monitoring  
-   docker-compose -f docker-compose.monitoring.yml up -d
-   ```
-
-3. **Service Status prüfen**
-   ```bash
-   # Gateway Health Check
-   curl http://localhost:3001/health
-   
-   # 📊 Professional Monitoring Dashboards
-   curl http://localhost:3000    # Grafana (admin/admin123)
-   curl http://localhost:9090    # Prometheus
-   curl http://localhost:3001/metrics  # Gateway Metrics
-   ```
-
-4. **ngrok Tunnel**
-   ```bash
-   cd ops/dev/ngrok
-   cp ngrok.yml.example ngrok.yml
-   # ngrok Token eintragen
-   ngrok start --all --config ngrok.yml
-   ```
-
-5. **ADO Service Hook**
-   - Projekt Settings → Service Hooks
-   - "Pull request commented" → `https://b6d721982c6a.ngrok-free.app/webhook/ado`
-   - Secret aus `.env` verwenden
-
-6. **🎯 Monitoring Dashboards öffnen**
-   - **Grafana:** [http://localhost:3000](http://localhost:3000) (Login: admin/admin123)
-   - **Prometheus:** [http://localhost:9090](http://localhost:9090)
-   - **Health Monitor:** [http://localhost:8888](http://localhost:8888) (Legacy)
-
-7. **Test**
-   - PR-Kommentar: `/edit /2 Make all buttons red`
-   - Erwartung: Start/DONE/Final Kommentare + 2 Draft-PRs
-   - **Monitoring:** Request Metrics in Grafana sichtbar
-
-## 🌐 Development URLs & Endpoints
-
-### 🚀 **Core Services**
-| Service | URL | Public URL | Status | Zweck |
-|---------|-----|------------|--------|-------|
-| **Gateway** | [http://localhost:3001](http://localhost:3001) | [https://b6d721982c6a.ngrok-free.app](https://b6d721982c6a.ngrok-free.app) | 🟢 | Main Entry Point |
-| **Adapter** | [http://localhost:3002](http://localhost:3002) | - | 🟢 | Azure DevOps Integration |
-| **LLM-Patch** | [http://localhost:3003](http://localhost:3003) | - | 🟢 | AI Code Generation |
-| **Orchestrator** | [http://localhost:7071](http://localhost:7071) | - | 🟢 | Azure Functions Runtime |
-
-### 📊 **Monitoring Stack**
-| Service | URL | Credentials | Public URL | Zweck |
-|---------|-----|-------------|------------|-------|
-| **Grafana** | [http://localhost:3000](http://localhost:3000) | admin/admin123 | - | Professional Dashboards |
-| **Prometheus** | [http://localhost:9090](http://localhost:9090) | - | - | Metrics Database |
-| **Prometheus Graph** | [http://localhost:9090/graph](http://localhost:9090/graph) | - | - | Query Interface |
-| **Prometheus Targets** | [http://localhost:9090/targets](http://localhost:9090/targets) | - | - | Service Discovery |
-
-### ⚡ **Development Tools**
-| Service | URL | Public URL | Zweck |
-|---------|-----|------------|-------|
-| **Azure Functions Admin** | [http://localhost:7071/admin](http://localhost:7071/admin) | - | Function Management |
-| **Azure Functions API** | [http://localhost:7071/api](http://localhost:7071/api) | - | API Endpoints |
-| **Azurite Blob** | [http://localhost:10000](http://localhost:10000) | - | Azure Storage Emulator |
-| **Azurite Queue** | [http://localhost:10001](http://localhost:10001) | - | Queue Service Emulator |
-| **Azurite Table** | [http://localhost:10002](http://localhost:10002) | - | Table Service Emulator |
-| **🌐 Ngrok Dashboard** | [http://localhost:4040](http://localhost:4040) | - | Tunnel Management |
-| **🌐 Traefik Dashboard** | [http://localhost:80](http://localhost:80) | - | Load Balancer UI |
-
-### 🏥 **Health Checks**
-| Service | Health Endpoint | Expected Response |
-|---------|----------------|-------------------|
-| Gateway | [http://localhost:3001/health](http://localhost:3001/health) | `{"status":"ok"}` |
-| Adapter | [http://localhost:3002/health](http://localhost:3002/health) | `{"status":"ok"}` |
-| LLM-Patch | [http://localhost:3003/health](http://localhost:3003/health) | `{"status":"ok"}` |
-
-### 🐛 **Debug Ports (VS Code Remote)**
-| Service | Debug URL | VS Code Config |
-|---------|-----------|----------------|
-| Gateway | [http://localhost:9230](http://localhost:9230) | Node.js Debug Port |
-| Adapter | [http://localhost:9231](http://localhost:9231) | Node.js Debug Port |
-| LLM-Patch | [http://localhost:9232](http://localhost:9232) | Node.js Debug Port |
-
-### 🌐 **Ngrok Public Access**
-| Service | Public URL | Description |
-|---------|------------|-------------|
-| **🚀 Gateway (ADO Webhooks)** | [https://b6d721982c6a.ngrok-free.app](https://b6d721982c6a.ngrok-free.app) | **Use this for Azure DevOps Service Hooks** |
-| **🎛️ Ngrok Tunnel UI** | [http://localhost:4040](http://localhost:4040) | Tunnel Status & Management |
-
-### 🎯 **Azure DevOps Webhook Configuration**
-
-**Webhook URL for Service Hooks:**
-```
-https://b6d721982c6a.ngrok-free.app/webhook/ado
-```
-
-**Setup Steps:**
-1. Go to Azure DevOps Project Settings → Service Hooks
-2. Add new Service Hook: "Pull request commented"  
-3. Use the webhook URL above
-4. Set the secret from your `.env` file
-5. Test with PR comment: `/edit /2 Make buttons red`
-
-**✅ Health Check:**
+### 1. System starten
 ```bash
-curl -H "ngrok-skip-browser-warning: true" https://b6d721982c6a.ngrok-free.app/health
-# Expected: {"status":"ok","timestamp":"...","service":"gateway",...}
+git clone <repository>
+cd ai-code-agent
+
+# Environment konfigurieren
+cp .env.example .env
+# Trage deine Tokens ein (ngrok, OpenAI, etc.)
+
+# Alle Services starten
+docker-compose up -d --build
 ```
 
-## Architektur
+### 2. Zugang zu wichtigen Services
+| Service | URL | Zweck |
+|---------|-----|-------|
+| 🌐 **ngrok Tunnel** | http://localhost:4040 | **Webhook URL für Azure DevOps** |
+| 📊 **Monitoring** | http://localhost:3000 | Grafana Dashboard |
+| ⚙️ **Gateway** | http://localhost:8080 | System Health Check |
 
+### 3. Azure DevOps konfigurieren
+1. Gehe zu **Project Settings → Service Hooks**
+2. Erstelle **"Pull request commented"** Webhook
+3. URL: `<ngrok-tunnel-url>/webhook/ado` (aus http://localhost:4040)
+4. Secret: Aus deiner `.env` Datei
+
+### 4. Testen
+Schreibe in einen PR-Kommentar:
 ```
-User Comment → ADO Webhook → Gateway → Orchestrator
-                                      ↓ (Fan-out)
-                            ┌─ Variant 1 ─┐
-                            ├─ Variant 2 ─┤ → Draft PRs
-                            └─ Variant N ─┘
+@Arthur-schwan /edit /1 Add error handling to the login function
 ```
 
-- **Gateway**: Webhook-Empfang, Validation, Idempotenz
-- **Orchestrator**: Durable Functions für Fan-out/Fan-in Pattern
-- **Adapter**: ADO REST API Integration (Branches, PRs, Comments)
-- **LLM-Patch**: Code-Patch Generation via Claude/LLMs
+## 📋 Service Overview
 
-## Deployment Optionen
+### Core Application Services
+| Port | Service | Container | Purpose | Status Check |
+|------|---------|-----------|---------|--------------|
+| 80 | Proxy | aiforcoding-proxy-1 | Reverse Proxy & Load Balancer | `curl http://localhost:80` |
+| 8080 | Gateway | aiforcoding-gateway-1 | API Gateway for Azure DevOps Webhooks | `curl http://localhost:8080/health` |
+| 8082 | Adapter | aiforcoding-adapter-1 | Azure DevOps Integration (Branch/PR) | `curl http://localhost:8082/health` |
+| 4040 | ngrok Tunnel | aiforcoding-ngrok-1 | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
+| 11434 | Ollama | aiforcoding-ollama-1 | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
+| Internal (7071) | Orchestrator | aiforcoding-orchestrator-1 | Azure Functions Workflow Orchestration | `docker logs aiforcoding-orchestrator-1 --tail 5` |
+| Internal | LLM-Patch | aiforcoding-llm-patch-1 | Code Generation & Intent Analysis | `docker logs aiforcoding-llm-patch-1 --tail 5` |
 
-- **Local Dev**: Docker Compose + ngrok
-- **Azure Cloud**: Container Apps + Functions + Key Vault
-- **Customer Server**: Single-VM mit Traefik + systemd
+### Monitoring & Observability
+| Port | Service | Container | Purpose | Status Check |
+|------|---------|-----------|---------|--------------|
+| 3000 | Grafana | agent-grafana | Monitoring Dashboard | `curl http://localhost:3000` |
+| 9090 | Prometheus | agent-prometheus | Metrics Collection | `curl http://localhost:9090` |
+| 9100 | Node Exporter | agent-node-exporter | System Metrics | `curl http://localhost:9100/metrics` |
+| 8081 | cAdvisor | agent-cadvisor | Container Metrics | `curl http://localhost:8081/containers/` |
 
-## Dokumentation
+### Infrastructure & Storage
+| Port | Service | Container | Purpose | Status Check |
+|------|---------|-----------|---------|--------------|
+| 8090 | Traefik Dashboard | aiforcoding-traefik-1 | Load Balancer UI | `curl http://localhost:8090` |
+| 8088 | Traefik API | aiforcoding-traefik-1 | Routing API | `curl http://localhost:8088/api/version` |
+| 8443 | Traefik HTTPS | aiforcoding-traefik-1 | SSL/TLS Endpoint | `docker logs aiforcoding-traefik-1` (SSL config needed ) |
+| 10000-10002 | Azurite | aiforcoding-azurite-1 | Azure Storage Emulator | `docker logs aiforcoding-azurite-1 --tail 3` |
 
-- [Architektur](docs/architecture.md) - Detaillierte Systemübersicht
-- [Local Development](docs/local_dev.md) - Entwicklungssetup
-- [Operations](docs/operations.md) - Monitoring, Alerts, SLOs
-- [Security](docs/security.md) - Token-Management, Policies
-- [Scaling](docs/scaling.md) - Horizontal Scaling Strategien
+## 🏗️ Architektur im Detail
 
-## Support
+```mermaid
+graph TB
+    subgraph "🌍 External"
+        ADO[Azure DevOps]
+        LLM_API[Claude/OpenAI APIs]
+    end
+    
+    subgraph "🌐 Entry Point"
+        NGROK[ngrok Tunnel<br/>Port 4040]
+        PROXY[Traefik Proxy<br/>Port 80]
+    end
+    
+    subgraph "🚪 API Layer"
+        GW[Gateway Service<br/>Port 8080]
+        ADAPTER[Adapter Service<br/>Port 8082]
+    end
+    
+    subgraph "🎯 Core Logic"
+        ORC[Orchestrator<br/>Azure Functions<br/>Port 7071]
+        LLM[LLM-Patch Service<br/>Internal]
+        OLLAMA[Local Ollama<br/>Port 11434]
+    end
+    
+    subgraph "📊 Monitoring"
+        GRAFANA[Grafana<br/>Port 3000]
+        PROMETHEUS[Prometheus<br/>Port 9090]
+        CADVISOR[cAdvisor<br/>Port 8081]
+        NODE[Node Exporter<br/>Port 9100]
+    end
+    
+    subgraph "💾 Storage"
+        AZURITE[Azurite Emulator<br/>Ports 10000-10002]
+    end
+    
+    %% External connections
+    ADO -.->|Webhook| NGROK
+    LLM -->|API Calls| LLM_API
+    LLM -->|Local LLM| OLLAMA
+    
+    %% Traffic flow
+    NGROK --> PROXY
+    PROXY --> GW
+    GW --> ORC
+    ORC --> ADAPTER
+    ORC --> LLM
+    ADAPTER -.->|Git Operations| ADO
+    
+    %% Monitoring connections
+    GW --> PROMETHEUS
+    ADAPTER --> PROMETHEUS
+    LLM --> PROMETHEUS
+    ORC --> PROMETHEUS
+    CADVISOR --> PROMETHEUS
+    NODE --> PROMETHEUS
+    PROMETHEUS --> GRAFANA
+    
+    %% Storage
+    ORC --> AZURITE
+    
+    style ADO fill:#0078d4
+    style NGROK fill:#1DB954
+    style ORC fill:#FF6B6B
+    style LLM fill:#FFE66D
+    style GRAFANA fill:#FF8C00
+    style PROMETHEUS fill:#E74C3C
+```
 
-Siehe [Runbook](docs/runbook_e2e.md) für End-to-End Tests und Troubleshooting.
+## 🔧 Systemanforderungen
+
+### Erforderlich
+- **Docker & Docker Compose** (latest)
+- **ngrok Account** mit Auth Token (Free Tier funktioniert)
+- **Azure DevOps** Projekt mit Admin-Rechten
+
+### Optional (für LLM Features)
+- OpenAI API Key
+- Anthropic Claude API Key
+- Azure OpenAI Credentials
+
+## 📖 Weitere Dokumentation
+
+- **[Agent.md](Agent.md)** - Detaillierte Service-Übersicht und Navigation
+- **[AgentDocs/](AgentDocs/)** - Technische Dokumentation
+  - [System Start & Initialization](./AgentDocs/Agent_Init.md)
+  - [ngrok Container Configuration](./AgentDocs/Agent_Ngrok.md)
+  - [Troubleshooting Guide](./AgentDocs/Agent_Troubleshooting.md)
+
+
+
+## 🎯 Beispiele
+
+### Einfache Code-Änderung
+```
+@"User" /edit /1 Add null checks to the user validation function
+```
+
+### Multiple Varianten
+```
+@"User" /edit /3 Refactor the authentication logic to use JWT tokens
+```
+
+### UI-Änderungen
+```
+@"User" /edit /2 Make the navigation menu responsive and add dark mode support
+```
+
+---
+
+*Für technische Details und Troubleshooting siehe [Agent.md](Agent.md)*
