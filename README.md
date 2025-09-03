@@ -10,7 +10,7 @@ The AI Code Agent **responds to natural language** in Azure DevOps Pull Request 
 
 1. **Write a comment** in your Azure DevOps Pull Request:
    ```
-   @Arthur-schwan /edit /2 Make all buttons red and add hover effects
+   @"User" /edit /2 Make all buttons red and add hover effects
    ```
 
 2. **The Agent automatically creates:**
@@ -39,7 +39,7 @@ graph TB
     D --> I[🔄 Adapter: Create Draft PRs]
     
     E --> J[📊 Azure DevOps API]
-    F --> K[🧠 Claude/OpenAI/Ollama]
+    F --> K[🧠 Claude/OpenAI/Ollama/vLLM/TGI]
     G --> J
     H --> J
     I --> J
@@ -135,7 +135,13 @@ graph TB
     subgraph "🎯 Core Logic"
         ORC[Orchestrator<br/>Azure Functions<br/>Port 7071]
         LLM[LLM-Patch Service<br/>Internal]
+    end
+    
+    subgraph "🤖 LLM Infrastructure (Scalable)"
         OLLAMA[Local Ollama<br/>Port 11434]
+        VLLM[vLLM Container<br/>Port 8000]
+        TGI[Text Generation Inference<br/>Port 8080]
+        LOCALAI[LocalAI<br/>Port 8080]
     end
     
     subgraph "📊 Monitoring"
@@ -151,8 +157,11 @@ graph TB
     
     %% External connections
     ADO -.->|Webhook| NGROK
-    LLM -->|API Calls| LLM_API
-    LLM -->|Local LLM| OLLAMA
+    LLM -->|External APIs| LLM_API
+    LLM -->|Local Ollama| OLLAMA
+    LLM -->|Scalable vLLM| VLLM
+    LLM -->|HuggingFace TGI| TGI
+    LLM -->|OpenAI Compatible| LOCALAI
     
     %% Traffic flow
     NGROK --> PROXY
@@ -167,6 +176,9 @@ graph TB
     ADAPTER --> PROMETHEUS
     LLM --> PROMETHEUS
     ORC --> PROMETHEUS
+    OLLAMA --> PROMETHEUS
+    VLLM --> PROMETHEUS
+    TGI --> PROMETHEUS
     CADVISOR --> PROMETHEUS
     NODE --> PROMETHEUS
     PROMETHEUS --> GRAFANA
@@ -178,6 +190,11 @@ graph TB
     style NGROK fill:#1DB954
     style ORC fill:#FF6B6B
     style LLM fill:#FFE66D
+    style VLLM fill:#9C27B0
+    style TGI fill:#4CAF50
+    style LOCALAI fill:#FF5722
+    style GRAFANA fill:#FF8C00
+    style PROMETHEUS fill:#E74C3C
     style GRAFANA fill:#FF8C00
     style PROMETHEUS fill:#E74C3C
 ```
