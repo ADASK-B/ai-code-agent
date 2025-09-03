@@ -2,9 +2,14 @@
 
 > **An intelligent AI agent that automatically creates code changes in Azure DevOps Pull Requests**
 
+## ⚠️ Development Status
+
+🚧 **This project is currently in active development** but already functional for core workflows.
+
+
 ## 🎯 What does this Agent do?
 
-The AI Code Agent **responds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests.
+The AI Code Agent **responds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests **from the same codebase context** where the comment was posted.
 
 ### ✨ Simple Usage
 
@@ -14,15 +19,15 @@ The AI Code Agent **responds to natural language** in Azure DevOps Pull Request 
    ```
 
 2. **The Agent automatically creates:**
-   - 🔀 2 separate branches (`agents/edit-123-1`, `agents/edit-123-2`)
-   - 📝 Code patches with AI-generated changes
-   - 🔄 Draft Pull Requests with the variants
-   - 💬 Status updates in the original PR
+   - 🔀 2 separate branches (`agents/edit-123-1`, `agents/edit-123-2`) **based on your current PR**
+   - 📝 Code patches with AI-generated changes **applied to your existing code**
+   - 🔄 Draft Pull Requests with the variants **targeting the same base branch**
+   - 💬 Status updates **posted back to your original PR** showing progress
 
 3. **You receive:**
-   - Different solution approaches to compare
-   - Immediately testable code variants
-   - Detailed explanations of the changes
+   - Different solution approaches to compare **within your PR context**
+   - Immediately testable code variants **built on your existing changes**
+   - Detailed explanations of the changes **relevant to your current work**
 
 ## 🔄 How does it work?
 
