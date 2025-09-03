@@ -1,42 +1,42 @@
 # 🤖 AI Code Agent
 
-> **Ein intelligenter AI-Agent, der automatisch Code-Änderungen in Azure DevOps Pull Requests erstellt**
+> **An intelligent AI agent that automatically creates code changes in Azure DevOps Pull Requests**
 
-## 🎯 Was macht dieser Agent?
+## 🎯 What does this Agent do?
 
-Der AI Code Agent **reagiert auf natürliche Sprache** in Azure DevOps Pull Request Kommentaren und erstellt **automatisch Code-Varianten** als separate Draft Pull Requests.
+The AI Code Agent **responds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests.
 
-### ✨ Einfache Anwendung
+### ✨ Simple Usage
 
-1. **Schreibe einen Kommentar** in deinen Azure DevOps Pull Request:
+1. **Write a comment** in your Azure DevOps Pull Request:
    ```
    @Arthur-schwan /edit /2 Make all buttons red and add hover effects
    ```
 
-2. **Der Agent erstellt automatisch:**
-   - 🔀 2 separate Branches (`agents/edit-123-1`, `agents/edit-123-2`)
-   - 📝 Code-Patches mit AI-generierten Änderungen
-   - 🔄 Draft Pull Requests mit den Varianten
-   - 💬 Status-Updates im ursprünglichen PR
+2. **The Agent automatically creates:**
+   - 🔀 2 separate branches (`agents/edit-123-1`, `agents/edit-123-2`)
+   - 📝 Code patches with AI-generated changes
+   - 🔄 Draft Pull Requests with the variants
+   - 💬 Status updates in the original PR
 
-3. **Du erhältst:**
-   - Verschiedene Lösungsansätze zum Vergleichen
-   - Sofort testbare Code-Varianten
-   - Detaillierte Erklärungen der Änderungen
+3. **You receive:**
+   - Different solution approaches to compare
+   - Immediately testable code variants
+   - Detailed explanations of the changes
 
-## 🔄 Wie funktioniert es?
+## 🔄 How does it work?
 
 ```mermaid
 graph TB
-    A[👤 Developer schreibt PR Kommentar<br/>@username /edit /N beschreibung] --> B[🌐 Azure DevOps Webhook]
+    A[👤 Developer writes PR comment<br/>@username /edit /N description] --> B[🌐 Azure DevOps Webhook]
     B --> C[🚪 Gateway Service]
     C --> D[🎯 Orchestrator]
     
-    D --> E[📋 Adapter: PR-Daten abrufen]
-    D --> F[🤖 LLM-Patch: Code generieren]
-    D --> G[🌳 Adapter: Branches erstellen]
-    D --> H[📝 Adapter: Code committen]
-    D --> I[🔄 Adapter: Draft PRs erstellen]
+    D --> E[📋 Adapter: Fetch PR data]
+    D --> F[🤖 LLM-Patch: Generate code]
+    D --> G[🌳 Adapter: Create branches]
+    D --> H[📝 Adapter: Commit code]
+    D --> I[🔄 Adapter: Create Draft PRs]
     
     E --> J[📊 Azure DevOps API]
     F --> K[🧠 Claude/OpenAI/Ollama]
@@ -52,34 +52,34 @@ graph TB
 
 ## 🚀 Quick Start
 
-### 1. System starten
+### 1. Start System
 ```bash
 git clone <repository>
 cd ai-code-agent
 
-# Environment konfigurieren
+# Configure environment
 cp .env.example .env
-# Trage deine Tokens ein (ngrok, OpenAI, etc.)
+# Add your tokens (ngrok, OpenAI, etc.)
 
-# Alle Services starten
+# Start all services
 docker-compose up -d --build
 ```
 
-### 2. Zugang zu wichtigen Services
-| Service | URL | Zweck |
-|---------|-----|-------|
-| 🌐 **ngrok Tunnel** | http://localhost:4040 | **Webhook URL für Azure DevOps** |
+### 2. Access Important Services
+| Service | URL | Purpose |
+|---------|-----|---------|
+| 🌐 **ngrok Tunnel** | http://localhost:4040 | **Webhook URL for Azure DevOps** |
 | 📊 **Monitoring** | http://localhost:3000 | Grafana Dashboard |
 | ⚙️ **Gateway** | http://localhost:8080 | System Health Check |
 
-### 3. Azure DevOps konfigurieren
-1. Gehe zu **Project Settings → Service Hooks**
-2. Erstelle **"Pull request commented"** Webhook
-3. URL: `<ngrok-tunnel-url>/webhook/ado` (aus http://localhost:4040)
-4. Secret: Aus deiner `.env` Datei
+### 3. Configure Azure DevOps
+1. Go to **Project Settings → Service Hooks**
+2. Create **"Pull request commented"** Webhook
+3. URL: `<ngrok-tunnel-url>/webhook/ado` (from http://localhost:4040)
+4. Secret: From your `.env` file
 
-### 4. Testen
-Schreibe in einen PR-Kommentar:
+### 4. Test
+Write in a PR comment:
 ```
 @Arthur-schwan /edit /1 Add error handling to the login function
 ```
@@ -113,7 +113,7 @@ Schreibe in einen PR-Kommentar:
 | 8443 | Traefik HTTPS | aiforcoding-traefik-1 | SSL/TLS Endpoint | `docker logs aiforcoding-traefik-1` (SSL config needed ) |
 | 10000-10002 | Azurite | aiforcoding-azurite-1 | Azure Storage Emulator | `docker logs aiforcoding-azurite-1 --tail 3` |
 
-## 🏗️ Architektur im Detail
+## 🏗️ Detailed Architecture
 
 ```mermaid
 graph TB
@@ -182,45 +182,57 @@ graph TB
     style PROMETHEUS fill:#E74C3C
 ```
 
-## 🔧 Systemanforderungen
+## 🔧 System Requirements
 
-### Erforderlich
+### Required
 - **Docker & Docker Compose** (latest)
-- **ngrok Account** mit Auth Token (Free Tier funktioniert)
-- **Azure DevOps** Projekt mit Admin-Rechten
+- **ngrok Account** with Auth Token (Free tier works)
+- **Azure DevOps** Project with Admin rights
 
-### Optional (für LLM Features)
+### Optional (for LLM Features)
 - OpenAI API Key
 - Anthropic Claude API Key
 - Azure OpenAI Credentials
 
-## 📖 Weitere Dokumentation
+## 📖 Additional Documentation
 
-- **[Agent.md](Agent.md)** - Detaillierte Service-Übersicht und Navigation
-- **[AgentDocs/](AgentDocs/)** - Technische Dokumentation
+- **[Agent.md](Agent.md)** - Detailed service overview and navigation
+- **[AgentDocs/](AgentDocs/)** - Technical documentation
   - [System Start & Initialization](./AgentDocs/Agent_Init.md)
   - [ngrok Container Configuration](./AgentDocs/Agent_Ngrok.md)
   - [Troubleshooting Guide](./AgentDocs/Agent_Troubleshooting.md)
 
+## 🛠️ Health Check
 
+Check if all services are running:
+```bash
+# Automatic check
+./scripts/health-check.ps1
 
-## 🎯 Beispiele
+# Manual check
+curl http://localhost:8080/health  # Gateway
+curl http://localhost:8082/health  # Adapter
+curl http://localhost:4040/api/tunnels  # ngrok
+curl http://localhost:3000  # Grafana
+```
 
-### Einfache Code-Änderung
+## 🎯 Examples
+
+### Simple Code Change
 ```
 @"User" /edit /1 Add null checks to the user validation function
 ```
 
-### Multiple Varianten
+### Multiple Variants
 ```
 @"User" /edit /3 Refactor the authentication logic to use JWT tokens
 ```
 
-### UI-Änderungen
+### UI Changes
 ```
 @"User" /edit /2 Make the navigation menu responsive and add dark mode support
 ```
 
 ---
 
-*Für technische Details und Troubleshooting siehe [Agent.md](Agent.md)*
+*For technical details and troubleshooting see [Agent.md](Agent.md)*
