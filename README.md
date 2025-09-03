@@ -222,20 +222,6 @@ graph TB
   - [ngrok Container Configuration](./AgentDocs/Agent_Ngrok.md)
   - [Troubleshooting Guide](./AgentDocs/Agent_Troubleshooting.md)
 
-## 🛠️ Health Check
-
-Check if all services are running:
-```bash
-# Automatic check
-./scripts/health-check.ps1
-
-# Manual check
-curl http://localhost:8080/health  # Gateway
-curl http://localhost:8082/health  # Adapter
-curl http://localhost:4040/api/tunnels  # ngrok
-curl http://localhost:3000  # Grafana
-```
-
 ## 🎯 Examples
 
 ### Simple Code Change
