@@ -1,9 +1,8 @@
 # ngrok Docker Container
 FROM ngrok/ngrok:alpine
 
-# Copy config
-COPY ngrok.yml /etc/ngrok.yml
+# Copy config template
+COPY ngrok.yml.template /tmp/ngrok.yml.template
 
-# Set entrypoint
-ENTRYPOINT ["ngrok"]
-CMD ["start", "--all", "--config", "/etc/ngrok.yml"]
+# Use sh to process template at runtime
+ENTRYPOINT ["sh", "-c", "sed \"s/\\${NGROK_AUTHTOKEN}/$NGROK_AUTHTOKEN/g\" /tmp/ngrok.yml.template > /tmp/ngrok.yml && ngrok start --all --config /tmp/ngrok.yml"]

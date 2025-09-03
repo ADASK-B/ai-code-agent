@@ -257,7 +257,7 @@ services:
     networks:
       - agent-network
     volumes:
-      - ../dev/ngrok/ngrok.yml:/etc/ngrok.yml:ro
+      - ../dev/ngrok/ngrok.yml.template:/tmp/ngrok.yml.template:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ngrok.rule=PathPrefix(`/ngrok`)"

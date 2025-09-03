@@ -31,13 +31,19 @@ docker-compose -f ops/compose/docker-compose.yml --env-file .env up -d --build
 docker ps
 
 # === Core Application Services ===
-curl http://localhost:80                    # Proxy (Traefik)
+curl http://localhost:8080                  # Traefik Dashboard (checks if running)
 curl http://localhost:3001/health           # Gateway  
 curl http://localhost:3002/health           # Adapter
-curl http://localhost:4040/api/tunnels      # ngrok
-curl http://localhost:11434/api/version     # Ollama
+curl http://localhost:3003/health           # LLM-Patch
 docker logs agent-orchestrator --tail 3    # Orchestrator (Azure Functions)
-docker logs agent-llm-patch --tail 3       # LLM-Patch
+
+# === ngrok Tunnel (External Access) ===
+curl http://localhost:4040/api/tunnels      # ngrok API
+# Visit http://localhost:4040 for ngrok Web Interface
+
+# === Local LLM Service ===
+# NOTE: Ollama is optional and may not be running
+curl http://localhost:11434/api/version || echo "⚠️ Ollama not running (optional)"
 
 # === Monitoring & Observability ===
 curl http://localhost:3000                  # Grafana
@@ -47,7 +53,6 @@ curl http://localhost:8081/containers/      # cAdvisor
 
 # === Infrastructure & Storage ===
 curl http://localhost:8080                  # Traefik Dashboard
-curl http://localhost:8088/api/version      # Traefik API
 docker logs agent-azurite --tail 3         # Azurite
 
 # All services healthy? ✅ System ready!
@@ -58,13 +63,13 @@ docker logs agent-azurite --tail 3         # Azurite
 ### Core Application Services
 | Port | Service | Container | Purpose | Status Check |
 |------|---------|-----------|---------|--------------|
-| 80 | Proxy | agent-traefik | Reverse Proxy & Load Balancer | `curl http://localhost:80` |
+| 8080 | Traefik Dashboard | agent-traefik | Load Balancer UI & Status | `curl http://localhost:8080` |
 | 3001 | Gateway | agent-gateway | API Gateway for Azure DevOps Webhooks | `curl http://localhost:3001/health` |
 | 3002 | Adapter | agent-adapter | Azure DevOps Integration (Branch/PR) | `curl http://localhost:3002/health` |
+| 3003 | LLM-Patch | agent-llm-patch | Code Generation & Intent Analysis | `curl http://localhost:3003/health` |
 | 4040 | ngrok Tunnel | agent-ngrok | External Webhook Access & Traffic Inspector | `curl http://localhost:4040/api/tunnels` + `http://localhost:4040/inspect/http` |
 | 11434 | Ollama | agent-ollama | Local LLM (llama3.1:8b) | `curl http://localhost:11434/api/version` |
 | Internal (7071) | Orchestrator | agent-orchestrator | Azure Functions Workflow Orchestration | `docker logs agent-orchestrator --tail 5` |
-| Internal | LLM-Patch | agent-llm-patch | Code Generation & Intent Analysis | `docker logs agent-llm-patch --tail 5` |
 
 ### Monitoring & Observability
 | Port | Service | Container | Purpose | Status Check |
@@ -77,10 +82,9 @@ docker logs agent-azurite --tail 3         # Azurite
 ### Infrastructure & Storage
 | Port | Service | Container | Purpose | Status Check |
 |------|---------|-----------|---------|--------------|
-| 8080 | Traefik Dashboard | agent-traefik | Load Balancer UI | `curl http://localhost:8080` |
-| 8088 | Traefik API | agent-traefik | Routing API | `curl http://localhost:8088/api/version` |
-| 8443 | Traefik HTTPS | agent-traefik | SSL/TLS Endpoint | `docker logs agent-traefik` (SSL config needed ) |
 | 10000-10002 | Azurite | agent-azurite | Azure Storage Emulator | `docker logs agent-azurite --tail 3` |
+
+**Note:** Traefik Proxy (Port 80) gives 404 by design - no default routes configured. Use Dashboard (Port 8080) to verify it's running.
 
 ## Azure DevOps Configuration
 
@@ -113,7 +117,7 @@ The agent will:
 If containers already exist but are stopped:
 ```bash
 # Start existing containers (includes ngrok!)
-docker start agent-gateway agent-adapter agent-llm-patch agent-orchestrator agent-traefik agent-ollama agent-ngrok agent-grafana agent-prometheus agent-cadvisor agent-node-exporter agent-azurite
+docker start agent-gateway agent-adapter agent-llm-patch agent-orchestrator agent-ngrok agent-ollama agent-grafana agent-prometheus agent-cadvisor agent-node-exporter agent-azurite agent-traefik
 ```
 
 ## Stop System
