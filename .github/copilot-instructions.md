@@ -3,6 +3,12 @@
 ⚠ HOLY GRAIL / SINGLE SOURCE OF TRUTH (open this first)
 1. `Agents.md`  ← Navigation Hub / wiki for EVERYTHING: Start → Health → Monitoring → Stop → Troubleshooting. MUST always be up to date; when any process/service changes, update this first.
 
+About the docs folder (`AgentsMd/`):
+- Purpose: Holds the detailed, topic-specific pages that the root `Agents.md` links to (acts as the wiki content store).
+- Structure: One subfolder per topic, each with its own `Agents.md` entry file (consistent naming keeps links stable).
+- Example: `AgentsMd/Initialisierung/Agents.md` → complete startup + health verification procedures (opened from `Agents.md`).
+- Maintenance rule: When you add or change any operational procedure, update the corresponding page in `AgentsMd/` and then adjust links/navigation in the root `Agents.md`.
+
 Rule: For any new/changed procedures (start, stop, health, webhook, models) → update `Agents.md` FIRST. Then, update this file’s references as needed. This file is only a compact index for AI agents.
 
 ## 1. Core Purpose
