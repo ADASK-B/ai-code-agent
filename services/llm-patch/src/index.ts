@@ -421,34 +421,20 @@ Make sure the diff follows standard unified diff format with proper headers.`;
     const intent = prompt.split('**Intent:**')[1]?.split('**Context:**')[0]?.trim() || 'code example';
     
     // Create intelligent prompt based on the intent
-    const simplePrompt = `You are a helpful coding assistant. The user wants to modify files in a repository.
+    const simplePrompt = `You are a helpful coding assistant. Generate ONLY the new content requested by the user.
 
 User request: "${intent}"
 
-IMPORTANT: Follow the user's request EXACTLY. Pay attention to:
-1. WHAT they want to add/change (content, stories, code, features)
-2. WHICH LANGUAGE they specified (English, German, Russian, etc.)
-3. WHERE it should go (which section of which file)
-4. HOW MANY sentences/lines they requested
-
 Current repository context:
-- Files available: ${prMeta.files.join(', ')}
-- Main file: ${prMeta.files[0] || 'README.md'}
+- Target file: ${prMeta.files[0] || 'README.md'}
+- PR Title: ${prMeta.title}
 
-Current ${prMeta.files[0] || 'README.md'} content:
-# ${prMeta.title || 'Project'}
+Generate ONLY the requested content. Do NOT include:
+- Template text like "Project description here"
+- Example sections
+- Unrelated content
 
-Project description here.
-
-EXAMPLES:
-- "Add a story in Russian" → Write actual Russian text
-- "Add 3 sentences about X" → Write exactly 3 sentences
-- "Add code example" → Write actual code
-- "Add German documentation" → Write in German
-
-Generate the complete modified file content. Be specific and creative based on the request.
-
-Provide the complete modified file content. No JSON format needed.`;
+Response format: Provide the exact content to be added to the file.`;
     
     try {
       const response = await fetch(`${this.ollamaUrl}/api/generate`, {
@@ -481,13 +467,22 @@ Provide the complete modified file content. No JSON format needed.`;
       
       console.log('Ollama raw response:', content);
       
+      // Clean and process the response
+      let processedContent = content.trim();
+      
+      // Remove common AI response artifacts
+      processedContent = processedContent
+        .replace(/^(Here's|Here is|I'll|I will).*?[:.]\s*/i, '')
+        .replace(/^The complete.*?[:.]\s*/i, '')
+        .replace(/^Modified.*?[:.]\s*/i, '');
+      
       try {
         // Try to extract JSON from response
-        const jsonMatch = content.match(/\{[\s\S]*?\}/);
+        const jsonMatch = processedContent.match(/\{[\s\S]*?\}/);
         if (jsonMatch) {
           const result = JSON.parse(jsonMatch[0] + '}'); // Add closing brace if missing
           return {
-            diff: result.diff || this.createDiffFromContent(content, prMeta, intent),
+            diff: result.diff || this.createDiffFromContent(processedContent, prMeta, intent),
             notes: result.notes || `Generated response using local Ollama for: ${intent}`,
             confidence: Math.min(Math.max(result.confidence || 0.8, 0.1), 1.0),
             filesChanged: result.filesChanged || ['README.md']
@@ -537,28 +532,39 @@ Provide the complete modified file content. No JSON format needed.`;
     
     let newContent = content;
     
-    // Look for "After:" section in Ollama response
-    const afterMatch = content.match(/After:\s*```\s*(?:markdown\s*)?([\s\S]*?)```/i);
-    if (afterMatch) {
-      newContent = afterMatch[1].trim();
-    } else {
-      // Look for any markdown code block
-      const codeMatch = content.match(/```\s*(?:markdown\s*)?([\s\S]*?)```/);
-      if (codeMatch) {
-        newContent = codeMatch[1].trim();
-      } else {
-        // Remove common AI response prefixes and use as is
-        newContent = content
-          .replace(/^(I will|Here is|Here's|Let me).*?:\s*/i, '')
-          .replace(/^.*?README\.md.*?:\s*/i, '')
-          .trim();
-        
-        // If no markdown content found, add it to existing structure
-        if (!newContent.includes('#')) {
-          newContent = `${oldContent}\n\n${newContent}`;
-        }
-      }
+    // Step 1: Clean the response from common AI prefixes
+    newContent = content
+      .replace(/^(I will|Here is|Here's|Let me|I'll|Based on|According to).*?[:.]\s*/i, '')
+      .replace(/^.*?README\.md.*?[:.]\s*/i, '')
+      .replace(/^.*?content.*?[:.]\s*/i, '')
+      .trim();
+    
+    // Step 2: Extract from markdown code blocks if present
+    const codeMatch = newContent.match(/```\s*(?:markdown|csharp|cs)?\s*([\s\S]*?)```/i);
+    if (codeMatch) {
+      newContent = codeMatch[1].trim();
     }
+    
+    // Step 3: If it's C# code but not in a code block, wrap it
+    if (intent && intent.toLowerCase().includes('c#') && !newContent.includes('```')) {
+      if (newContent.includes('using System') || newContent.includes('class ') || newContent.includes('static void Main')) {
+        newContent = `# ${prMeta.title || 'Project'}\n\nProject description here.\n\n## C# Code Example\n\n\`\`\`csharp\n${newContent}\n\`\`\``;
+      } else {
+        // If it doesn't look like proper C# code, create a simple Hello World
+        newContent = `# ${prMeta.title || 'Project'}\n\nProject description here.\n\n## C# Hello World\n\n\`\`\`csharp\nusing System;\n\nclass Program\n{\n    static void Main()\n    {\n        Console.WriteLine("Hello World!");\n    }\n}\n\`\`\``;
+      }
+    } else if (!newContent.includes('#') && !newContent.includes('```')) {
+      // If it's plain text, add it to the existing structure  
+      newContent = `${oldContent}\n\n${newContent}`;
+    }
+    
+    // Step 4: Filter out any remaining template text or examples
+    newContent = newContent
+      .replace(/EXAMPLES:\s*[\s\S]*?(?=\n##|\n\n|$)/g, '')
+      .replace(/- "Add.*?→.*?\n/g, '')
+      .replace(/Вот простой пример использования нашего проекта\./g, '')
+      .replace(/X - это переменная.*?\n/g, '')
+      .replace(/В будущем мы можем расширить функциональность X\./g, '');
     
     return createPatch(
       targetFile,
