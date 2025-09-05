@@ -1,15 +1,17 @@
 # AI Code Agent – Copilot Instructions
 
 ⚠ HOLY GRAIL / SINGLE SOURCE OF TRUTH (open this first)
-1. `Agents.md`  ← Navigation Hub / wiki for everything: Start → Health → Monitoring → Stop → Troubleshooting. MUST always be up to date; when any process/service changes, update this first.
-2. `README.md`  – Architecture (diagrams) & high-level purpose (overview only, no step-by-step flows here)
-3. `services/shared/src/contracts.ts` – Central contracts, limits & constants (if this changes → review branching/variant/patch logic)
-4. `services/gateway/src/index.ts` – Webhook entry, `/ready` orchestrator check, correlation ID pattern
-5. `services/llm-patch/src/index.ts` – Patch/clarification pipeline & provider fallback order
-6. `docker-compose.full.yml` – Full stack (ports, service names, health dependencies)
-7. `AgentsMd/Initialisierung/Agents.md` – Current detailed start/health procedure (linked from `Agents.md`)
+1. `Agents.md`  ← Navigation Hub / wiki for EVERYTHING: Start → Health → Monitoring → Stop → Troubleshooting. MUST always be up to date; when any process/service changes, update this first.
 
-Rule: For any new/changed procedures (start, stop, health, webhook, models) → update `Agents.md` first, then fix references here if needed. This file is a compact index for AI agents.
+Core references (open next):
+- `README.md`  – Architecture (diagrams) & high-level purpose (overview only)
+- `services/shared/src/contracts.ts` – Central contracts, limits & constants
+- `services/gateway/src/index.ts` – Webhook entry, `/ready` orchestrator check, correlation ID pattern
+- `services/llm-patch/src/index.ts` – Patch/clarification pipeline & provider fallback order
+- `docker-compose.full.yml` – Full stack (ports, service names, health dependencies)
+- `AgentsMd/Initialisierung/Agents.md` – Detailed start/health procedure (linked from `Agents.md`)
+
+Rule: For any new/changed procedures (start, stop, health, webhook, models) → update `Agents.md` FIRST. Then, update this file’s references as needed. This file is only a compact index for AI agents.
 
 ## 1. Core Purpose
 Automates Azure DevOps PR comment intents: user writes `@User /edit /N <intent>` -> system creates N draft PR variants with code changes + explanations.
