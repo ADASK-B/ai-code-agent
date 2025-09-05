@@ -3,14 +3,6 @@
 ⚠ HOLY GRAIL / SINGLE SOURCE OF TRUTH (open this first)
 1. `Agents.md`  ← Navigation Hub / wiki for EVERYTHING: Start → Health → Monitoring → Stop → Troubleshooting. MUST always be up to date; when any process/service changes, update this first.
 
-Core references (open next):
-- `README.md`  – Architecture (diagrams) & high-level purpose (overview only)
-- `services/shared/src/contracts.ts` – Central contracts, limits & constants
-- `services/gateway/src/index.ts` – Webhook entry, `/ready` orchestrator check, correlation ID pattern
-- `services/llm-patch/src/index.ts` – Patch/clarification pipeline & provider fallback order
-- `docker-compose.full.yml` – Full stack (ports, service names, health dependencies)
-- `AgentsMd/Initialisierung/Agents.md` – Detailed start/health procedure (linked from `Agents.md`)
-
 Rule: For any new/changed procedures (start, stop, health, webhook, models) → update `Agents.md` FIRST. Then, update this file’s references as needed. This file is only a compact index for AI agents.
 
 ## 1. Core Purpose
