@@ -1,15 +1,15 @@
 # AI Code Agent – Copilot Instructions
 
-⚠ HEILIGER GRAL / SINGLE SOURCE OF TRUTH (immer zuerst öffnen)
-1. `Agents.md`  ← Navigation Hub / „Wiki“ für alles: Start → Health → Monitoring → Stop → Troubleshooting. MUSS IMMER aktuell sein und bei jeder Prozess-/Service-Änderung zuerst gepflegt werden.
-2. `README.md`  – Architektur (Diagramme) & High-Level Zweck (nur Übersicht, keine Ablaufdetails pflegen!)
-3. `services/shared/src/contracts.ts` – Zentrale Contracts, Limits & Konstanten (ändert sich hier etwas → Branching / Variant / Patch Logik prüfen)
-4. `services/gateway/src/index.ts` – Webhook Entry, `/ready` Orchestrator Check, Korrelation-ID Muster
-5. `services/llm-patch/src/index.ts` – Patch/Clarification Pipeline & Provider-Fallback Reihenfolge
-6. `docker-compose.full.yml` – Vollständiger Stack (Ports, Service-Namen, Health Abhängigkeiten)
-7. `AgentsMd/Initialisierung/Agents.md` – Aktuelle detaillierte Start-/Health-Prozedur (verlinkt aus `Agents.md`)
+⚠ HOLY GRAIL / SINGLE SOURCE OF TRUTH (open this first)
+1. `Agents.md`  ← Navigation Hub / wiki for everything: Start → Health → Monitoring → Stop → Troubleshooting. MUST always be up to date; when any process/service changes, update this first.
+2. `README.md`  – Architecture (diagrams) & high-level purpose (overview only, no step-by-step flows here)
+3. `services/shared/src/contracts.ts` – Central contracts, limits & constants (if this changes → review branching/variant/patch logic)
+4. `services/gateway/src/index.ts` – Webhook entry, `/ready` orchestrator check, correlation ID pattern
+5. `services/llm-patch/src/index.ts` – Patch/clarification pipeline & provider fallback order
+6. `docker-compose.full.yml` – Full stack (ports, service names, health dependencies)
+7. `AgentsMd/Initialisierung/Agents.md` – Current detailed start/health procedure (linked from `Agents.md`)
 
-Regel: Neue Abläufe / Änderungen (Start, Stop, Health, Webhook, Modelle) → zuerst `Agents.md` aktualisieren, dann (falls nötig) Referenzen hier korrigieren. Diese Datei ist nur der kompakte Index für AI Agents.
+Rule: For any new/changed procedures (start, stop, health, webhook, models) → update `Agents.md` first, then fix references here if needed. This file is a compact index for AI agents.
 
 ## 1. Core Purpose
 Automates Azure DevOps PR comment intents: user writes `@User /edit /N <intent>` -> system creates N draft PR variants with code changes + explanations.
@@ -82,13 +82,13 @@ POST `/generate-patch` with `{ intent, variantNumber, prMeta:{...}, correlationI
 - Always include correlationId when adding new request flows.
 - Respect MAX_* limits; truncate or split logic if exceeded.
 
-## 15. Where to Look Next (kurzer Index)
-- Navigation / Operations (Pflicht zuerst): `Agents.md`
-- Detaillierter Start/Health Ablauf: `AgentsMd/Initialisierung/Agents.md`
-- Architektur Übersicht: `README.md`
-- Contracts & Limits: `services/shared/src/contracts.ts`
-- Gateway Entry / Webhook: `services/gateway/src/index.ts`
-- Patch & LLM Provider Logic: `services/llm-patch/src/index.ts`
-- Voller Stack / Ports: `docker-compose.full.yml`
+## 15. Where to Look Next (quick index)
+- Navigation / Operations (open first): `Agents.md`
+- Detailed start/health procedure: `AgentsMd/Initialisierung/Agents.md`
+- Architecture overview: `README.md`
+- Contracts & limits: `services/shared/src/contracts.ts`
+- Gateway entry / webhook: `services/gateway/src/index.ts`
+- Patch & LLM provider logic: `services/llm-patch/src/index.ts`
+- Full stack / ports: `docker-compose.full.yml`
 
 (End of instructions – keep concise; update when architecture or limits change.)
