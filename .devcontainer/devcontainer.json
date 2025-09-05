@@ -1,12 +1,10 @@
 {
-  "name": "Code Agent MVP",
+  "name": "AI Code Agent",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    }
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" }
   },
   "customizations": {
     "vscode": {
@@ -23,38 +21,49 @@
       "settings": {
         "typescript.preferences.includePackageJsonAutoImports": "auto",
         "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": "explicit"
-        }
+        "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" }
       }
     }
   },
   "forwardPorts": [
     80,
+    3000,
     3001,
     3002,
     3003,
+    4040,
     7071,
     8080,
+    8081,
+    8888,
+    9090,
+    9093,
+    9100,
+    3100,
     11434,
-    54322
+    10000
   ],
   "portsAttributes": {
-    "80": {
-      "label": "Code Agent Gateway",
-      "onAutoForward": "notify"
-    },
-    "8080": {
-      "label": "Traefik Dashboard",
-      "onAutoForward": "silent"
-    },
-    "11434": {
-      "label": "Ollama LLM Server",
-      "onAutoForward": "silent"
-    }
+    "80": { "label": "Gateway (Traefik Route)", "onAutoForward": "notify" },
+    "3000": { "label": "Grafana", "onAutoForward": "silent" },
+    "3001": { "label": "Gateway API", "onAutoForward": "silent" },
+    "3002": { "label": "Adapter", "onAutoForward": "silent" },
+    "3003": { "label": "LLM Patch", "onAutoForward": "silent" },
+    "4040": { "label": "ngrok Inspector", "onAutoForward": "silent" },
+    "7071": { "label": "Orchestrator", "onAutoForward": "silent" },
+    "8080": { "label": "Traefik Dashboard", "onAutoForward": "silent" },
+    "8081": { "label": "cAdvisor", "onAutoForward": "silent" },
+    "8888": { "label": "Health Monitor", "onAutoForward": "silent" },
+    "9090": { "label": "Prometheus", "onAutoForward": "silent" },
+    "9093": { "label": "Alertmanager", "onAutoForward": "silent" },
+    "9100": { "label": "Node Exporter", "onAutoForward": "silent" },
+    "3100": { "label": "Loki", "onAutoForward": "silent" },
+    "11434": { "label": "Ollama LLM", "onAutoForward": "silent" },
+    "10000": { "label": "Azurite Blob", "onAutoForward": "silent" }
   },
   "postCreateCommand": "npm install -g @azure/functions-core-tools@4 --unsafe-perm true",
-  "postStartCommand": "echo 'Code Agent MVP ready! Run: cd ops/compose && docker compose up -d'",
+  "postStartCommand": "bash -lc 'if [ -n \"$CODESPACE_NAME\" ]; then echo Codespaces detected; if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi; sed -i \"s/^ENABLE_NGROK=.*/ENABLE_NGROK=false/\" .env 2>/dev/null || true; docker compose -f docker-compose.full.yml --env-file .env up -d; echo Stack started; else echo Local devcontainer - manual start: docker compose -f docker-compose.full.yml --env-file .env up -d --build; fi'",
   "remoteUser": "vscode",
-  "workspaceFolder": "/workspaces/AIForCoding"
+  "workspaceFolder": "/workspaces/ai-code-agent",
+  "hostRequirements": { "cpus": 4, "memory": "8gb" }
 }
