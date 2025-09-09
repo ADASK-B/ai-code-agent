@@ -186,9 +186,6 @@ jobs:
             echo "</ul></body></html>" >> _site/architecture.html
           fi
           echo "✅ Debug architecture page created"
-        else
-          echo "❌ No exports directory found"
-          echo "<html><head><title>Debug</title></head><body><h1>No exports directory found</h1><p>Structurizr CLI may have failed to export diagrams.</p></body></html>" > _site/architecture.html
         fi
         
         # Add README
