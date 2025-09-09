@@ -30,7 +30,7 @@ The AI Code Agent **responds to natural language** in Azure DevOps Pull Request 
 
 ## 🏗️ System Architecture
 
-> **Enterprise-grade architecture** designed with **observability**, **resilience**, and **scalability** in mind.
+> **Production-ready architecture** designed with **observability**, **resilience**, and **scalability** in mind.
 
 ### � Architecture Documentation
 

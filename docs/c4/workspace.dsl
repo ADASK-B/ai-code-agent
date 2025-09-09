@@ -1,4 +1,4 @@
-workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system integrated with Azure DevOps" {
+workspace "AI Code Agent" "Professional AI-powered code generation system integrated with Azure DevOps" {
 
     model {
         # ==============================================================================
