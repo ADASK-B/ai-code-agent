@@ -17,7 +17,7 @@ on:
       - 'README.md'
 
 env:
-  STRUCTURIZR_VERSION: '1.18.0'
+  STRUCTURIZR_VERSION: '2025.05.28'
 
 jobs:
   # ============================================================================
@@ -55,12 +55,32 @@ jobs:
       run: |
         echo "Downloading Structurizr CLI ${{ env.STRUCTURIZR_VERSION }}..."
         mkdir -p ~/structurizr
-        curl -L "https://github.com/structurizr/cli/releases/download/v${{ env.STRUCTURIZR_VERSION }}/structurizr-cli-${{ env.STRUCTURIZR_VERSION }}.zip" \
+        
+        # Download from GitHub releases (correct filename format)
+        curl -L "https://github.com/structurizr/cli/releases/download/v${{ env.STRUCTURIZR_VERSION }}/structurizr-cli.zip" \
              -o ~/structurizr/structurizr-cli.zip
+             
+        # Check if download was successful
+        if [ ! -s ~/structurizr/structurizr-cli.zip ]; then
+          echo "❌ Download failed, trying latest release..."
+          # Try latest release as fallback
+          curl -L "https://github.com/structurizr/cli/releases/latest/download/structurizr-cli.zip" \
+               -o ~/structurizr/structurizr-cli.zip
+        fi
+        
         cd ~/structurizr
-        unzip -q structurizr-cli.zip
-        chmod +x structurizr.sh
-        echo "✅ Structurizr CLI installed"
+        
+        # Verify file is a valid zip
+        if file structurizr-cli.zip | grep -q "Zip archive"; then
+          unzip -q structurizr-cli.zip
+          chmod +x structurizr.sh
+          echo "✅ Structurizr CLI installed successfully"
+        else
+          echo "❌ Downloaded file is not a valid zip archive"
+          echo "File contents:"
+          head -20 structurizr-cli.zip
+          exit 1
+        fi
         
     # ============================================================================
     # C4 MODEL VALIDATION & EXPORT
