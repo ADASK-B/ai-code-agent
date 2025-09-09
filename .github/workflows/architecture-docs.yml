@@ -152,8 +152,21 @@ jobs:
         
         # Always copy the beautiful template for architecture page
         echo "📄 Using architecture template"
-        cp architecture-template.html _site/architecture.html
-        echo "✅ Beautiful architecture page created"
+        echo "📂 Checking if template exists:"
+        ls -la architecture-template.html || echo "❌ Template not found!"
+        echo "📂 Checking target directory:"
+        ls -la _site/ || echo "❌ _site directory not found!"
+        
+        if [ -f "architecture-template.html" ]; then
+          cp architecture-template.html _site/architecture.html
+          echo "✅ Template copied successfully"
+          echo "📂 Verifying copied file:"
+          ls -la _site/architecture.html
+          echo "📄 First few lines of copied file:"
+          head -5 _site/architecture.html
+        else
+          echo "❌ Template file does not exist!"
+        fi
         
         if [ -d "docs/c4/exports" ]; then
           echo "📂 Found exports directory, contents:"
