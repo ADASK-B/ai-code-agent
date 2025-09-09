@@ -114,7 +114,7 @@ jobs:
       run: |
         echo "🏗️ Preparing complete site..."
         
-        # Start with our beautiful index.html
+        # Start with our beautiful index.html (but not architecture.html - that will be generated)
         mkdir -p _site
         cp index.html _site/
         
