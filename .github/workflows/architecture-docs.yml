@@ -146,38 +146,59 @@ jobs:
         # Add architecture diagrams (simplified approach)
         mkdir -p _site/architecture
         
+        # ROBUST: Set strict error handling first!
+        set -Eeuo pipefail
+        
         echo "🔍 Debug: Checking what was generated..."
         echo "📂 Contents of docs/c4/:"
         ls -la docs/c4/ || echo "No docs/c4/ directory"
         
-        # Always copy the beautiful template for architecture page
-        echo "📄 Using architecture template"
-        echo "📂 Checking if template exists:"
-        ls -la architecture-template.html || echo "❌ Template not found!"
-        echo "📂 Checking target directory:"
-        ls -la _site/ || echo "❌ _site directory not found!"
+        # ROBUST: Create _site structure properly
+        mkdir -p _site/architecture
         
+        # ROBUST: Copy files without templating magic
+        echo "📄 Copying files robustly..."
+        
+        # 1) index.html unverändert übernehmen  
+        cp -v index.html _site/index.html
+        
+        # 2) Template stumpf kopieren (ohne Pipes/Templating)
         if [ -f "architecture-template.html" ]; then
-          cp architecture-template.html _site/architecture.html
-          echo "✅ Template copied successfully"
-          echo "📂 Verifying copied file:"
-          ls -la _site/architecture.html
-          echo "📄 First few lines of copied file:"
-          head -5 _site/architecture.html
+          cp -v architecture-template.html _site/architecture.html
+        elif [ -f "architecture.html" ]; then
+          cp -v architecture.html _site/architecture.html
         else
-          echo "❌ Template file does not exist!"
+          echo "❌ No architecture template found!"
+          exit 1
         fi
         
+        # 3) Exporte kopieren (wenn vorhanden)
         if [ -d "docs/c4/exports" ]; then
-          echo "📂 Found exports directory, contents:"
-          ls -la docs/c4/exports/
-          
-          # Copy everything from exports
-          cp -r docs/c4/exports/* _site/architecture/ 2>/dev/null || echo "No files in exports"
+          echo "📂 Found exports directory, copying..."
+          cp -vr docs/c4/exports/* _site/architecture/ 2>/dev/null || echo "No files in exports"
         fi
         
-        # Add README
-        cp README.md _site/
+        # 4) .nojekyll sicherstellen
+        touch _site/.nojekyll
+        
+        # 5) README kopieren
+        cp -v README.md _site/
+        
+        # ROBUST: Harte Checks (brechen bei Problemen ab)
+        echo "🔍 Running integrity checks..."
+        test -f _site/index.html || { echo "❌ index.html missing!"; exit 1; }
+        test -f _site/architecture.html || { echo "❌ architecture.html missing!"; exit 1; }
+        test -s _site/architecture.html || { echo "❌ architecture.html is EMPTY!"; exit 1; }
+        
+        # ROBUST: Transparente Auflistung  
+        echo "=== _site Inhalt ==="
+        find _site -type f -printf "%P\t%s bytes\n" | sort
+        echo "=== Head der architecture.html ==="
+        head -n 10 _site/architecture.html || true
+        echo "=== Größe der architecture.html ==="
+        wc -c _site/architecture.html
+        echo "=== SHA256 der architecture.html ==="
+        sha256sum _site/architecture.html
         
         echo "✅ Complete site prepared with:"
         echo "  ✓ Original index.html (untouched)"
