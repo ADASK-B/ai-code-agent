@@ -201,12 +201,12 @@ workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system in
         # ==============================================================================
         
         container aiCodeAgent "MonitoringArchitecture" "Observability and monitoring architecture showing how telemetry flows through the system" {
-            include "monitoring,healthMonitor,gateway,adapter,llmPatch,orchestrator"
+            include monitoring healthMonitor gateway adapter llmPatch orchestrator
             autoLayout
         }
         
         container aiCodeAgent "SecurityArchitecture" "Security-focused view showing authentication, authorization, and secret management" {
-            include "gateway,proxy,tunnel,keyVault"
+            include gateway proxy tunnel
             autoLayout
         }
     }
