@@ -209,35 +209,34 @@ workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system in
             include gateway proxy tunnel
             autoLayout
         }
-    }
-    
-    # ==============================================================================
-    # STYLING & THEMES
-    # ==============================================================================
-    
-    styles {
-        element "Person" {
-            background #2E86AB
-            color #ffffff
-            shape Person
-        }
         
-        element "Software System" {
-            background #A23B72
-            color #ffffff
-        }
+        # ==============================================================================
+        # STYLING & THEMES
+        # ==============================================================================
         
-        element "External System" {
-            background #C73E1D
-            color #ffffff
-        }
-        
-        element "Container" {
-            background #F18F01
-            color #ffffff
-        }
-        
-        element "WebServer" {
+        styles {
+            element "Person" {
+                background #2E86AB
+                color #ffffff
+                shape Person
+            }
+            
+            element "Software System" {
+                background #A23B72
+                color #ffffff
+            }
+            
+            element "External System" {
+                background #C73E1D
+                color #ffffff
+            }
+            
+            element "Container" {
+                background #F18F01
+                color #ffffff
+            }
+            
+            element "WebServer" {
             background #2E86AB
             color #ffffff
             shape WebBrowser
