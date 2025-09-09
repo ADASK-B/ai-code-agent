@@ -81,12 +81,33 @@ jobs:
         cd docs/c4
         mkdir -p exports
         
-        # Export PNG and PlantUML with error handling
+        # Export PNG and PlantUML with detailed error handling
         echo "🎨 Attempting PNG export..."
-        ~/.structurizr/structurizr.sh export -w workspace.dsl -f png -o exports/ || echo "PNG export failed"
+        if ~/.structurizr/structurizr.sh export -w workspace.dsl -f png -o exports/; then
+          echo "✅ PNG export successful"
+        else
+          echo "❌ PNG export failed with exit code $?"
+          echo "🔍 Trying alternative export approaches..."
+          
+          # Try without output directory
+          ~/.structurizr/structurizr.sh export -w workspace.dsl -f png || echo "Alternative PNG export also failed"
+        fi
         
         echo "🎨 Attempting PlantUML export..."
-        ~/.structurizr/structurizr.sh export -w workspace.dsl -f plantuml -o exports/ || echo "PlantUML export failed"
+        if ~/.structurizr/structurizr.sh export -w workspace.dsl -f plantuml -o exports/; then
+          echo "✅ PlantUML export successful"
+        else
+          echo "❌ PlantUML export failed with exit code $?"
+        fi
+        
+        # Check what actually exists
+        echo "📋 Checking exports directory:"
+        if [ -d "exports" ]; then
+          ls -la exports/
+          echo "📊 File count: $(ls exports/ 2>/dev/null | wc -l)"
+        else
+          echo "❌ No exports directory created"
+        fi
         
         # Create simple architecture overview
         echo '<html><head><title>Architecture</title></head><body><h1>Architecture Diagrams</h1>' > exports/index.html
