@@ -289,4 +289,3 @@ workspace "AI Code Agent" "Professional AI-powered code generation system integr
         }
     }
 }
-}
