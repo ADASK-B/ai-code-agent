@@ -60,7 +60,7 @@ jobs:
       run: |
         echo "🔍 Validating C4 DSL..."
         cd docs/c4
-        ~/.structurizr/structurizr.sh validate workspace workspace.dsl
+        ~/.structurizr/structurizr.sh validate -w workspace.dsl
         echo "✅ C4 DSL valid"
         
     - name: 🎨 Export C4 Diagrams
@@ -71,10 +71,10 @@ jobs:
         
         # Export PNG and PlantUML with error handling
         echo "🎨 Attempting PNG export..."
-        ~/.structurizr/structurizr.sh export workspace workspace.dsl -format png -output exports/ || echo "PNG export failed"
+        ~/.structurizr/structurizr.sh export -w workspace.dsl -f png -o exports/ || echo "PNG export failed"
         
         echo "🎨 Attempting PlantUML export..."
-        ~/.structurizr/structurizr.sh export workspace workspace.dsl -format plantuml -output exports/ || echo "PlantUML export failed"
+        ~/.structurizr/structurizr.sh export -w workspace.dsl -f plantuml -o exports/ || echo "PlantUML export failed"
         
         # Create simple architecture overview
         echo '<html><head><title>Architecture</title></head><body><h1>Architecture Diagrams</h1>' > exports/index.html
