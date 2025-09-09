@@ -335,9 +335,6 @@ jobs:
       run: |
         echo "🚀 Preparing documentation site for GitHub Pages..."
         
-        # Copy our beautiful index.html from root first
-        cp index.html _site/
-        
         # Create site structure
         mkdir -p _site/docs
         cp -r docs/* _site/docs/
@@ -347,10 +344,12 @@ jobs:
         cp _site/architecture/*.png _site/ 2>/dev/null || true
         cp _site/architecture/index.html _site/architecture.html
         
-        # Our beautiful index.html was already copied above
+        # Use our beautiful index.html from root instead of creating a simple one
+        cp index.html _site/
         
         echo "✅ GitHub Pages site prepared"
-        <!DOCTYPE html>
+        
+    - name: 🔧 Setup Pages
         <html>
         <head>
             <title>🤖 AI Code Agent - Documentation</title>
@@ -451,8 +450,6 @@ jobs:
             </div>
         </body>
         </html>
-        
-        echo "✅ GitHub Pages site prepared"
         
     - name: 🔧 Setup Pages
       uses: actions/configure-pages@v4
