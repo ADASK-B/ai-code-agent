@@ -52,9 +52,18 @@ jobs:
         mkdir -p ~/.structurizr
         cd ~/.structurizr
         
-        wget -q "https://github.com/structurizr/cli/releases/download/v${{ env.STRUCTURIZR_VERSION }}/structurizr-cli.zip"
-        unzip -q structurizr-cli.zip
-        chmod +x structurizr.sh
+        # Check if already installed
+        if [ ! -f "structurizr.sh" ]; then
+          echo "📥 Downloading Structurizr CLI..."
+          wget -q "https://github.com/structurizr/cli/releases/download/v${{ env.STRUCTURIZR_VERSION }}/structurizr-cli.zip"
+          echo "📦 Extracting (force overwrite)..."
+          unzip -o -q structurizr-cli.zip
+          chmod +x structurizr.sh
+          echo "🗑️ Cleaning up..."
+          rm -f structurizr-cli.zip
+        else
+          echo "✅ Structurizr CLI already installed (from cache)"
+        fi
         
         ./structurizr.sh version
         echo "✅ Structurizr CLI ready"
