@@ -172,7 +172,7 @@ workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system in
         # DYNAMIC VIEWS - KEY WORKFLOWS
         # ==============================================================================
         
-        dynamic aiCodeAgent "WebhookToCodeGeneration" "Webhook to Code Generation Workflow" "Complete end-to-end flow from Azure DevOps webhook to AI-generated code patch" {
+        dynamic aiCodeAgent "WebhookToCodeGeneration" "Webhook to Code Generation Workflow" {
             developer -> azureDevOps "1. Writes PR comment: @user /edit /1 Add error handling"
             azureDevOps -> gateway "2. Sends webhook event"
             gateway -> orchestrator "3. Validates and triggers workflow"
@@ -186,7 +186,7 @@ workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system in
             autoLayout
         }
         
-        dynamic aiCodeAgent "ErrorHandlingAndFallback" "Error Handling and Provider Fallback" "How the system handles LLM provider failures and falls back to alternatives" {
+        dynamic aiCodeAgent "ErrorHandlingAndFallback" "Error Handling and Provider Fallback" {
             orchestrator -> llmPatch "1. Requests code generation"
             llmPatch -> localLLM "2. Attempts local LLM first"
             localLLM -> llmPatch "3. Returns error (model not available)"
