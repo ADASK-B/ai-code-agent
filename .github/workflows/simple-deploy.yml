@@ -1,0 +1,36 @@
+name: Simple Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    - name: Build
+      run: |
+        mkdir _site
+        cp index.html _site/
+        cp architecture.html _site/
+        cp README.md _site/
+        touch _site/.nojekyll
+        echo "Files copied:"
+        ls -la _site/
+        echo "Architecture file size:"
+        wc -c _site/architecture.html
+    - name: Upload
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: _site/
+    - name: Deploy
+      uses: actions/deploy-pages@v4
