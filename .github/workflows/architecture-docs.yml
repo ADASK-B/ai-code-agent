@@ -181,7 +181,14 @@ jobs:
           echo "✅ Debug architecture page created"
         else
           echo "❌ No exports directory found"
-          echo "<html><head><title>Debug</title></head><body><h1>No exports directory found</h1><p>Structurizr CLI may have failed to export diagrams.</p></body></html>" > _site/architecture.html
+          # Use the fallback architecture.html from root if it exists
+          if [ -f "architecture.html" ]; then
+            echo "📄 Using fallback architecture.html from root"
+            cp architecture.html _site/architecture.html
+          else
+            echo "📝 Creating minimal debug page"
+            echo "<html><head><title>Debug</title></head><body><h1>No exports directory found</h1><p>Structurizr CLI may have failed to export diagrams.</p></body></html>" > _site/architecture.html
+          fi
         fi
         
         # Add README
