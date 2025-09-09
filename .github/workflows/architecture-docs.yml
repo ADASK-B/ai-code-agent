@@ -165,13 +165,12 @@ jobs:
         # 1) index.html unverändert übernehmen  
         cp -v index.html _site/index.html
         
-        # 2) Template stumpf kopieren (ohne Pipes/Templating)
-        if [ -f "architecture-template.html" ]; then
-          cp -v architecture-template.html _site/architecture.html
-        elif [ -f "architecture.html" ]; then
+        # 2) Use existing static architecture.html (no generation!)
+        if [ -f "architecture.html" ]; then
           cp -v architecture.html _site/architecture.html
+          echo "✅ Using static architecture.html (working version)"
         else
-          echo "❌ No architecture template found!"
+          echo "❌ No architecture.html found!"
           exit 1
         fi
         
