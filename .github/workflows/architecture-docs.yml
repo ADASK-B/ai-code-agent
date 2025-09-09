@@ -69,14 +69,29 @@ jobs:
         cd docs/c4
         mkdir -p exports
         
-        # Export PNG and PlantUML
-        ~/.structurizr/structurizr.sh export workspace workspace.dsl -format png -output exports/
-        ~/.structurizr/structurizr.sh export workspace workspace.dsl -format plantuml -output exports/
+        # Export PNG and PlantUML with error handling
+        echo "🎨 Attempting PNG export..."
+        ~/.structurizr/structurizr.sh export workspace workspace.dsl -format png -output exports/ || echo "PNG export failed"
+        
+        echo "🎨 Attempting PlantUML export..."
+        ~/.structurizr/structurizr.sh export workspace workspace.dsl -format plantuml -output exports/ || echo "PlantUML export failed"
         
         # Create simple architecture overview
         echo '<html><head><title>Architecture</title></head><body><h1>Architecture Diagrams</h1>' > exports/index.html
-        echo '<img src="structurizr-SystemContext.png" alt="System Context"/>' >> exports/index.html  
-        echo '<img src="structurizr-Containers.png" alt="Containers"/>' >> exports/index.html
+        
+        # Check what files were actually created
+        echo "🔍 Checking created files..."
+        if ls exports/*.png >/dev/null 2>&1; then
+          echo "✅ PNG files found, adding to HTML..."
+          for png in exports/*.png; do
+            basename_png=$(basename "$png")
+            echo "<h2>$basename_png</h2><img src=\"$basename_png\" alt=\"Diagram\" style=\"max-width:100%\"/>" >> exports/index.html
+          done
+        else
+          echo "❌ No PNG files found"
+          echo "<p>No diagrams were generated. Check the build logs for errors.</p>" >> exports/index.html
+        fi
+        
         echo '</body></html>' >> exports/index.html
         
         echo "📋 Generated files:"
@@ -95,12 +110,23 @@ jobs:
         mkdir -p _site/docs
         cp -r docs/* _site/docs/
         
-        # Add architecture diagrams
+        # Add architecture diagrams (with error handling)
         mkdir -p _site/architecture
-        cp -r docs/c4/exports/* _site/architecture/
-        
-        # Create direct access to architecture page
-        cp docs/c4/exports/index.html _site/architecture.html
+        if [ -d "docs/c4/exports" ]; then
+          echo "📂 Found exports directory, copying files..."
+          ls -la docs/c4/exports/
+          cp -r docs/c4/exports/* _site/architecture/ 2>/dev/null || echo "No files to copy from exports"
+          
+          # Create direct access to architecture page if index.html exists
+          if [ -f "docs/c4/exports/index.html" ]; then
+            cp docs/c4/exports/index.html _site/architecture.html
+            echo "✅ Architecture diagrams page created"
+          else
+            echo "❌ No architecture index.html found, keeping fallback"
+          fi
+        else
+          echo "❌ No exports directory found, keeping fallback architecture.html"
+        fi
         
         # Add README
         cp README.md _site/
