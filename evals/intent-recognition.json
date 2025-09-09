@@ -1,0 +1,250 @@
+[
+  {
+    "id": "intent-001",
+    "intent": "Add error handling to login function",
+    "prMetadata": {
+      "title": "User authentication improvements",
+      "description": "Enhancing login security and error handling",
+      "repoUrn": "test/auth-service",
+      "prNumber": 123,
+      "sourceRef": "feature/auth-improvements", 
+      "targetRef": "main",
+      "files": ["src/auth/login.ts", "src/auth/types.ts"],
+      "author": "developer@company.com"
+    },
+    "expectedPatterns": [
+      "try",
+      "catch", 
+      "throw",
+      "Error",
+      "login",
+      "authentication"
+    ],
+    "forbiddenPatterns": [
+      "console.log",
+      "alert(",
+      "debugger",
+      "TODO:",
+      "FIXME:"
+    ],
+    "confidenceThreshold": 0.85,
+    "tags": ["error-handling", "typescript", "authentication"],
+    "description": "Should generate proper try-catch blocks with specific error types"
+  },
+  {
+    "id": "intent-002", 
+    "intent": "Add validation for user input",
+    "prMetadata": {
+      "title": "Input validation improvements",
+      "description": "Adding comprehensive input validation",
+      "repoUrn": "test/web-app",
+      "prNumber": 124,
+      "sourceRef": "feature/validation",
+      "targetRef": "main", 
+      "files": ["src/components/UserForm.tsx", "src/utils/validation.ts"],
+      "author": "developer@company.com"
+    },
+    "expectedPatterns": [
+      "validate",
+      "schema",
+      "required",
+      "length",
+      "email",
+      "pattern"
+    ],
+    "forbiddenPatterns": [
+      "eval(",
+      "innerHTML",
+      "document.write"
+    ],
+    "confidenceThreshold": 0.80,
+    "tags": ["validation", "react", "typescript", "forms"],
+    "description": "Should create validation schemas with proper error messages"
+  },
+  {
+    "id": "intent-003",
+    "intent": "Add unit tests for calculateTotal function", 
+    "prMetadata": {
+      "title": "Adding unit tests for shopping cart",
+      "description": "Comprehensive test coverage for cart calculations",
+      "repoUrn": "test/ecommerce-app",
+      "prNumber": 125,
+      "sourceRef": "feature/cart-tests",
+      "targetRef": "main",
+      "files": ["src/cart/calculator.ts", "tests/cart.test.ts"],
+      "author": "developer@company.com"
+    },
+    "expectedPatterns": [
+      "describe(",
+      "it(",
+      "expect(",
+      "toBe(",
+      "test",
+      "calculateTotal"
+    ],
+    "forbiddenPatterns": [
+      "console.log",
+      "debugger",
+      "skip(",
+      "only("
+    ],
+    "confidenceThreshold": 0.90,
+    "tags": ["testing", "jest", "unit-tests", "typescript"],
+    "description": "Should generate comprehensive Jest test cases with edge cases"
+  },
+  {
+    "id": "intent-004",
+    "intent": "Optimize database query performance",
+    "prMetadata": {
+      "title": "Database performance improvements", 
+      "description": "Optimizing slow queries in user service",
+      "repoUrn": "test/user-service",
+      "prNumber": 126,
+      "sourceRef": "feature/db-optimization",
+      "targetRef": "main",
+      "files": ["src/repositories/UserRepository.ts", "src/models/User.ts"],
+      "author": "developer@company.com"
+    },
+    "expectedPatterns": [
+      "index",
+      "query",
+      "join",
+      "where",
+      "limit",
+      "cache"
+    ],
+    "forbiddenPatterns": [
+      "SELECT *",
+      "N+1",
+      "setTimeout",
+      "blocking"
+    ],
+    "confidenceThreshold": 0.75,
+    "tags": ["database", "performance", "sql", "optimization"],
+    "description": "Should suggest proper indexing and query optimization techniques"
+  },
+  {
+    "id": "intent-005",
+    "intent": "Add logging and monitoring",
+    "prMetadata": {
+      "title": "Observability improvements",
+      "description": "Adding comprehensive logging and metrics",
+      "repoUrn": "test/api-service", 
+      "prNumber": 127,
+      "sourceRef": "feature/observability",
+      "targetRef": "main",
+      "files": ["src/middleware/logging.ts", "src/metrics/prometheus.ts"],
+      "author": "developer@company.com"
+    },
+    "expectedPatterns": [
+      "logger",
+      "log",
+      "metrics",
+      "trace",
+      "span",
+      "monitor"
+    ],
+    "forbiddenPatterns": [
+      "console.log",
+      "alert(",
+      "print(",
+      "dump"
+    ],
+    "confidenceThreshold": 0.80,
+    "tags": ["logging", "monitoring", "observability", "middleware"],
+    "description": "Should implement structured logging with appropriate log levels"
+  },
+  {
+    "id": "intent-006",
+    "intent": "Fix memory leak in event listeners",
+    "prMetadata": {
+      "title": "Memory leak fixes",
+      "description": "Fixing event listener cleanup issues",
+      "repoUrn": "test/frontend-app",
+      "prNumber": 128,
+      "sourceRef": "bugfix/memory-leaks",
+      "targetRef": "main",
+      "files": ["src/components/EventHandler.ts", "src/utils/cleanup.ts"],
+      "author": "developer@company.com"
+    },
+    "expectedPatterns": [
+      "removeEventListener",
+      "cleanup",
+      "dispose",
+      "unsubscribe",
+      "destroy",
+      "useEffect"
+    ],
+    "forbiddenPatterns": [
+      "addEventListener",
+      "setInterval",
+      "setTimeout"
+    ],
+    "confidenceThreshold": 0.85,
+    "tags": ["memory-management", "event-listeners", "cleanup", "react"],
+    "description": "Should properly remove event listeners and clean up resources"
+  },
+  {
+    "id": "intent-007",
+    "intent": "Add TypeScript strict mode support",
+    "prMetadata": {
+      "title": "TypeScript strict mode migration",
+      "description": "Enabling strict mode and fixing type issues", 
+      "repoUrn": "test/legacy-app",
+      "prNumber": 129,
+      "sourceRef": "feature/typescript-strict",
+      "targetRef": "main",
+      "files": ["src/legacy/oldCode.js", "tsconfig.json"],
+      "author": "developer@company.com"
+    },
+    "expectedPatterns": [
+      "interface",
+      "type",
+      ": string",
+      ": number", 
+      "null",
+      "undefined"
+    ],
+    "forbiddenPatterns": [
+      "any",
+      "// @ts-ignore",
+      "as any",
+      "unknown"
+    ],
+    "confidenceThreshold": 0.90,
+    "tags": ["typescript", "strict-mode", "type-safety", "migration"],
+    "description": "Should add proper type annotations and handle null/undefined cases"
+  },
+  {
+    "id": "intent-008",
+    "intent": "Implement caching strategy",
+    "prMetadata": {
+      "title": "Performance caching implementation",
+      "description": "Adding Redis caching for API responses",
+      "repoUrn": "test/api-gateway",
+      "prNumber": 130,
+      "sourceRef": "feature/redis-cache", 
+      "targetRef": "main",
+      "files": ["src/cache/redis.ts", "src/middleware/cache.ts"],
+      "author": "developer@company.com"
+    },
+    "expectedPatterns": [
+      "cache",
+      "redis",
+      "ttl",
+      "expire",
+      "key",
+      "get",
+      "set"
+    ],
+    "forbiddenPatterns": [
+      "localStorage",
+      "sessionStorage",
+      "memory leak",
+      "global"
+    ],
+    "confidenceThreshold": 0.80,
+    "tags": ["caching", "redis", "performance", "middleware"],
+    "description": "Should implement proper cache key strategies and TTL management"
+  }
+]

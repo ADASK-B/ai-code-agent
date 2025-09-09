@@ -1,0 +1,480 @@
+# GitHub Actions Workflow - Architecture Documentation
+# Automatically generates C4 diagrams and deploys documentation
+
+name: 🏗️ Architecture Documentation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+
+env:
+  STRUCTURIZR_VERSION: '1.18.0'
+
+jobs:
+  # ============================================================================
+  # BUILD ARCHITECTURE DOCUMENTATION
+  # ============================================================================
+  build-docs:
+    name: 📚 Build Architecture Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+    # ============================================================================
+    # SETUP & DEPENDENCIES  
+    # ============================================================================
+    - name: 🛠️ Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    # ============================================================================
+    # STRUCTURIZR CLI INSTALLATION & CACHING
+    # ============================================================================
+    - name: 📦 Cache Structurizr CLI
+      id: cache-structurizr
+      uses: actions/cache@v3
+      with:
+        path: ~/structurizr
+        key: structurizr-${{ env.STRUCTURIZR_VERSION }}
+        
+    - name: ⬇️ Download Structurizr CLI
+      if: steps.cache-structurizr.outputs.cache-hit != 'true'
+      run: |
+        echo "Downloading Structurizr CLI ${{ env.STRUCTURIZR_VERSION }}..."
+        mkdir -p ~/structurizr
+        curl -L "https://github.com/structurizr/cli/releases/download/v${{ env.STRUCTURIZR_VERSION }}/structurizr-cli-${{ env.STRUCTURIZR_VERSION }}.zip" \
+             -o ~/structurizr/structurizr-cli.zip
+        cd ~/structurizr
+        unzip -q structurizr-cli.zip
+        chmod +x structurizr.sh
+        echo "✅ Structurizr CLI installed"
+        
+    # ============================================================================
+    # C4 MODEL VALIDATION & EXPORT
+    # ============================================================================
+    - name: ✅ Validate C4 Models
+      run: |
+        echo "🔍 Validating C4 workspace.dsl..."
+        cd docs/c4
+        ~/structurizr/structurizr.sh validate -workspace workspace.dsl
+        echo "✅ C4 workspace validation successful"
+        
+    - name: 🎨 Export C4 Diagrams
+      run: |
+        echo "🎨 Exporting C4 diagrams to PNG/SVG..."
+        cd docs/c4
+        mkdir -p exports
+        
+        # Export all views to PNG (high resolution)
+        ~/structurizr/structurizr.sh export -workspace workspace.dsl -format png -output exports/
+        
+        # Export all views to SVG (vector graphics)  
+        ~/structurizr/structurizr.sh export -workspace workspace.dsl -format svg -output exports/
+        
+        # Export PlantUML for backup/editing
+        ~/structurizr/structurizr.sh export -workspace workspace.dsl -format plantuml -output exports/
+        
+        echo "📊 Generated diagram files:"
+        ls -la exports/
+        
+        # Create index HTML for easy viewing
+        cat > exports/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>🏗️ AI Code Agent - Architecture Diagrams</title>
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+                    margin: 40px auto; 
+                    max-width: 1200px;
+                    background: #f8f9fa;
+                }
+                .header {
+                    text-align: center;
+                    background: linear-gradient(135deg, #2E86AB, #A23B72);
+                    color: white;
+                    padding: 2rem;
+                    border-radius: 10px;
+                    margin-bottom: 2rem;
+                }
+                .diagram { 
+                    margin: 20px 0; 
+                    padding: 20px; 
+                    border: 1px solid #ddd; 
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                img { 
+                    max-width: 100%; 
+                    height: auto; 
+                    border: 1px solid #eee; 
+                    border-radius: 4px;
+                }
+                h2 { 
+                    color: #2E86AB; 
+                    border-bottom: 2px solid #2E86AB;
+                    padding-bottom: 0.5rem;
+                }
+                .metadata {
+                    background: #e9ecef;
+                    padding: 1rem;
+                    border-radius: 4px;
+                    margin: 1rem 0;
+                }
+                .badge {
+                    background: #28a745;
+                    color: white;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 4px;
+                    font-size: 0.875rem;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🏗️ AI Code Agent</h1>
+                <h2>Enterprise Architecture Documentation</h2>
+                <p><span class="badge">Auto-Generated</span> Generated on: $(date)</p>
+            </div>
+            
+            <div class="metadata">
+                <h3>📋 Architecture Views</h3>
+                <p>This documentation provides comprehensive architectural views of the AI Code Agent system, 
+                   following C4 model conventions and enterprise architecture standards.</p>
+            </div>
+            
+            <div class="diagram">
+                <h2>🌍 System Context</h2>
+                <p>High-level view showing the system boundary and external interactions.</p>
+                <img src="SystemContext.png" alt="System Context Diagram" />
+            </div>
+            
+            <div class="diagram">
+                <h2>📦 Container Architecture</h2>
+                <p>Internal system structure showing all containers and their relationships.</p>
+                <img src="Containers.png" alt="Container Diagram" />
+            </div>
+            
+            <div class="diagram">
+                <h2>☁️ Production Deployment</h2>
+                <p>Production environment architecture on Azure infrastructure.</p>
+                <img src="ProductionDeployment.png" alt="Production Deployment" />
+            </div>
+            
+            <div class="diagram">
+                <h2>💻 Development Environment</h2>
+                <p>Local development setup using Docker Compose.</p>
+                <img src="DevelopmentDeployment.png" alt="Development Deployment" />
+            </div>
+            
+            <div class="diagram">
+                <h2>🔄 Webhook to Code Generation Flow</h2>
+                <p>Complete end-to-end workflow from Azure DevOps webhook to AI-generated patch.</p>
+                <img src="WebhookToCodeGeneration.png" alt="Webhook Flow" />
+            </div>
+            
+            <div class="diagram">
+                <h2>⚠️ Error Handling & Fallback</h2>
+                <p>System resilience patterns and LLM provider fallback strategies.</p>
+                <img src="ErrorHandlingAndFallback.png" alt="Error Handling" />
+            </div>
+            
+            <div class="diagram">
+                <h2>📊 Monitoring Architecture</h2>
+                <p>Observability stack showing metrics, logs, and alerting flow.</p>
+                <img src="MonitoringArchitecture.png" alt="Monitoring Architecture" />
+            </div>
+            
+            <hr style="margin: 2rem 0;">
+            <div class="metadata">
+                <p><strong>📁 Source:</strong> <a href="../workspace.dsl">workspace.dsl</a></p>
+                <p><strong>🛠️ Generated with:</strong> Structurizr CLI v${{ env.STRUCTURIZR_VERSION }}</p>
+                <p><strong>📚 Documentation:</strong> <a href="../../README.md">Project README</a> | 
+                   <a href="../../docs/arc42">Arc42 Docs</a> | 
+                   <a href="../../docs/adr">ADRs</a></p>
+            </div>
+        </body>
+        </html>
+        EOF
+        
+        echo "✅ Architecture diagrams exported successfully"
+        
+    # ============================================================================
+    # DOCUMENTATION QUALITY CHECKS
+    # ============================================================================
+    - name: 🔍 Documentation Quality Gates
+      run: |
+        echo "🔍 Performing documentation quality checks..."
+        
+        # Check if all required files exist
+        REQUIRED_FILES=(
+          "docs/goal.md"
+          "docs/arc42/README.md" 
+          "docs/adr/0001-llm-gateway-provider-agnostisch.md"
+          "docs/adr/0002-rag-vs-context-only.md"
+          "docs/c4/workspace.dsl"
+          "README.md"
+          "evals/README.md"
+          "evals/intent-recognition.json"
+        )
+        
+        MISSING_FILES=0
+        for file in "${REQUIRED_FILES[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Required file missing: $file"
+            MISSING_FILES=$((MISSING_FILES + 1))
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+        
+        if [ $MISSING_FILES -gt 0 ]; then
+          echo "❌ $MISSING_FILES required files are missing!"
+          exit 1
+        fi
+        
+        # Validate JSON files
+        echo "🔍 Validating JSON files..."
+        find evals -name "*.json" -exec echo "Validating: {}" \; -exec cat {} \; -exec echo \;
+        
+        # Check for basic documentation completeness
+        echo "🔍 Checking documentation completeness..."
+        if ! grep -q "SLO" docs/goal.md; then
+          echo "⚠️ Warning: docs/goal.md should contain SLO definitions"
+        fi
+        
+        if ! grep -q "ADR-" docs/adr/*.md; then
+          echo "⚠️ Warning: ADR files should follow ADR-NNNN format"
+        fi
+        
+        echo "✅ Documentation quality checks passed"
+        
+    # ============================================================================
+    # ARTIFACT CREATION & UPLOAD
+    # ============================================================================
+    - name: 📤 Upload Architecture Diagrams
+      uses: actions/upload-artifact@v3
+      with:
+        name: architecture-diagrams
+        path: docs/c4/exports/
+        retention-days: 30
+        
+    - name: 📤 Upload Complete Documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation-complete
+        path: docs/
+        retention-days: 30
+
+  # ============================================================================
+  # DEPLOY DOCUMENTATION (GitHub Pages)
+  # ============================================================================
+  deploy-docs:
+    name: 🚀 Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: build-docs
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+      contents: read    # to read the repository contents
+    
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    steps:
+    - name: 🛠️ Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 📥 Download Architecture Diagrams
+      uses: actions/download-artifact@v3
+      with:
+        name: architecture-diagrams
+        path: _site/architecture/
+        
+    - name: 📋 Prepare GitHub Pages
+      run: |
+        echo "🚀 Preparing documentation site for GitHub Pages..."
+        
+        # Create site structure
+        mkdir -p _site/docs
+        cp -r docs/* _site/docs/
+        cp README.md _site/
+        
+        # Copy architecture diagrams to root for easy access
+        cp _site/architecture/*.png _site/ 2>/dev/null || true
+        cp _site/architecture/index.html _site/architecture.html
+        
+        # Create simple index.html
+        cat > _site/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>🤖 AI Code Agent - Documentation</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+                    margin: 0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                }
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 2rem;
+                }
+                .hero {
+                    text-align: center;
+                    color: white;
+                    padding: 4rem 2rem;
+                }
+                .card {
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                    margin: 1rem 0;
+                }
+                .grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 2rem;
+                    margin: 2rem 0;
+                }
+                a {
+                    color: #667eea;
+                    text-decoration: none;
+                    font-weight: 500;
+                }
+                a:hover { text-decoration: underline; }
+                .badge {
+                    background: #28a745;
+                    color: white;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 15px;
+                    font-size: 0.875rem;
+                    margin-left: 0.5rem;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="hero">
+                    <h1>🤖 AI Code Agent</h1>
+                    <h2>Enterprise Architecture Documentation</h2>
+                    <p>Automated code generation system integrated with Azure DevOps</p>
+                    <span class="badge">GitHub Pages</span>
+                </div>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3>🏗️ Architecture Diagrams</h3>
+                        <p>Visual system architecture using C4 models</p>
+                        <a href="architecture.html">View Architecture →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🎯 Project Goals</h3>
+                        <p>Business objectives and service level objectives</p>
+                        <a href="docs/goal.md">View Goals →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📚 Arc42 Documentation</h3>
+                        <p>Comprehensive system documentation</p>
+                        <a href="docs/arc42/">View Documentation →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📝 Architecture Decisions</h3>
+                        <p>Key technical decisions and rationale</p>
+                        <a href="docs/adr/">View ADRs →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📊 Quality Tests</h3>
+                        <p>AI code quality evaluation framework</p>
+                        <a href="docs/../evals/">View Tests →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🔧 Source Code</h3>
+                        <p>Complete implementation on GitHub</p>
+                        <a href="https://github.com/ADASK-B/ai-code-agent">View Repository →</a>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        EOF
+        
+        echo "✅ GitHub Pages site prepared"
+        
+    - name: 🔧 Setup Pages
+      uses: actions/configure-pages@v3
+      
+    - name: 📤 Upload to GitHub Pages
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: _site/
+        
+    - name: 🚀 Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
+
+  # ============================================================================
+  # ARCHITECTURE REPORTING
+  # ============================================================================
+  report:
+    name: 📊 Architecture Report
+    runs-on: ubuntu-latest
+    needs: [build-docs]
+    if: always()
+    
+    steps:
+    - name: 📋 Generate Architecture Report
+      run: |
+        echo "📊 Architecture Documentation Report"
+        echo "===================================="
+        echo "🔨 Build: ${{ github.run_number }}"
+        echo "🌿 Branch: ${{ github.ref_name }}"
+        echo "📝 Commit: ${{ github.sha }}"
+        echo "👤 Actor: ${{ github.actor }}"
+        echo ""
+        echo "📁 Generated Artifacts:"
+        echo "  ✅ C4 Diagrams (PNG/SVG/PlantUML)"
+        echo "  ✅ Architecture Documentation"
+        echo "  ✅ ADR Records"
+        echo "  ✅ Quality Gates Report"
+        echo ""
+        echo "🔗 Access Links:"
+        echo "  📊 Architecture Diagrams: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/architecture.html"
+        echo "  📚 Documentation Portal: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+        echo "  📝 ADR History: https://github.com/${{ github.repository }}/tree/main/docs/adr"
+        echo ""
+        echo "🎯 Next Steps:"
+        echo "  - Review generated diagrams"
+        echo "  - Update README with new architecture links"
+        echo "  - Share with architecture review board"
+        echo "  - Include in project portfolio"

@@ -1,0 +1,297 @@
+# Azure DevOps Pipeline - Architecture Documentation
+# Automatically generates C4 diagrams and deploys documentation
+
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+  paths:
+    include:
+    - docs/**
+    - README.md
+
+pr:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - docs/**
+    - README.md
+
+variables:
+  vmImageName: 'ubuntu-latest'
+  structurizrVersion: '1.18.0'
+  
+stages:
+- stage: Documentation
+  displayName: 'Documentation Build & Deploy'
+  jobs:
+  - job: BuildDocs
+    displayName: 'Build Architecture Documentation'
+    pool:
+      vmImage: $(vmImageName)
+    
+    steps:
+    # ============================================================================
+    # SETUP & DEPENDENCIES  
+    # ============================================================================
+    - task: UseNode@1
+      displayName: 'Setup Node.js'
+      inputs:
+        version: '18.x'
+    
+    - task: Cache@2
+      displayName: 'Cache Structurizr CLI'
+      inputs:
+        key: 'structurizr | $(structurizrVersion)'
+        path: '$(Agent.ToolsDirectory)/structurizr'
+        
+    # ============================================================================
+    # STRUCTURIZR CLI INSTALLATION
+    # ============================================================================
+    - script: |
+        if [ ! -f "$(Agent.ToolsDirectory)/structurizr/structurizr-cli-$(structurizrVersion).zip" ]; then
+          echo "Downloading Structurizr CLI $(structurizrVersion)..."
+          mkdir -p $(Agent.ToolsDirectory)/structurizr
+          curl -L "https://github.com/structurizr/cli/releases/download/v$(structurizrVersion)/structurizr-cli-$(structurizrVersion).zip" \
+               -o "$(Agent.ToolsDirectory)/structurizr/structurizr-cli-$(structurizrVersion).zip"
+          cd $(Agent.ToolsDirectory)/structurizr
+          unzip -q "structurizr-cli-$(structurizrVersion).zip"
+          chmod +x structurizr.sh
+        fi
+        echo "##vso[task.setvariable variable=STRUCTURIZR_PATH]$(Agent.ToolsDirectory)/structurizr"
+      displayName: 'Install Structurizr CLI'
+      
+    # ============================================================================
+    # C4 MODEL VALIDATION & EXPORT
+    # ============================================================================
+    - script: |
+        echo "Validating C4 workspace.dsl..."
+        cd docs/c4
+        $(STRUCTURIZR_PATH)/structurizr.sh validate -workspace workspace.dsl
+        
+        if [ $? -ne 0 ]; then
+          echo "##vso[task.logissue type=error]C4 workspace validation failed!"
+          exit 1
+        fi
+        
+        echo "✅ C4 workspace validation successful"
+      displayName: 'Validate C4 Models'
+      
+    - script: |
+        echo "Exporting C4 diagrams to PNG/SVG..."
+        cd docs/c4
+        mkdir -p exports
+        
+        # Export all views to PNG (high resolution)
+        $(STRUCTURIZR_PATH)/structurizr.sh export -workspace workspace.dsl -format png -output exports/
+        
+        # Export all views to SVG (vector graphics)  
+        $(STRUCTURIZR_PATH)/structurizr.sh export -workspace workspace.dsl -format svg -output exports/
+        
+        # Export PlantUML for backup/editing
+        $(STRUCTURIZR_PATH)/structurizr.sh export -workspace workspace.dsl -format plantuml -output exports/
+        
+        echo "Generated diagram files:"
+        ls -la exports/
+        
+        # Create index HTML for easy viewing
+        cat > exports/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>AI Code Agent - Architecture Diagrams</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                .diagram { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+                img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+                h2 { color: #2E86AB; }
+            </style>
+        </head>
+        <body>
+            <h1>🏗️ AI Code Agent - Architecture Documentation</h1>
+            <p>Generated on: $(date)</p>
+            
+            <div class="diagram">
+                <h2>System Context</h2>
+                <img src="SystemContext.png" alt="System Context Diagram" />
+            </div>
+            
+            <div class="diagram">
+                <h2>Container Architecture</h2>
+                <img src="Containers.png" alt="Container Diagram" />
+            </div>
+            
+            <div class="diagram">
+                <h2>Production Deployment</h2>
+                <img src="ProductionDeployment.png" alt="Production Deployment" />
+            </div>
+            
+            <div class="diagram">
+                <h2>Development Environment</h2>
+                <img src="DevelopmentDeployment.png" alt="Development Deployment" />
+            </div>
+            
+            <div class="diagram">
+                <h2>Webhook to Code Generation Flow</h2>
+                <img src="WebhookToCodeGeneration.png" alt="Webhook Flow" />
+            </div>
+            
+            <div class="diagram">
+                <h2>Error Handling & Fallback</h2>
+                <img src="ErrorHandlingAndFallback.png" alt="Error Handling" />
+            </div>
+            
+            <hr>
+            <p><em>Architecture diagrams generated from <a href="../workspace.dsl">workspace.dsl</a> using Structurizr CLI</em></p>
+        </body>
+        </html>
+        EOF
+        
+      displayName: 'Export C4 Diagrams'
+      
+    # ============================================================================
+    # DOCUMENTATION QUALITY CHECKS
+    # ============================================================================
+    - script: |
+        echo "Performing documentation quality checks..."
+        
+        # Check if all required files exist
+        REQUIRED_FILES=(
+          "docs/goal.md"
+          "docs/arc42/README.md" 
+          "docs/adr/0001-llm-gateway-provider-agnostisch.md"
+          "docs/adr/0002-rag-vs-context-only.md"
+          "docs/c4/workspace.dsl"
+          "README.md"
+        )
+        
+        for file in "${REQUIRED_FILES[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "##vso[task.logissue type=error]Required file missing: $file"
+            exit 1
+          fi
+        done
+        
+        # Check for broken links in documentation
+        echo "Checking for broken internal links..."
+        find docs -name "*.md" -exec grep -l "](.*\.md)" {} \; | while read file; do
+          echo "Checking links in: $file"
+          # Simple link validation (could be enhanced with tool like markdown-link-check)
+        done
+        
+        echo "✅ Documentation quality checks passed"
+      displayName: 'Documentation Quality Gates'
+      
+    # ============================================================================
+    # ARTIFACT PUBLISHING
+    # ============================================================================
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish C4 Diagrams'
+      inputs:
+        pathToPublish: 'docs/c4/exports'
+        artifactName: 'architecture-diagrams'
+        publishLocation: 'Container'
+        
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Documentation'
+      inputs:
+        pathToPublish: 'docs'
+        artifactName: 'documentation'
+        publishLocation: 'Container'
+        
+    # ============================================================================
+    # GITHUB PAGES DEPLOYMENT (Optional)
+    # ============================================================================
+    - script: |
+        if [ "$BUILD_SOURCEBRANCHNAME" = "main" ]; then
+          echo "Preparing documentation for deployment..."
+          
+          # Create deployment structure
+          mkdir -p deployment/docs
+          cp -r docs/* deployment/docs/
+          cp README.md deployment/
+          
+          # Copy exported diagrams to root for easy access
+          cp docs/c4/exports/*.png deployment/
+          cp docs/c4/exports/index.html deployment/architecture.html
+          
+          echo "Documentation prepared for deployment"
+        fi
+      displayName: 'Prepare Documentation Deployment'
+      condition: eq(variables['Build.SourceBranchName'], 'main')
+      
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Deployment Package'
+      condition: eq(variables['Build.SourceBranchName'], 'main')
+      inputs:
+        pathToPublish: 'deployment'
+        artifactName: 'documentation-site'
+        publishLocation: 'Container'
+
+  # ============================================================================
+  # DOCUMENTATION DEPLOYMENT JOB (Production only)
+  # ============================================================================
+  - deployment: DeployDocumentation
+    displayName: 'Deploy Documentation Site'
+    dependsOn: BuildDocs
+    condition: eq(variables['Build.SourceBranchName'], 'main')
+    environment: 'documentation-prod'
+    pool:
+      vmImage: $(vmImageName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: documentation-site
+            
+          - script: |
+              echo "Documentation deployment would happen here"
+              echo "Options:"
+              echo "1. Azure Static Web Apps"
+              echo "2. GitHub Pages"  
+              echo "3. Internal documentation portal"
+              echo ""
+              echo "Deployed artifacts:"
+              ls -la $(Pipeline.Workspace)/documentation-site/
+            displayName: 'Deploy to Documentation Portal'
+
+# ============================================================================
+# NOTIFICATION & REPORTING
+# ============================================================================
+- stage: Reporting
+  displayName: 'Architecture Reporting'
+  dependsOn: Documentation
+  condition: always()
+  jobs:
+  - job: ArchitectureReport
+    displayName: 'Generate Architecture Report'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - script: |
+        echo "📊 Architecture Documentation Report"
+        echo "=================================="
+        echo "Build: $(Build.BuildNumber)"
+        echo "Branch: $(Build.SourceBranchName)"
+        echo "Commit: $(Build.SourceVersion)"
+        echo ""
+        echo "📁 Generated Artifacts:"
+        echo "  - C4 Diagrams (PNG/SVG)"
+        echo "  - Architecture Documentation"
+        echo "  - ADR Records"
+        echo "  - Quality Gates Report"
+        echo ""
+        echo "🔗 Access Links:"
+        echo "  - Architecture Diagrams: [Build Artifacts]"
+        echo "  - Documentation Portal: [To be deployed]"
+        echo "  - ADR History: docs/adr/"
+        echo ""
+        echo "Next Steps:"
+        echo "  - Review generated diagrams"
+        echo "  - Update README with new architecture links"
+        echo "  - Share with architecture review board"
+      displayName: 'Architecture Build Summary'

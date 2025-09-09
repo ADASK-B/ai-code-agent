@@ -28,27 +28,69 @@ The AI Code Agent **responds to natural language** in Azure DevOps Pull Request 
    - Immediately testable code variants **built on your existing changes**
    - Detailed explanations of the changes **relevant to your current work**
 
-## 🏗️ System Architecture & Service Interactions
+## 🏗️ System Architecture
 
-### 🔄 Main Workflow - Azure DevOps to AI Code Generation
+> **Enterprise-grade architecture** designed with **observability**, **resilience**, and **scalability** in mind.
+
+### � Architecture Documentation
+
+📁 **Complete Architecture Documentation**: [`/docs`](./docs)
+- 🎯 **[Project Goals & SLOs](./docs/goal.md)** - Business objectives and service level objectives
+- 🏗️ **[Arc42 Architecture](./docs/arc42)** - Comprehensive system documentation  
+- 📝 **[Architecture Decisions (ADRs)](./docs/adr)** - Key technical decisions and rationale
+- 🎨 **[C4 Models](./docs/c4/workspace.dsl)** - Visual architecture models and diagrams
+
+### 🔄 System Context & Main Workflow
 
 ```mermaid
 graph TB
-    subgraph "🌍 External World"
-        USER[👤 Developer<br/>Writes PR Comment<br/>@user /edit /N description]
-        ADO[🔵 Azure DevOps<br/>Pull Request System]
+    subgraph "👤 Users & External Systems"
+        DEV[🧑‍� Developer<br/>Writes PR Comments<br/>@user /edit /N intent]
+        ADO[🔵 Azure DevOps<br/>Webhooks & API]
+        OPENAI[🤖 OpenAI GPT-4]
+        CLAUDE[🤖 Anthropic Claude]
     end
     
-    subgraph "🌐 Entry & Routing"
-        NGROK[🟢 ngrok Tunnel<br/>Port 4040<br/>External → Local]
-        TRAEFIK[🔷 Traefik Load Balancer<br/>Port 80/8080<br/>Request Routing]
+    subgraph "�️ AI Code Agent System"
+        direction TB
+        GATEWAY[� API Gateway<br/>Port 3001<br/>Webhook Processing]
+        ORCHESTRATOR[🎯 Orchestrator<br/>Port 7071<br/>Workflow Engine]
+        ADAPTER[� DevOps Adapter<br/>Port 3002<br/>Branch/PR Mgmt]
+        LLM[🧠 LLM-Patch Service<br/>Port 3003<br/>AI Code Generation]
+        OLLAMA[🤖 Local Ollama<br/>Port 11434<br/>Privacy-First AI]
     end
     
-    subgraph "🚪 API Gateway Layer"
-        GATEWAY[🟡 Gateway Service<br/>Port 3001<br/>Webhook Processing]
+    subgraph "� Observability & Infrastructure"
+        MONITOR[� Monitoring Stack<br/>Prometheus/Grafana<br/>Port 3000/9090]
+        HEALTH[🏥 Health Monitor<br/>Port 8888<br/>Service Status]
+        TRAEFIK[⚖️ Load Balancer<br/>Port 80/8080<br/>Traffic Routing]
     end
     
-    subgraph "🎯 Core Orchestration"
+    %% Main Workflow
+    DEV -->|PR Comment| ADO
+    ADO -->|Webhook| GATEWAY
+    GATEWAY -->|Trigger| ORCHESTRATOR
+    ORCHESTRATOR -->|Generate Code| LLM
+    ORCHESTRATOR -->|Manage PR| ADAPTER
+    
+    %% AI Provider Fallback Chain
+    LLM -.->|1st: Local| OLLAMA
+    LLM -.->|2nd: Cloud| CLAUDE  
+    LLM -.->|3rd: Fallback| OPENAI
+    
+    %% DevOps Integration
+    ADAPTER <-->|REST API| ADO
+    
+    %% Infrastructure
+    TRAEFIK -->|Route| GATEWAY
+    HEALTH -->|Monitor| GATEWAY
+    HEALTH -->|Monitor| LLM
+    HEALTH -->|Monitor| ADAPTER
+    
+    %% Observability
+    GATEWAY -->|Metrics| MONITOR
+    LLM -->|Metrics| MONITOR
+    ADAPTER -->|Metrics| MONITOR
         ORCHESTRATOR[🔴 Orchestrator<br/>Port 7071<br/>Azure Functions<br/>Workflow Coordination]
     end
     
