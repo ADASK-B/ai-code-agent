@@ -217,20 +217,78 @@ workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system in
     # STYLING & THEMES
     # ==============================================================================
     
-    configuration {
-        scope softwaresystem
+    styles {
+        element "Person" {
+            background #2E86AB
+            color #ffffff
+            shape Person
+        }
+        
+        element "Software System" {
+            background #A23B72
+            color #ffffff
+        }
+        
+        element "External System" {
+            background #C73E1D
+            color #ffffff
+        }
+        
+        element "Container" {
+            background #F18F01
+            color #ffffff
+        }
+        
+        element "WebServer" {
+            background #2E86AB
+            color #ffffff
+            shape WebBrowser
+        }
+        
+        element "Database" {
+            background #A23B72
+            color #ffffff
+            shape Cylinder
+        }
+        
+        element "Service" {
+            background #F18F01
+            color #ffffff
+            shape Component
+        }
+        
+        element "Function" {
+            background #C73E1D
+            color #ffffff
+            shape Component
+        }
+        
+        element "Infrastructure" {
+            background #666666
+            color #ffffff
+            shape Component
+        }
+        
+        element "Monitoring" {
+            background #28a745
+            color #ffffff
+            shape Component
+        }
+        
+        element "AI" {
+            background #6f42c1
+            color #ffffff
+            shape Component
+        }
+        
+        element "LLM" {
+            background #e83e8c
+            color #ffffff
+        }
+        
+        relationship "Relationship" {
+            color #2E86AB
+            thickness 2
+        }
     }
 }
-
-# ==============================================================================
-# STYLE DEFINITIONS
-# ==============================================================================
-
-!define ELEMENT_STYLE(bgColor, textColor, shape) background bgColor; color textColor; shape shape
-!define CONTAINER_STYLE(bgColor, textColor) background bgColor; color textColor
-
-# Color Scheme: Professional Blue/Green
-!constant $PRIMARY_BLUE = "#2E86AB"
-!constant $SECONDARY_GREEN = "#A23B72" 
-!constant $ACCENT_ORANGE = "#F18F01"
-!constant $NEUTRAL_GRAY = "#C73E1D"
