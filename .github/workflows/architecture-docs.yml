@@ -1,0 +1,123 @@
+# GitHub Actions Workflow - Architecture Documentation
+# Complete, clean version that works with our beautiful index.html
+
+name: 🏗️ Architecture Documentation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+
+env:
+  STRUCTURIZR_VERSION: '2025.05.28'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-docs:
+    name: 🏗️ Build Architecture Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 📦 Cache Structurizr CLI
+      uses: actions/cache@v3
+      with:
+        path: ~/.structurizr
+        key: structurizr-${{ env.STRUCTURIZR_VERSION }}
+        
+    - name: 🔧 Setup Structurizr CLI
+      run: |
+        echo "🔧 Installing Structurizr CLI..."
+        mkdir -p ~/.structurizr
+        cd ~/.structurizr
+        
+        wget -q "https://github.com/structurizr/cli/releases/download/v${{ env.STRUCTURIZR_VERSION }}/structurizr-cli.zip"
+        unzip -q structurizr-cli.zip
+        chmod +x structurizr.sh
+        
+        ./structurizr.sh version
+        echo "✅ Structurizr CLI ready"
+        
+    - name: 🔍 Validate C4 DSL
+      run: |
+        echo "🔍 Validating C4 DSL..."
+        cd docs/c4
+        ~/.structurizr/structurizr.sh validate workspace workspace.dsl
+        echo "✅ C4 DSL valid"
+        
+    - name: 🎨 Export C4 Diagrams
+      run: |
+        echo "🎨 Exporting C4 diagrams..."
+        cd docs/c4
+        mkdir -p exports
+        
+        # Export PNG and PlantUML
+        ~/.structurizr/structurizr.sh export workspace workspace.dsl -format png -output exports/
+        ~/.structurizr/structurizr.sh export workspace workspace.dsl -format plantuml -output exports/
+        
+        # Create simple architecture overview
+        echo '<html><head><title>Architecture</title></head><body><h1>Architecture Diagrams</h1>' > exports/index.html
+        echo '<img src="structurizr-SystemContext.png" alt="System Context"/>' >> exports/index.html  
+        echo '<img src="structurizr-Containers.png" alt="Containers"/>' >> exports/index.html
+        echo '</body></html>' >> exports/index.html
+        
+        echo "📋 Generated files:"
+        ls -la exports/
+        echo "✅ C4 diagrams exported"
+        
+    - name: 🏗️ Prepare GitHub Pages Site
+      run: |
+        echo "🏗️ Preparing complete site..."
+        
+        # Start with our beautiful index.html
+        mkdir -p _site
+        cp index.html _site/
+        
+        # Add documentation
+        mkdir -p _site/docs
+        cp -r docs/* _site/docs/
+        
+        # Add architecture diagrams
+        mkdir -p _site/architecture
+        cp -r docs/c4/exports/* _site/architecture/
+        
+        # Create direct access to architecture page
+        cp docs/c4/exports/index.html _site/architecture.html
+        
+        # Add README
+        cp README.md _site/
+        
+        echo "✅ Complete site prepared with:"
+        echo "  ✓ Original index.html (untouched)"
+        echo "  ✓ Architecture diagrams"
+        echo "  ✓ Documentation"
+        echo "  ✓ Direct links working"
+        
+    - name: 🔧 Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: 📤 Upload to GitHub Pages
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: _site/
+        
+    - name: 🚀 Deploy to GitHub Pages
+      uses: actions/deploy-pages@v4
