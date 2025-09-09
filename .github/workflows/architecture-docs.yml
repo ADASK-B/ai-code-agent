@@ -113,22 +113,41 @@ jobs:
         mkdir -p _site/docs
         cp -r docs/* _site/docs/
         
-        # Add architecture diagrams (with error handling)
+        # Add architecture diagrams (with debug info)
         mkdir -p _site/architecture
+        
+        echo "🔍 Debug: Checking what was generated..."
+        echo "📂 Contents of docs/c4/:"
+        ls -la docs/c4/ || echo "No docs/c4/ directory"
+        
         if [ -d "docs/c4/exports" ]; then
-          echo "📂 Found exports directory, copying files..."
+          echo "📂 Found exports directory, contents:"
           ls -la docs/c4/exports/
-          cp -r docs/c4/exports/* _site/architecture/ 2>/dev/null || echo "No files to copy from exports"
           
-          # Create direct access to architecture page if index.html exists
-          if [ -f "docs/c4/exports/index.html" ]; then
-            cp docs/c4/exports/index.html _site/architecture.html
-            echo "✅ Architecture diagrams page created"
+          if [ "$(ls -A docs/c4/exports 2>/dev/null)" ]; then
+            echo "✅ Exports directory is not empty, copying files..."
+            cp -r docs/c4/exports/* _site/architecture/
+            
+            # Always create direct access to architecture page
+            if [ -f "docs/c4/exports/index.html" ]; then
+              cp docs/c4/exports/index.html _site/architecture.html
+              echo "✅ Real architecture diagrams page created"
+            else
+              echo "⚠️ Creating fallback architecture page with debug info..."
+              echo "<html><head><title>Debug</title></head><body><h1>Architecture Export Debug</h1><p>Exports directory exists but no index.html found.</p><p>Files in exports:</p><ul>" > _site/architecture.html
+              for file in docs/c4/exports/*; do
+                if [ -f "$file" ]; then
+                  echo "<li>$(basename "$file")</li>" >> _site/architecture.html
+                fi
+              done
+              echo "</ul></body></html>" >> _site/architecture.html
+            fi
           else
-            echo "❌ No architecture index.html found, keeping fallback"
+            echo "❌ Exports directory is empty"
           fi
         else
-          echo "❌ No exports directory found, keeping fallback architecture.html"
+          echo "❌ No exports directory found"
+          echo "<html><head><title>Debug</title></head><body><h1>Architecture Export Debug</h1><p>No exports directory was created. Check Structurizr CLI errors.</p></body></html>" > _site/architecture.html
         fi
         
         # Add README
