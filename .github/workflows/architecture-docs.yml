@@ -335,7 +335,7 @@ jobs:
       run: |
         echo "🚀 Preparing documentation site for GitHub Pages..."
         
-        # Copy our beautiful index.html from root
+        # Copy our beautiful index.html from root first
         cp index.html _site/
         
         # Create site structure
@@ -347,8 +347,9 @@ jobs:
         cp _site/architecture/*.png _site/ 2>/dev/null || true
         cp _site/architecture/index.html _site/architecture.html
         
-        # Our index.html was already copied above - no need to recreate it
+        # Our beautiful index.html was already copied above
         
+        echo "✅ GitHub Pages site prepared"
         <!DOCTYPE html>
         <html>
         <head>
@@ -450,7 +451,6 @@ jobs:
             </div>
         </body>
         </html>
-        EOF
         
         echo "✅ GitHub Pages site prepared"
         
