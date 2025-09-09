@@ -32,6 +32,9 @@ jobs:
   build-docs:
     name: 🏗️ Build Architecture Documentation
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     
     steps:
     - name: 📥 Checkout Repository
@@ -146,4 +149,5 @@ jobs:
         path: _site/
         
     - name: 🚀 Deploy to GitHub Pages
+      id: deployment
       uses: actions/deploy-pages@v4
