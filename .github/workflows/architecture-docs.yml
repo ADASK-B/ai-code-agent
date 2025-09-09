@@ -335,6 +335,9 @@ jobs:
       run: |
         echo "🚀 Preparing documentation site for GitHub Pages..."
         
+        # Copy our beautiful index.html from root
+        cp index.html _site/
+        
         # Create site structure
         mkdir -p _site/docs
         cp -r docs/* _site/docs/
@@ -344,8 +347,8 @@ jobs:
         cp _site/architecture/*.png _site/ 2>/dev/null || true
         cp _site/architecture/index.html _site/architecture.html
         
-        # Create simple index.html
-        cat > _site/index.html << 'EOF'
+        # Our index.html was already copied above - no need to recreate it
+        
         <!DOCTYPE html>
         <html>
         <head>
