@@ -150,17 +150,17 @@ jobs:
         echo "📂 Contents of docs/c4/:"
         ls -la docs/c4/ || echo "No docs/c4/ directory"
         
+        # Always copy the beautiful template for architecture page
+        echo "📄 Using architecture template"
+        cp architecture-template.html _site/architecture.html
+        echo "✅ Beautiful architecture page created"
+        
         if [ -d "docs/c4/exports" ]; then
           echo "📂 Found exports directory, contents:"
           ls -la docs/c4/exports/
           
-          # Always copy everything from exports
+          # Copy everything from exports
           cp -r docs/c4/exports/* _site/architecture/ 2>/dev/null || echo "No files in exports"
-          
-          # Use the beautiful template for architecture page
-          echo "📄 Using architecture template"
-          cp architecture-template.html _site/architecture.html
-          echo "✅ Beautiful architecture page created"
         fi
         
         # Add README
