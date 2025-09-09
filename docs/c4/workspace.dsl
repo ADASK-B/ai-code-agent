@@ -105,7 +105,11 @@ workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system in
         live = deploymentEnvironment "Production" {
             deploymentNode "Azure Container Instances" {
                 containerInstance = infrastructureNode "Container Host" "Azure Container Instances with managed scaling" "Azure" {
-                    softwareSystemInstance aiCodeAgent
+                    gatewayInstance = containerInstance gateway
+                    orchestratorInstance = containerInstance orchestrator
+                    adapterInstance = containerInstance adapter
+                    llmPatchInstance = containerInstance llmPatch
+                    proxyInstance = containerInstance proxy
                 }
             }
             
@@ -121,7 +125,12 @@ workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system in
         development = deploymentEnvironment "Development" {
             deploymentNode "Developer Workstation" {
                 laptop = infrastructureNode "Local Docker" "Docker Compose environment for local development" "Docker" {
-                    softwareSystemInstance aiCodeAgent
+                    gatewayDev = containerInstance gateway
+                    orchestratorDev = containerInstance orchestrator
+                    adapterDev = containerInstance adapter
+                    llmPatchDev = containerInstance llmPatch
+                    localLLMDev = containerInstance localLLM
+                    monitoringDev = containerInstance monitoring
                 }
             }
         }
