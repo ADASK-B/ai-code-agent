@@ -122,7 +122,7 @@ jobs:
         mkdir -p _site/docs
         cp -r docs/* _site/docs/
         
-        # Add architecture diagrams (with debug info)
+        # Add architecture diagrams (simplified approach)
         mkdir -p _site/architecture
         
         echo "🔍 Debug: Checking what was generated..."
@@ -133,30 +133,34 @@ jobs:
           echo "📂 Found exports directory, contents:"
           ls -la docs/c4/exports/
           
-          if [ "$(ls -A docs/c4/exports 2>/dev/null)" ]; then
-            echo "✅ Exports directory is not empty, copying files..."
-            cp -r docs/c4/exports/* _site/architecture/
-            
-            # Always create direct access to architecture page
-            if [ -f "docs/c4/exports/index.html" ]; then
-              cp docs/c4/exports/index.html _site/architecture.html
-              echo "✅ Real architecture diagrams page created"
-            else
-              echo "⚠️ Creating fallback architecture page with debug info..."
-              echo "<html><head><title>Debug</title></head><body><h1>Architecture Export Debug</h1><p>Exports directory exists but no index.html found.</p><p>Files in exports:</p><ul>" > _site/architecture.html
-              for file in docs/c4/exports/*; do
-                if [ -f "$file" ]; then
-                  echo "<li>$(basename "$file")</li>" >> _site/architecture.html
+          # Always copy everything from exports
+          cp -r docs/c4/exports/* _site/architecture/ 2>/dev/null || echo "No files in exports"
+          
+          # Create a simple debug architecture.html that shows what we have
+          echo "<html><head><title>Architecture Debug</title></head><body>" > _site/architecture.html
+          echo "<h1>Architecture Diagrams Debug</h1>" >> _site/architecture.html
+          echo "<p>Build completed successfully. Files found:</p><ul>" >> _site/architecture.html
+          
+          # List all files in exports
+          if ls docs/c4/exports/* >/dev/null 2>&1; then
+            for file in docs/c4/exports/*; do
+              if [ -f "$file" ]; then
+                filename=$(basename "$file")
+                echo "<li><a href=\"architecture/$filename\">$filename</a></li>" >> _site/architecture.html
+                if [[ "$filename" == *.png ]]; then
+                  echo "<br><img src=\"architecture/$filename\" alt=\"$filename\" style=\"max-width:100%;border:1px solid #ccc;margin:10px 0;\"/>" >> _site/architecture.html
                 fi
-              done
-              echo "</ul></body></html>" >> _site/architecture.html
-            fi
+              fi
+            done
           else
-            echo "❌ Exports directory is empty"
+            echo "<li>No files found in exports directory</li>" >> _site/architecture.html
           fi
+          
+          echo "</ul></body></html>" >> _site/architecture.html
+          echo "✅ Debug architecture page created"
         else
           echo "❌ No exports directory found"
-          echo "<html><head><title>Debug</title></head><body><h1>Architecture Export Debug</h1><p>No exports directory was created. Check Structurizr CLI errors.</p></body></html>" > _site/architecture.html
+          echo "<html><head><title>Debug</title></head><body><h1>No exports directory found</h1><p>Structurizr CLI may have failed to export diagrams.</p></body></html>" > _site/architecture.html
         fi
         
         # Add README
