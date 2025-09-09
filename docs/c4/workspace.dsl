@@ -104,9 +104,9 @@ workspace "AI Code Agent" "Enterprise-grade AI-powered code generation system in
         
         live = deploymentEnvironment "Production" {
             deploymentNode "Azure Container Instances" {
-                containerInstance = infrastructureNode "Container Host" "Azure Container Instances with managed scaling" "Azure" {
+                containerHost = infrastructureNode "Container Host" "Azure Container Instances with managed scaling" "Azure" {
                     gatewayInstance = containerInstance gateway
-                    orchestratorInstance = containerInstance orchestrator
+                    orchestratorInstance = containerInstance orchestrator  
                     adapterInstance = containerInstance adapter
                     llmPatchInstance = containerInstance llmPatch
                     proxyInstance = containerInstance proxy
