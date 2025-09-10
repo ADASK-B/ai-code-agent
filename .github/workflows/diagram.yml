@@ -1,0 +1,67 @@
+name: Build C4 Diagrams
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: write  # (erklärung: erlaubt Commits zurück ins Repo)
+
+jobs:
+  build-diagrams:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Java für Structurizr CLI (erklärung: Kommandozeilen-Tool zum Export)
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Structurizr CLI laden
+      - name: Download Structurizr CLI
+        run: |
+          curl -L https://github.com/structurizr/cli/releases/latest/download/structurizr-cli.zip -o cli.zip
+          unzip -o cli.zip -d structurizr-cli
+          chmod +x structurizr-cli/structurizr.sh
+
+      # Export: DSL -> PlantUML (.puml)
+      - name: Export PlantUML from DSL
+        run: |
+          mkdir -p docs/c4/out
+          ./structurizr-cli/structurizr.sh export \
+            -workspace docs/c4/workspace.dsl \
+            -format plantuml \
+            -output docs/c4/out
+
+      # Export: DSL -> Mermaid (.mmd)
+      - name: Export Mermaid from DSL
+        run: |
+          ./structurizr-cli/structurizr.sh export \
+            -workspace docs/c4/workspace.dsl \
+            -format mermaid \
+            -output docs/c4/out
+
+      # Render: .puml -> PNG
+      - name: Render PlantUML to PNG
+        uses: plantuml/plantuml-action@v1
+        with:
+          args: docs/c4/out/*.puml -tpng -o docs/c4/out
+
+      # Render: .puml -> SVG
+      - name: Render PlantUML to SVG
+        uses: plantuml/plantuml-action@v1
+        with:
+          args: docs/c4/out/*.puml -tsvg -o docs/c4/out
+
+      # Änderungen zurückschreiben (Commit)
+      - name: Commit generated diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(diagrams): update C4 PNG/SVG from DSL"
+          file_pattern: docs/c4/out/*
