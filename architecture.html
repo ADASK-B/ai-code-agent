@@ -37,11 +37,6 @@
             margin-bottom: 1rem;
         }
         
-        .header p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-        
         .diagram-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -68,11 +63,6 @@
             font-size: 1.2rem;
         }
         
-        .diagram-card p {
-            color: #666;
-            margin-bottom: 1rem;
-        }
-        
         .diagram-image {
             width: 100%;
             max-height: 400px;
@@ -80,29 +70,6 @@
             border-radius: 4px;
             background: white;
             border: 1px solid #ddd;
-        }
-        
-        .status {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            text-align: center;
-        }
-        
-        .status.building {
-            background: #fff3cd;
-            border-color: #ffeaa7;
-        }
-        
-        .status h2 {
-            color: #155724;
-            margin-bottom: 1rem;
-        }
-        
-        .status.building h2 {
-            color: #856404;
         }
         
         .btn {
@@ -121,123 +88,7 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(46, 134, 171, 0.4);
         }
-        
-        .loading {
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #2E86AB;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .tech-info {
-            background: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-        }
-        
-        .tech-info h3 {
-            color: #2E86AB;
-            margin-bottom: 1rem;
-        }
-        
-        .tech-info ul {
-            margin-left: 2rem;
-            line-height: 1.8;
-        }
-        
-        .tech-info li {
-            margin-bottom: 0.5rem;
-            color: #555;
-        }
     </style>
-    <script>
-        // Check if diagrams are ready and display them
-        async function loadDiagrams() {
-            const diagramContainer = document.getElementById('diagrams');
-            const statusContainer = document.getElementById('status');
-            
-            // List of expected diagrams
-            const expectedDiagrams = [
-                { name: 'System Context', file: 'SystemContext.png', description: 'Übersicht über das gesamte AI Code Agent System und externe Abhängigkeiten' },
-                { name: 'Container View', file: 'Containers.png', description: 'Detaillierte Darstellung der Microservices (Gateway, Orchestrator, LLM-Patch, Adapter)' },
-                { name: 'Webhook Components', file: 'WebhookComponents.png', description: 'Interne Struktur des Webhook Service' },
-                { name: 'Orchestrator Components', file: 'OrchestratorComponents.png', description: 'Interne Struktur des Orchestrator Service' },
-                { name: 'LLM Gateway Components', file: 'LLMGatewayComponents.png', description: 'Interne Struktur des LLM Gateway Service' },
-                { name: 'Adapter Components', file: 'AdapterComponents.png', description: 'Interne Struktur des Adapter Service' }
-            ];
-            
-            let diagramsFound = 0;
-            let diagramsHtml = '';
-            
-            for (const diagram of expectedDiagrams) {
-                try {
-                    const response = await fetch(`docs/c4/out/docs/c4/out/structurizr-${diagram.file}`);
-                    if (response.ok) {
-                        diagramsFound++;
-                        diagramsHtml += `
-                            <div class="diagram-card">
-                                <h3>${diagram.name}</h3>
-                                <p>${diagram.description}</p>
-                                <img src="docs/c4/out/docs/c4/out/structurizr-${diagram.file}" alt="${diagram.name}" class="diagram-image" loading="lazy">
-                                <div style="margin-top: 1rem;">
-                                    <a href="docs/c4/out/docs/c4/out/structurizr-${diagram.file}" class="btn" target="_blank">🔍 PNG anzeigen</a>
-                                    <a href="docs/c4/out/docs/c4/out/structurizr-${diagram.file.replace('.png', '.svg')}" class="btn" target="_blank">🎨 SVG anzeigen</a>
-                                </div>
-                            </div>
-                        `;
-                    }
-                } catch (e) {
-                    // Diagram not ready yet
-                }
-            }
-            
-            if (diagramsFound > 0) {
-                statusContainer.innerHTML = `
-                    <div class="status">
-                        <h2>✅ Architecture Diagrams sind verfügbar!</h2>
-                        <p><strong>${diagramsFound}</strong> von <strong>${expectedDiagrams.length}</strong> Diagrammen wurden erfolgreich generiert.</p>
-                        <p>Scroll nach unten um alle Diagramme zu sehen.</p>
-                    </div>
-                `;
-                diagramContainer.innerHTML = `
-                    <div class="diagram-grid">
-                        ${diagramsHtml}
-                    </div>
-                `;
-            } else {
-                statusContainer.innerHTML = `
-                    <div class="status building">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                            <h2>🚀 Architecture Diagrams werden generiert...</h2>
-                            <p>GitHub Actions erstellt gerade automatisch die C4-Diagramme aus der Structurizr DSL.</p>
-                            <p><strong>Status:</strong> Build läuft - Die Seite wird automatisch aktualisiert, wenn die Diagramme fertig sind.</p>
-                        </div>
-                    </div>
-                `;
-                // Retry in 10 seconds
-                setTimeout(loadDiagrams, 10000);
-            }
-        }
-        
-        // Load diagrams when page loads
-        document.addEventListener('DOMContentLoaded', loadDiagrams);
-    </script>
 </head>
 <body>
     <div class="container">
@@ -246,53 +97,75 @@
             <p>AI Code Agent System Architecture - Automatisch generiert aus C4 DSL</p>
         </div>
         
-        <div id="status">
-            <!-- Status will be injected by JavaScript -->
+        <div class="diagram-grid">
+            <div class="diagram-card">
+                <h3>System Context</h3>
+                <p>Übersicht über das gesamte AI Code Agent System und externe Abhängigkeiten</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-SystemContext.png" alt="System Context" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-SystemContext.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-SystemContext.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>Container View</h3>
+                <p>Detaillierte Darstellung der Microservices (Gateway, Orchestrator, LLM-Patch, Adapter)</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-Containers.png" alt="Container View" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-Containers.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-Containers.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>Webhook Components</h3>
+                <p>Interne Struktur des Webhook Service</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-WebhookComponents.png" alt="Webhook Components" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-WebhookComponents.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-WebhookComponents.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>Orchestrator Components</h3>
+                <p>Interne Struktur des Orchestrator Service</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-OrchestratorComponents.png" alt="Orchestrator Components" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-OrchestratorComponents.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-OrchestratorComponents.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>LLM Gateway Components</h3>
+                <p>Interne Struktur des LLM Gateway Service</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-LLMGatewayComponents.png" alt="LLM Gateway Components" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-LLMGatewayComponents.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-LLMGatewayComponents.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>Adapter Components</h3>
+                <p>Interne Struktur des Adapter Service</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-AdapterComponents.png" alt="Adapter Components" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-AdapterComponents.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-AdapterComponents.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
         </div>
         
-        <div style="margin-top: 2rem;">
+        <div style="text-align: center; margin-top: 2rem;">
             <a href="https://github.com/ADASK-B/ai-code-agent/actions" class="btn" target="_blank">
                 🔍 Build-Status auf GitHub ansehen
             </a>
             <a href="/" class="btn">
                 🏠 Zurück zur Hauptseite
             </a>
-            <a href="docs/c4/workspace.dsl" class="btn" target="_blank">
-                📝 C4 DSL Quellcode ansehen
-            </a>
-        </div>
-        
-        <div id="diagrams">
-            <!-- Diagrams will be injected by JavaScript -->
-        </div>
-        
-        <div class="tech-info">
-            <h3>🛠️ Technische Details:</h3>
-            <ul>
-                <li><strong>Structurizr CLI:</strong> Modernste C4 DSL Engine für automatische Diagramm-Generierung</li>
-                <li><strong>PlantUML:</strong> Hochqualitative PNG und SVG Rendering Engine</li>
-                <li><strong>GitHub Actions:</strong> Automatische Builds bei jedem Commit in docs/ oder main branch</li>
-                <li><strong>Multi-Format Export:</strong> PNG für Präsentationen, SVG für skalierbare Anzeige</li>
-                <li><strong>Enterprise Standards:</strong> C4 Model nach Simon Brown, bewährt bei Microsoft/Google</li>
-            </ul>
-        </div>
-        
-        <div class="tech-info">
-            <h3>📋 Was wird generiert:</h3>
-            <ul>
-                <li><strong>C1 System Context:</strong> Übersicht über das gesamte AI Code Agent System und externe Abhängigkeiten</li>
-                <li><strong>C2 Container Diagram:</strong> Detaillierte Darstellung der Microservices (Gateway, Orchestrator, LLM-Patch, Adapter)</li>
-                <li><strong>C3 Component Diagrams:</strong> Interne Struktur der wichtigsten Services</li>
-                <li><strong>Dynamic Workflow:</strong> Ablauf von PR-Comment bis Code-Generation</li>
-                <li><strong>Mermaid Exports:</strong> Zusätzlich für Markdown-Integration verfügbar</li>
-            </ul>
-        </div>
-        
-        <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #f0f0f0;">
-            <p style="color: #666;">
-                🔄 Diese Seite prüft automatisch alle 10 Sekunden auf neue Diagramme<br>
-                ⏱️ Typische Build-Zeit: 2-3 Minuten für vollständige Diagramm-Suite
-            </p>
         </div>
     </div>
 </body>
