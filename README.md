@@ -91,8 +91,7 @@ graph TB
     GATEWAY -->|Metrics| MONITOR
     LLM -->|Metrics| MONITOR
     ADAPTER -->|Metrics| MONITOR
-        ORCHESTRATOR[🔴 Orchestrator<br/>Port 7071<br/>Azure Functions<br/>Workflow Coordination]
-    end
+```
     
     subgraph "⚙️ Business Logic Services"
         ADAPTER[🟠 Adapter Service<br/>Port 3002<br/>Azure DevOps Integration<br/>Branch/PR Management]
