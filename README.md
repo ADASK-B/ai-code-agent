@@ -191,7 +191,9 @@ graph TB
     ADO -->|Webhook| GATEWAY
     GATEWAY -->|Trigger| ORCHESTRATOR
     ORCHESTRATOR -->|Generate Code| LLM
-    ORCHESTRATOR -->|Manage PR| ADAPTER
+        ORCHESTRATOR -->|Manage PR| ADAPTER
+
+### 📊 Monitoring & Observability Stack
     
 ### 📊 Monitoring & Observability Stack
 
