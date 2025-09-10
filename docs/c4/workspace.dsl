@@ -7,48 +7,49 @@ workspace "AI Code Agent" "C4-Modell für das ai-code-agent Repo" {
     developer = person "Developer" "Löst Änderungen via Kommentar/Command im Repo aus."
     ado = softwareSystem "Azure DevOps" "Quell-Repo & Pull Requests."
     github = softwareSystem "GitHub" "Alternative: Quell-Repo & Pull Requests."
-    aiAgent = softwareSystem "AI Code Agent" "Automatisiert Kommentar → Analyse → Patch → PR."
-
-    // C2: Container (laufende Deploymenteinheiten/Services)
-    webhook = container "Webhook Service" "Node/TypeScript" "Empfängt Events (Kommentare/PR-Hooks) & validiert." {
-        webhookHandler = component "Webhook Handler" "Processes incoming ADO webhooks"
-        requestValidator = component "Request Validator" "Validates and sanitizes requests"
-        correlationManager = component "Correlation Manager" "Manages request correlation IDs"
-        rateLimiter = component "Rate Limiter" "Implements rate limiting"
-        metricsCollector = component "Metrics Collector" "Collects and exports metrics"
-    }
-    orchestrator = container "Orchestrator" "Functions/Container" "Steuert Workflow, Idempotenz, Retry/Backoff." {
-        workflowEngine = component "Workflow Engine" "Orchestrates the edit workflow"
-        idempotencyManager = component "Idempotency Manager" "Ensures idempotent operations"
-        retryManager = component "Retry Manager" "Handles retries with backoff"
-        statusTracker = component "Status Tracker" "Tracks operation status"
-    }
-    llmGateway = container "LLM Gateway" "Service" "Provider-agnostische Schnittstelle zu Sprachmodellen (LLM)." {
-        intentProcessor = component "Intent Processor" "Processes natural language intents"
-        providerManager = component "Provider Manager" "Manages multiple LLM providers"
-        patchGenerator = component "Patch Generator" "Generates unified diff patches"
-        confidenceAnalyzer = component "Confidence Analyzer" "Analyzes generation confidence"
-    }
-    adapter = container "Adapter" "Service" "Azure DevOps integration" {
-        adoClient = component "ADO Client" "Azure DevOps REST API client"
-        branchManager = component "Branch Manager" "Creates and manages feature branches"
-        prManager = component "PR Manager" "Creates and updates pull requests"
-        commentManager = component "Comment Manager" "Posts status updates as comments"
-    }
-    evalService = container "Eval Service" "Service" "Golden Tests, Metriken, Guardrails/Evals."
-    vectorStore = container "Vector Store" "DB" "Optional für RAG (Retrieval-Augmented Generation)."
-    telemetry = container "Telemetry/OTel Exporter" "Service" "Logs/Metriken/Traces (OTel = OpenTelemetry)."
-    secrets = container "Key Vault" "Service" "Serverseitige Secrets/Keys; Zugriff via Managed Identity."
-
+    
     // External LLM providers
     ollama = softwareSystem "Ollama" "Local LLM inference server"
     claude = softwareSystem "Claude API" "Anthropic's Claude LLM service"
     openai = softwareSystem "OpenAI API" "OpenAI's GPT models"
 
+    aiAgent = softwareSystem "AI Code Agent" "Automatisiert Kommentar → Analyse → Patch → PR." {
+        // C2: Container (laufende Deploymenteinheiten/Services)
+        webhook = container "Webhook Service" "Node/TypeScript" "Empfängt Events (Kommentare/PR-Hooks) & validiert." {
+            webhookHandler = component "Webhook Handler" "Processes incoming ADO webhooks"
+            requestValidator = component "Request Validator" "Validates and sanitizes requests"
+            correlationManager = component "Correlation Manager" "Manages request correlation IDs"
+            rateLimiter = component "Rate Limiter" "Implements rate limiting"
+            metricsCollector = component "Metrics Collector" "Collects and exports metrics"
+        }
+        orchestrator = container "Orchestrator" "Functions/Container" "Steuert Workflow, Idempotenz, Retry/Backoff." {
+            workflowEngine = component "Workflow Engine" "Orchestrates the edit workflow"
+            idempotencyManager = component "Idempotency Manager" "Ensures idempotent operations"
+            retryManager = component "Retry Manager" "Handles retries with backoff"
+            statusTracker = component "Status Tracker" "Tracks operation status"
+        }
+        llmGateway = container "LLM Gateway" "Service" "Provider-agnostische Schnittstelle zu Sprachmodellen (LLM)." {
+            intentProcessor = component "Intent Processor" "Processes natural language intents"
+            providerManager = component "Provider Manager" "Manages multiple LLM providers"
+            patchGenerator = component "Patch Generator" "Generates unified diff patches"
+            confidenceAnalyzer = component "Confidence Analyzer" "Analyzes generation confidence"
+        }
+        adapter = container "Adapter" "Service" "Azure DevOps integration" {
+            adoClient = component "ADO Client" "Azure DevOps REST API client"
+            branchManager = component "Branch Manager" "Creates and manages feature branches"
+            prManager = component "PR Manager" "Creates and updates pull requests"
+            commentManager = component "Comment Manager" "Posts status updates as comments"
+        }
+        evalService = container "Eval Service" "Service" "Golden Tests, Metriken, Guardrails/Evals."
+        vectorStore = container "Vector Store" "DB" "Optional für RAG (Retrieval-Augmented Generation)."
+        telemetry = container "Telemetry/OTel Exporter" "Service" "Logs/Metriken/Traces (OTel = OpenTelemetry)."
+        secrets = container "Key Vault" "Service" "Serverseitige Secrets/Keys; Zugriff via Managed Identity."
+    }
+
     // Beziehungen (wer spricht mit wem)
-    developer -> aiAgent.webhook "Kommentar/Command (z. B. /edit)" "HTTPS"
-    ado -> aiAgent.webhook "Webhook: PR/Kommentar" "HTTPS"
-    github -> aiAgent.webhook "Webhook: PR/Kommentar" "HTTPS"
+    developer -> aiAgent "Kommentar/Command (z. B. /edit)" "HTTPS"
+    ado -> aiAgent "Webhook: PR/Kommentar" "HTTPS"
+    github -> aiAgent "Webhook: PR/Kommentar" "HTTPS"
 
     aiAgent.webhook -> aiAgent.orchestrator "validierte Events" "internal"
     aiAgent.orchestrator -> aiAgent.llmGateway "Prompts/Tools" "internal"
@@ -70,24 +71,6 @@ workspace "AI Code Agent" "C4-Modell für das ai-code-agent Repo" {
     aiAgent.orchestrator -> aiAgent.adapter "Requests ADO operations" "HTTP"
     aiAgent.adapter -> ado "Creates branches, PRs, comments" "REST API"
     aiAgent.adapter -> github "Creates branches, PRs, comments" "REST API"
-
-    // Component relationships
-    aiAgent.webhook.webhookHandler -> aiAgent.webhook.requestValidator "Validates requests"
-    aiAgent.webhook.requestValidator -> aiAgent.webhook.correlationManager "Assigns correlation ID"
-    aiAgent.webhook.correlationManager -> aiAgent.webhook.rateLimiter "Applies rate limits"
-    aiAgent.webhook.rateLimiter -> aiAgent.webhook.metricsCollector "Records metrics"
-
-    aiAgent.orchestrator.workflowEngine -> aiAgent.orchestrator.idempotencyManager "Checks for duplicate operations"
-    aiAgent.orchestrator.workflowEngine -> aiAgent.orchestrator.retryManager "Handles failed operations"
-    aiAgent.orchestrator.workflowEngine -> aiAgent.orchestrator.statusTracker "Updates operation status"
-
-    aiAgent.adapter.adoClient -> aiAgent.adapter.branchManager "Creates branches"
-    aiAgent.adapter.branchManager -> aiAgent.adapter.prManager "Creates PRs"
-    aiAgent.adapter.prManager -> aiAgent.adapter.commentManager "Posts status comments"
-
-    aiAgent.llmGateway.intentProcessor -> aiAgent.llmGateway.providerManager "Routes to LLM provider"
-    aiAgent.llmGateway.providerManager -> aiAgent.llmGateway.patchGenerator "Generates patches"
-    aiAgent.llmGateway.patchGenerator -> aiAgent.llmGateway.confidenceAnalyzer "Analyzes confidence"
   }
 
   views {
