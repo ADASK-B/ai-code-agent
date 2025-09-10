@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Markdown Viewer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" integrity="sha512-3O3WqOQ7o7qQk2s9L2S5j9yI3r0ZfG3aJUWgQ2nJb0jN6XrJgq3X6wz0hA0Xq4pBqjGq5+o4H6k9z2xUu1iYVg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" integrity="sha512-+0ZQkoW3b1UBhQG8Y0xC1B1eUIQk6p1CN7D3kQroV4s2iCzJ3J8sQnYp9VtQJ3xk8h5GkHfDkXoCSvZQv0rH6g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fff}
+    .container{max-width:960px;margin:0 auto;padding:24px}
+    .topbar{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid #e5e7eb;background:#f8fafc;position:sticky;top:0;z-index:10}
+    .topbar a{color:#2563eb;text-decoration:none}
+    .markdown-body{box-sizing:border-box;min-width:200px;max-width:100%;margin:0 auto;padding:24px}
+    @media (max-width: 767px){.markdown-body{padding:16px}}
+    .error{background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d;padding:12px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="./">← Docs</a>
+    <span id="filename" style="color:#64748b"></span>
+  </div>
+  <div class="container">
+    <article id="content" class="markdown-body">
+      <p>Lade Inhalt…</p>
+    </article>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js" integrity="sha512-/qQf6xw1I7+9cLu5sA5zPZlCjo4QyKf0g7oQwrJj6FQx8sW3x4z8dlbqkq1n3wL0DqkqYlqg2nQq3qXk7lq2lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-g+E6Q0lqYkQkqz6Xx2bS2Y4Jp1WgB0eQH7wV9+8jP2fKp5j2o+u2m3k6xW0b3Jm8H3Vv4x2q3f7k1yZk8Vt9xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    (function(){
+      const params = new URLSearchParams(location.search);
+      const path = params.get('path');
+      const contentEl = document.getElementById('content');
+      const nameEl = document.getElementById('filename');
+
+      if(!path){
+        contentEl.innerHTML = '<div class="error">Kein Pfad angegeben. Nutze z.B. <code>md.html?path=adr/0001-llm-gateway-provider-agnostisch.md</code></div>';
+        return;
+      }
+
+      // rudimentäre Sicherheit: nur innerhalb docs/
+      if(path.includes('..')){
+        contentEl.innerHTML = '<div class="error">Ungültiger Pfad.</div>';
+        return;
+      }
+
+      nameEl.textContent = path;
+
+      fetch(path)
+        .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+        .then(md => {
+          // Entferne YAML-Frontmatter rein visuell
+          md = md.replace(/^---[\s\S]*?---\n/,'');
+          marked.setOptions({
+            highlight: function(code, lang){
+              try { return hljs.highlight(code, {language: lang}).value; } catch(e) { return hljs.highlightAuto(code).value; }
+            }
+          });
+          const html = marked.parse(md);
+          contentEl.innerHTML = html;
+          // Überschrift als Titel setzen
+          const h1 = contentEl.querySelector('h1');
+          if(h1){ document.title = h1.textContent + ' – Docs'; }
+        })
+        .catch(err => {
+          contentEl.innerHTML = '<div class="error">Fehler beim Laden: '+ (err && err.message ? err.message : err) +'</div>';
+        });
+    })();
+  </script>
+</body>
+</html>
