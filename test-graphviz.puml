@@ -1,0 +1,12 @@
+@startuml
+!theme plain
+title Test Graphviz Installation
+
+rectangle "Gateway" as gateway
+rectangle "Orchestrator" as orch
+rectangle "LLM Patch" as llm
+
+gateway --> orch : HTTP Request
+orch --> llm : Process Intent
+
+@enduml

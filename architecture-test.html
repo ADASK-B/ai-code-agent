@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏗️ AI Code Agent - Architecture Diagrams</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .header h1 {
+            color: #2E86AB;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .diagram-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .diagram-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .diagram-card h3 {
+            color: #2E86AB;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .diagram-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 4px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #2E86AB, #A23B72);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 134, 171, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Architecture Diagrams</h1>
+            <p>AI Code Agent System Architecture - Automatisch generiert aus C4 DSL</p>
+        </div>
+        
+        <div class="diagram-grid">
+            <div class="diagram-card">
+                <h3>System Context</h3>
+                <p>Übersicht über das gesamte AI Code Agent System und externe Abhängigkeiten</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-SystemContext.png" alt="System Context" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-SystemContext.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-SystemContext.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>Container View</h3>
+                <p>Detaillierte Darstellung der Microservices (Gateway, Orchestrator, LLM-Patch, Adapter)</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-Containers.png" alt="Container View" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-Containers.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-Containers.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>Webhook Components</h3>
+                <p>Interne Struktur des Webhook Service</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-WebhookComponents.png" alt="Webhook Components" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-WebhookComponents.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-WebhookComponents.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>Orchestrator Components</h3>
+                <p>Interne Struktur des Orchestrator Service</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-OrchestratorComponents.png" alt="Orchestrator Components" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-OrchestratorComponents.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-OrchestratorComponents.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>LLM Gateway Components</h3>
+                <p>Interne Struktur des LLM Gateway Service</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-LLMGatewayComponents.png" alt="LLM Gateway Components" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-LLMGatewayComponents.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-LLMGatewayComponents.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+            
+            <div class="diagram-card">
+                <h3>Adapter Components</h3>
+                <p>Interne Struktur des Adapter Service</p>
+                <img src="docs/c4/out/docs/c4/out/structurizr-AdapterComponents.png" alt="Adapter Components" class="diagram-image" loading="lazy">
+                <div style="margin-top: 1rem;">
+                    <a href="docs/c4/out/docs/c4/out/structurizr-AdapterComponents.png" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                    <a href="docs/c4/out/docs/c4/out/structurizr-AdapterComponents.svg" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="https://github.com/ADASK-B/ai-code-agent/actions" class="btn" target="_blank">
+                🔍 Build-Status auf GitHub ansehen
+            </a>
+            <a href="/" class="btn">
+                🏠 Zurück zur Hauptseite
+            </a>
+        </div>
+    </div>
+</body>
+</html>
