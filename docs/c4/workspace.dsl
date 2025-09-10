@@ -113,25 +113,6 @@ workspace "AI Code Agent" "C4-Modell für das ai-code-agent Repo" {
       description "Interne Struktur des Adapter Service"
     }
 
-    // Dynamic view
-    dynamic aiAgent "Edit Workflow" "Ablauf von PR-Comment bis Code-Generation" {
-      developer -> aiAgent.webhook.webhookHandler "1. Creates PR comment with /edit intent"
-      ado -> aiAgent.webhook.webhookHandler "2. Sends webhook event"
-      aiAgent.webhook.webhookHandler -> aiAgent.webhook.requestValidator "3. Validates request"
-      aiAgent.webhook.requestValidator -> aiAgent.orchestrator.workflowEngine "4. Forwards to orchestrator"
-      aiAgent.orchestrator.workflowEngine -> aiAgent.orchestrator.idempotencyManager "5. Checks for duplicates"
-      aiAgent.orchestrator.workflowEngine -> aiAgent.llmGateway.intentProcessor "6. Requests code generation"
-      aiAgent.llmGateway.intentProcessor -> aiAgent.llmGateway.providerManager "7. Routes to LLM provider"
-      aiAgent.llmGateway.providerManager -> ollama "8. Generates patch"
-      ollama -> aiAgent.llmGateway.patchGenerator "9. Returns generated code"
-      aiAgent.llmGateway.patchGenerator -> aiAgent.orchestrator.workflowEngine "10. Returns patch result"
-      aiAgent.orchestrator.workflowEngine -> aiAgent.adapter.branchManager "11. Requests branch creation"
-      aiAgent.adapter.branchManager -> ado "12. Creates feature branch"
-      aiAgent.adapter.prManager -> ado "13. Creates draft PR"
-      aiAgent.adapter.commentManager -> ado "14. Posts status comment"
-      autoLayout lr
-    }
-
     styles {
       element "Person" { background #08427B color #ffffff shape Person }
       element "Software System" { background #1168BD color #ffffff }
