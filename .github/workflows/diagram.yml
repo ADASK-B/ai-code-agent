@@ -23,6 +23,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # Install Graphviz (erklärung: PlantUML dependency für komplexe Diagramme)
+      - name: Install Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
       # Structurizr CLI laden
       - name: Download Structurizr CLI
         run: |
@@ -52,6 +58,8 @@ jobs:
         run: |
           # Install PlantUML via wget
           wget -O plantuml.jar https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+          # Test Graphviz installation
+          java -jar plantuml.jar -testdot
           # Generate PNG files
           for file in docs/c4/out/*.puml; do
             if [ -f "$file" ]; then
