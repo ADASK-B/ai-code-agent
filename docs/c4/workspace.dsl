@@ -1,6 +1,6 @@
 workspace "AI Code Agent" "C4-Modell für das ai-code-agent Repo" {
 
-  !identifiers canonical
+  !identifiers hierarchical
 
   model {
     // C1: Personen & Nachbarsysteme
