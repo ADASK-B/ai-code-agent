@@ -62,7 +62,7 @@ graph TB
         AZURITE[💽 Azurite Storage<br/>Port 10000-10002<br/>Azure Storage Emulator<br/>Orchestrator State Management]
     end
     
-    subgraph "📊 Monitoring & Observability Stack (7 Services)"
+    subgraph "📊 Monitoring & Observability Stack (8 Services)"
         direction TB
         HEALTH_MON[🏥 Health Monitor<br/>Port 8888<br/>Automated Service Health<br/>All-Service Status API]
         GRAFANA[📈 Grafana<br/>Port 3000<br/>Professional Dashboards<br/>Metrics Visualization]
@@ -216,7 +216,7 @@ graph TB
 
 ### 📊 Monitoring & Observability Stack
 
-**Automatisierte Überwachung aller 15 Services mit professionellen Tools:**
+**Automatisierte Überwachung aller 16 Services mit professionellen Tools:**
 
 | Service | Port | Zweck | Dashboard |
 |---------|------|-------|-----------|
@@ -229,11 +229,13 @@ graph TB
 | 🔔 **Alertmanager** | 9093 | Alert-Management | `http://localhost:9093` |
 | 📋 **Promtail** | Internal | Docker Log-Collector | (Internal Service) |
 
-### 🔗 Complete Service Interaction Map
+### 🔗 Service Interaction & Data Flow Map
+
+**Zweck:** Zeigt alle Services im Detail mit korrekten Ports und Interaktionen zwischen den Komponenten.
 
 ```mermaid
 graph TB
-    subgraph "🎯 Core Application Services (7)"
+    subgraph "🎯 Core Application Services (8)"
         TRAEFIK[🔷 Traefik<br/>Port 80/8080<br/>Load Balancer]
         GATEWAY[🟡 Gateway<br/>Port 3001<br/>API Gateway]
         ADAPTER[🟠 Adapter<br/>Port 3002<br/>Azure DevOps Integration]
@@ -241,6 +243,8 @@ graph TB
         ORCHESTRATOR[🔴 Orchestrator<br/>Port 7071<br/>Workflow Coordination]
         NGROK[🟢 ngrok<br/>Port 4040<br/>External Tunnel]
         OLLAMA[🧠 Ollama<br/>Port 11434<br/>Local LLM]
+        AZURITE[💽 Azurite<br/>Port 10000-10002<br/>Storage Emulator]
+        AZURITE[💽 Azurite<br/>Port 10000-10002<br/>Storage Emulator]
     end
     
     subgraph "📊 Monitoring & Observability (8)"
