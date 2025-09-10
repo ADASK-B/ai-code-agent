@@ -8,7 +8,18 @@
 
 ## 🎯 What does this Agent do?
 
-The AI Code Agent **responds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests **from the same codebase context** where the comment was posted.
+The **Automatisierte Überwachung aller 16 Services mit professionellen Tools:**
+
+| Service | Port | Zweck | Dashboard |
+|---------|------|-------|-----------|
+| **Health Monitor** | 8888 | Automatische Service-Überwachung | `http://localhost:8888` |
+| **Grafana** | 3000 | Professionelle Dashboards | `http://localhost:3000` (admin/admin) |
+| **Prometheus** | 9090 | Metriken-Datenbank | `http://localhost:9090` |
+| **Loki** | 3100 | Log-Aggregation | Grafana → Explore → Loki |
+| **cAdvisor** | 8081 | Container-Metriken | `http://localhost:8081` |
+| **Node Exporter** | 9100 | Host-System-Metriken | `http://localhost:9100/metrics` |
+| **Alertmanager** | 9093 | Alert-Management | `http://localhost:9093` |
+| **Promtail** | Internal | Docker Log-Collector | (Internal Service) |t **responds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests **from the same codebase context** where the comment was posted.
 
 ### ✨ Simple Usage
 
@@ -214,6 +225,19 @@ graph TB
     style ADO fill:#0078d4,color:#fff
 ```
 
+**Core Application Services im Detail:**
+
+| Service | Port | Zweck | Interaktionen |
+|---------|------|-------|---------------|
+| **ngrok** | 4040 | External Tunnel & Webhook Access | Azure DevOps → Traefik |
+| **Traefik** | 80/8080 | Reverse Proxy & Load Balancer | ← ngrok → Gateway/Adapter/LLM-Patch |
+| **Gateway** | 3001 | Webhook Receiver & Event Validator | ← Traefik → Orchestrator |
+| **Orchestrator** | 7071 | Azure Functions Workflow Engine | ← Gateway → Adapter + LLM-Patch |
+| **Adapter** | 3002 | Azure DevOps Integration & Git Operations | ← Orchestrator ↔ Azure DevOps |
+| **LLM-Patch** | 3003 | AI Code Generation & Intent Analysis | ← Orchestrator → Ollama |
+| **Ollama** | 11434 | Local LLM (llama3.1:8b + llama3.2:1b) | ← LLM-Patch (AI Generation) |
+| **Azurite** | 10000-10002 | Azure Storage Emulator | ← Orchestrator (State Management) |
+
 ### 📊 Monitoring & Observability Stack (8 Services)
 
 **Zweck:** Professionelle Überwachung, Metriken, Logs und Alerting für alle Services.
@@ -338,7 +362,7 @@ Write in a PR comment:
 
 ## 📋 Complete Service Overview
 
-### 🎯 Core Application Services (7)
+### Core Application Services (8)
 | Port | Service | Container | Purpose | Interactions |
 |------|---------|-----------|---------|-------------|
 | 80/8080 | **Traefik** | agent-traefik | Load Balancer & Reverse Proxy | ← ngrok → Gateway |
@@ -348,8 +372,9 @@ Write in a PR comment:
 | 7071 | **Orchestrator** | agent-orchestrator | Azure Functions Workflow Coordination | ← Gateway → Adapter + LLM-Patch |
 | 4040 | **ngrok** | agent-ngrok | External Tunnel (Azure DevOps → Local) | ← Azure DevOps → Traefik |
 | 11434 | **Ollama** | agent-local-llm | Local LLM (llama3.1:8b + llama3.2:1b) | ← LLM-Patch (AI Generation) |
+| 10000-10002 | **Azurite** | agent-azurite | Azure Storage Emulator | ← Orchestrator (State Storage) |
 
-### 📊 Monitoring & Observability (8)
+### Monitoring & Observability (8)
 | Port | Service | Container | Purpose | Data Sources |
 |------|---------|-----------|---------|-------------|
 | 8888 | **Health Monitor** | agent-health-monitor | Automated Health Checks of All Services | → All 15 services |
@@ -361,7 +386,7 @@ Write in a PR comment:
 | 9093 | **Alertmanager** | agent-alertmanager | Alert Notifications & Routing | ← Prometheus |
 | Internal | **Promtail** | agent-promtail | Docker Log Collection Agent | ← All containers → Loki |
 
-### 💾 Infrastructure & Storage (1)
+### Infrastructure & Storage (1)
 | Port | Service | Container | Purpose | Used By |
 |------|---------|-----------|---------|---------|
 | 10000-10002 | **Azurite** | agent-azurite | Azure Storage Emulator | ← Orchestrator (State Storage) |
