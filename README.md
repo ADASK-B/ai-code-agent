@@ -186,7 +186,6 @@ graph TB
         HEALTH[🏥 Health Monitor<br/>Port 8888<br/>Service Status]
         TRAEFIK[⚖️ Load Balancer<br/>Port 80/8080<br/>Traffic Routing]
     end
-    
     %% Main Workflow
     DEV -->|PR Comment| ADO
     ADO -->|Webhook| GATEWAY
@@ -194,26 +193,6 @@ graph TB
     ORCHESTRATOR -->|Generate Code| LLM
     ORCHESTRATOR -->|Manage PR| ADAPTER
     
-    %% AI Provider Fallback Chain
-    LLM -.->|1st: Local| OLLAMA
-    LLM -.->|2nd: Cloud| CLAUDE  
-    LLM -.->|3rd: Fallback| OPENAI
-    
-    %% DevOps Integration
-    ADAPTER <-->|REST API| ADO
-    
-    %% Infrastructure
-    TRAEFIK -->|Route| GATEWAY
-    HEALTH -->|Monitor| GATEWAY
-    HEALTH -->|Monitor| LLM
-    HEALTH -->|Monitor| ADAPTER
-    
-    %% Observability
-    GATEWAY -->|Metrics| MONITOR
-    LLM -->|Metrics| MONITOR
-    ADAPTER -->|Metrics| MONITOR
-```
-
 ### 📊 Monitoring & Observability Stack
 
 **Automatisierte Überwachung aller 16 Services mit professionellen Tools:**
