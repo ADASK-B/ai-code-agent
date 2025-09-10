@@ -187,14 +187,86 @@ graph TB
         TRAEFIK[⚖️ Load Balancer<br/>Port 80/8080<br/>Traffic Routing]
     end
     %% Main Workflow
-    DEV -->|PR Comment| ADO
-    ADO -->|Webhook| GATEWAY
-    GATEWAY -->|Trigger| ORCHESTRATOR
-    ORCHESTRATOR -->|Generate Code| LLM
-        ORCHESTRATOR -->|Manage PR| ADAPTER
-
-### 📊 Monitoring & Observability Stack
+    DEV -->|1. PR Comment<br/>@user /edit /N intent| ADO
+    ADO -->|2. Webhook Event<br/>Pull Request Commented| EXTERNAL
+    EXTERNAL -->|3. HTTP Request<br/>/webhook/ado| TRAEFIK
+    TRAEFIK -->|4. Route Request| GATEWAY
+    GATEWAY -->|5. Process & Validate<br/>Webhook Event| ORCHESTRATOR
     
+    %% Orchestrator Coordination (Azure Functions)
+    ORCHESTRATOR -->|6a. Fetch PR Metadata<br/>Files & Context| ADAPTER
+    ORCHESTRATOR -->|6b. Generate AI Patches<br/>N Variants| LLM_PATCH
+    ORCHESTRATOR -->|6c. Create Feature Branches<br/>agents/edit-prId-variant| ADAPTER
+    ORCHESTRATOR -->|6d. Apply Patches<br/>Commit Changes| ADAPTER
+    ORCHESTRATOR -->|6e. Create Draft PRs<br/>Review-Ready| ADAPTER
+    ORCHESTRATOR -->|6f. Post Status Updates<br/>Progress Comments| ADAPTER
+    
+    %% AI Provider Chain (Priority Order)
+    LLM_PATCH -.->|1st Choice: Local AI<br/>Privacy + No Cost| AI_LOCAL
+    LLM_PATCH -.->|2nd Choice: Enterprise AI<br/>High Quality| AI_CLAUDE
+    LLM_PATCH -.->|3rd Choice: Fallback AI<br/>Reliable Option| AI_OPENAI
+    LLM_PATCH -.->|Final Fallback: Mock<br/>No Dependencies| AI_MOCK
+    
+    %% Azure DevOps Integration
+    ADAPTER <-->|REST API Calls<br/>CRUD Operations| ADO
+    
+    %% Infrastructure Dependencies
+    ORCHESTRATOR -.->|State Storage<br/>Workflow Persistence| AZURITE
+    TRAEFIK -->|Load Balance<br/>Health Checks| GATEWAY
+    TRAEFIK -->|Route Traffic<br/>Service Discovery| ADAPTER
+    TRAEFIK -->|Route Traffic<br/>Service Discovery| LLM_PATCH
+    
+    %% Monitoring Data Flow
+    PROMTAIL -->|Collect Logs<br/>Docker Containers| LOKI
+    CADVISOR -->|Container Metrics<br/>Resource Usage| PROMETHEUS
+    NODE_EXP -->|Host Metrics<br/>System Performance| PROMETHEUS
+    GATEWAY -->|Service Metrics<br/>Request/Response| PROMETHEUS
+    ADAPTER -->|Service Metrics<br/>API Calls| PROMETHEUS
+    LLM_PATCH -->|Service Metrics<br/>AI Performance| PROMETHEUS
+    ORCHESTRATOR -->|Service Metrics<br/>Workflow Stats| PROMETHEUS
+    
+    %% Observability Stack
+    PROMETHEUS -->|Metrics Data<br/>Time Series| GRAFANA
+    LOKI -->|Log Data<br/>Text Search| GRAFANA
+    PROMETHEUS -->|Alert Rules<br/>Threshold Monitoring| ALERTMGR
+    HEALTH_MON -->|Service Health<br/>Status Aggregation| PROMETHEUS
+    
+    %% External Access
+    NGROK -->|Tunnel Traffic<br/>Webhook Endpoint| TRAEFIK
+    
+    %% Service Health Monitoring
+    HEALTH_MON -.->|Health Checks<br/>Service Status| GATEWAY
+    HEALTH_MON -.->|Health Checks<br/>Service Status| ADAPTER
+    HEALTH_MON -.->|Health Checks<br/>Service Status| LLM_PATCH
+    HEALTH_MON -.->|Health Checks<br/>Service Status| TRAEFIK
+    HEALTH_MON -.->|Health Checks<br/>Service Status| OLLAMA
+    
+    %% Styling
+    style DEV fill:#e3f2fd
+    style ADO fill:#0078d4,color:#fff
+    style EXTERNAL fill:#1db954,color:#fff
+    style TRAEFIK fill:#326ce5,color:#fff
+    style GATEWAY fill:#ffeb3b
+    style ORCHESTRATOR fill:#f44336,color:#fff
+    style ADAPTER fill:#ff9800,color:#fff
+    style LLM_PATCH fill:#9c27b0,color:#fff
+    style OLLAMA fill:#4caf50,color:#fff
+    style NGROK fill:#1db954,color:#fff
+    style AZURITE fill:#607d8b,color:#fff
+    style HEALTH_MON fill:#f50057,color:#fff
+    style GRAFANA fill:#ff8c00,color:#fff
+    style PROMETHEUS fill:#e74c3c,color:#fff
+    style LOKI fill:#2196f3,color:#fff
+    style PROMTAIL fill:#8bc34a,color:#fff
+    style CADVISOR fill:#9c27b0,color:#fff
+    style NODE_EXP fill:#795548,color:#fff
+    style ALERTMGR fill:#ff5722,color:#fff
+    style AI_LOCAL fill:#4caf50,color:#fff
+    style AI_CLAUDE fill:#673ab7,color:#fff
+    style AI_OPENAI fill:#00bcd4,color:#fff
+    style AI_MOCK fill:#9e9e9e,color:#fff
+```
+
 ### 📊 Monitoring & Observability Stack
 
 **Automatisierte Überwachung aller 16 Services mit professionellen Tools:**
