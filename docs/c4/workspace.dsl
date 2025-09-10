@@ -113,11 +113,6 @@ workspace "AI Code Agent" "C4-Modell für das ai-code-agent Repo" {
       description "Interne Struktur des Adapter Service"
     }
 
-    styles {
-      element "Software System" { background #1168BD color #ffffff }
-      element "Container" { background #438DD5 color #ffffff }
-    }
-
     themes default
   }
 }
