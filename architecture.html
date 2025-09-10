@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏗️ AI Code Agent - Architecture Diagrams</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .header h1 {
+            color: #2E86AB;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .diagram-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .diagram-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .diagram-card h3 {
+            color: #2E86AB;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .diagram-card p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .diagram-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 4px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        
+        .status {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .status.building {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        
+        .status h2 {
+            color: #155724;
+            margin-bottom: 1rem;
+        }
+        
+        .status.building h2 {
+            color: #856404;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #2E86AB, #A23B72);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 134, 171, 0.4);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2E86AB;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tech-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .tech-info h3 {
+            color: #2E86AB;
+            margin-bottom: 1rem;
+        }
+        
+        .tech-info ul {
+            margin-left: 2rem;
+            line-height: 1.8;
+        }
+        
+        .tech-info li {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+    </style>
+    <script>
+        // Check if diagrams are ready and display them
+        async function loadDiagrams() {
+            const diagramContainer = document.getElementById('diagrams');
+            const statusContainer = document.getElementById('status');
+            
+            // List of expected diagrams
+            const expectedDiagrams = [
+                { name: 'C1 - System Context', file: 'C1-SystemContext.png', description: 'Übersicht über das gesamte AI Code Agent System und externe Abhängigkeiten' },
+                { name: 'C2 - Container', file: 'C2-Container.png', description: 'Detaillierte Darstellung der Microservices (Gateway, Orchestrator, LLM-Patch, Adapter)' },
+                { name: 'C3 - Webhook Components', file: 'C3-WebhookComponents.png', description: 'Interne Struktur des Webhook Service' },
+                { name: 'C3 - Orchestrator Components', file: 'C3-OrchestratorComponents.png', description: 'Interne Struktur des Orchestrator Service' },
+                { name: 'C3 - LLM Gateway Components', file: 'C3-LLMGatewayComponents.png', description: 'Interne Struktur des LLM Gateway Service' },
+                { name: 'C3 - Adapter Components', file: 'C3-AdapterComponents.png', description: 'Interne Struktur des Adapter Service' },
+                { name: 'Edit Workflow', file: 'EditWorkflow.png', description: 'Ablauf von PR-Comment bis Code-Generation' }
+            ];
+            
+            let diagramsFound = 0;
+            let diagramsHtml = '';
+            
+            for (const diagram of expectedDiagrams) {
+                try {
+                    const response = await fetch(`docs/c4/out/${diagram.file}`);
+                    if (response.ok) {
+                        diagramsFound++;
+                        diagramsHtml += `
+                            <div class="diagram-card">
+                                <h3>${diagram.name}</h3>
+                                <p>${diagram.description}</p>
+                                <img src="docs/c4/out/${diagram.file}" alt="${diagram.name}" class="diagram-image" loading="lazy">
+                                <div style="margin-top: 1rem;">
+                                    <a href="docs/c4/out/${diagram.file}" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                                    <a href="docs/c4/out/${diagram.file.replace('.png', '.svg')}" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (e) {
+                    // Diagram not ready yet
+                }
+            }
+            
+            if (diagramsFound > 0) {
+                statusContainer.innerHTML = `
+                    <div class="status">
+                        <h2>✅ Architecture Diagrams sind verfügbar!</h2>
+                        <p><strong>${diagramsFound}</strong> von <strong>${expectedDiagrams.length}</strong> Diagrammen wurden erfolgreich generiert.</p>
+                        <p>Scroll nach unten um alle Diagramme zu sehen.</p>
+                    </div>
+                `;
+                diagramContainer.innerHTML = `
+                    <div class="diagram-grid">
+                        ${diagramsHtml}
+                    </div>
+                `;
+            } else {
+                statusContainer.innerHTML = `
+                    <div class="status building">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <h2>🚀 Architecture Diagrams werden generiert...</h2>
+                            <p>GitHub Actions erstellt gerade automatisch die C4-Diagramme aus der Structurizr DSL.</p>
+                            <p><strong>Status:</strong> Build läuft - Die Seite wird automatisch aktualisiert, wenn die Diagramme fertig sind.</p>
+                        </div>
+                    </div>
+                `;
+                // Retry in 10 seconds
+                setTimeout(loadDiagrams, 10000);
+            }
+        }
+        
+        // Load diagrams when page loads
+        document.addEventListener('DOMContentLoaded', loadDiagrams);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Architecture Diagrams</h1>
+            <p>AI Code Agent System Architecture - Automatisch generiert aus C4 DSL</p>
+        </div>
+        
+        <div id="status">
+            <!-- Status will be injected by JavaScript -->
+        </div>
+        
+        <div style="margin-top: 2rem;">
+            <a href="https://github.com/ADASK-B/ai-code-agent/actions" class="btn" target="_blank">
+                🔍 Build-Status auf GitHub ansehen
+            </a>
+            <a href="/" class="btn">
+                🏠 Zurück zur Hauptseite
+            </a>
+            <a href="docs/c4/workspace.dsl" class="btn" target="_blank">
+                📝 C4 DSL Quellcode ansehen
+            </a>
+        </div>
+        
+        <div id="diagrams">
+            <!-- Diagrams will be injected by JavaScript -->
+        </div>
+        
+        <div class="tech-info">
+            <h3>🛠️ Technische Details:</h3>
+            <ul>
+                <li><strong>Structurizr CLI:</strong> Modernste C4 DSL Engine für automatische Diagramm-Generierung</li>
+                <li><strong>PlantUML:</strong> Hochqualitative PNG und SVG Rendering Engine</li>
+                <li><strong>GitHub Actions:</strong> Automatische Builds bei jedem Commit in docs/ oder main branch</li>
+                <li><strong>Multi-Format Export:</strong> PNG für Präsentationen, SVG für skalierbare Anzeige</li>
+                <li><strong>Enterprise Standards:</strong> C4 Model nach Simon Brown, bewährt bei Microsoft/Google</li>
+            </ul>
+        </div>
+        
+        <div class="tech-info">
+            <h3>📋 Was wird generiert:</h3>
+            <ul>
+                <li><strong>C1 System Context:</strong> Übersicht über das gesamte AI Code Agent System und externe Abhängigkeiten</li>
+                <li><strong>C2 Container Diagram:</strong> Detaillierte Darstellung der Microservices (Gateway, Orchestrator, LLM-Patch, Adapter)</li>
+                <li><strong>C3 Component Diagrams:</strong> Interne Struktur der wichtigsten Services</li>
+                <li><strong>Dynamic Workflow:</strong> Ablauf von PR-Comment bis Code-Generation</li>
+                <li><strong>Mermaid Exports:</strong> Zusätzlich für Markdown-Integration verfügbar</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #f0f0f0;">
+            <p style="color: #666;">
+                🔄 Diese Seite prüft automatisch alle 10 Sekunden auf neue Diagramme<br>
+                ⏱️ Typische Build-Zeit: 2-3 Minuten für vollständige Diagramm-Suite
+            </p>
+        </div>
+    </div>
+</body>
+</html>
