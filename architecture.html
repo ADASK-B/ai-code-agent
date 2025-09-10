@@ -186,17 +186,17 @@
             
             for (const diagram of expectedDiagrams) {
                 try {
-                    const response = await fetch(`docs/c4/out/${diagram.file}`);
+                    const response = await fetch(`docs/c4/out/docs/c4/out/structurizr-${diagram.file}`);
                     if (response.ok) {
                         diagramsFound++;
                         diagramsHtml += `
                             <div class="diagram-card">
                                 <h3>${diagram.name}</h3>
                                 <p>${diagram.description}</p>
-                                <img src="docs/c4/out/${diagram.file}" alt="${diagram.name}" class="diagram-image" loading="lazy">
+                                <img src="docs/c4/out/docs/c4/out/structurizr-${diagram.file}" alt="${diagram.name}" class="diagram-image" loading="lazy">
                                 <div style="margin-top: 1rem;">
-                                    <a href="docs/c4/out/${diagram.file}" class="btn" target="_blank">🔍 PNG anzeigen</a>
-                                    <a href="docs/c4/out/${diagram.file.replace('.png', '.svg')}" class="btn" target="_blank">🎨 SVG anzeigen</a>
+                                    <a href="docs/c4/out/docs/c4/out/structurizr-${diagram.file}" class="btn" target="_blank">🔍 PNG anzeigen</a>
+                                    <a href="docs/c4/out/docs/c4/out/structurizr-${diagram.file.replace('.png', '.svg')}" class="btn" target="_blank">🎨 SVG anzeigen</a>
                                 </div>
                             </div>
                         `;
