@@ -114,7 +114,7 @@ workspace "AI Code Agent" "C4-Modell für das ai-code-agent Repo" {
     }
 
     styles {
-      element "Person" { background #08427B color #ffffff shape Person }
+      element "Person" { background #08427B color #ffffff }
       element "Software System" { background #1168BD color #ffffff }
       element "Container" { background #438DD5 color #ffffff }
       element "Component" { background #85BBF0 color #000000 }
