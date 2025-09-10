@@ -1,0 +1,30 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["AI Code Agent - System Context"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    1["<div style='font-weight: bold'>Developer</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Löst Änderungen via<br />Kommentar/Command im Repo<br />aus.</div>"]
+    style 1 fill:#08427b,stroke:#052e56,color:#ffffff
+    2("<div style='font-weight: bold'>Azure DevOps</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Quell-Repo & Pull Requests.</div>")
+    style 2 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    3("<div style='font-weight: bold'>GitHub</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Alternative: Quell-Repo &<br />Pull Requests.</div>")
+    style 3 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    4("<div style='font-weight: bold'>Ollama</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Local LLM inference server</div>")
+    style 4 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    5("<div style='font-weight: bold'>Claude API</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Anthropic's Claude LLM<br />service</div>")
+    style 5 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    6("<div style='font-weight: bold'>OpenAI API</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>OpenAI's GPT models</div>")
+    style 6 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    7("<div style='font-weight: bold'>AI Code Agent</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Automatisiert Kommentar →<br />Analyse → Patch → PR.</div>")
+    style 7 fill:#1168bd,stroke:#0b4884,color:#ffffff
+
+    1-. "<div>Kommentar/Command (z. B.<br />/edit)</div><div style='font-size: 70%'>[HTTPS]</div>" .->7
+    2-. "<div>Webhook: PR/Kommentar</div><div style='font-size: 70%'>[HTTPS]</div>" .->7
+    3-. "<div>Webhook: PR/Kommentar</div><div style='font-size: 70%'>[HTTPS]</div>" .->7
+    7-. "<div>PR erstellen/aktualisieren</div><div style='font-size: 70%'>[REST API]</div>" .->2
+    7-. "<div>PR erstellen/aktualisieren</div><div style='font-size: 70%'>[REST API]</div>" .->3
+    7-. "<div>Generates code patches</div><div style='font-size: 70%'>[HTTP]</div>" .->4
+    7-. "<div>Generates code patches</div><div style='font-size: 70%'>[HTTPS]</div>" .->5
+    7-. "<div>Generates code patches</div><div style='font-size: 70%'>[HTTPS]</div>" .->6
+  end

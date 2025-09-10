@@ -1,0 +1,20 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["AI Code Agent - Orchestrator - Components"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 14 ["Orchestrator"]
+      style 14 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+      15("<div style='font-weight: bold'>Workflow Engine</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Orchestrates the edit<br />workflow</div>")
+      style 15 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      16("<div style='font-weight: bold'>Idempotency Manager</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Ensures idempotent operations</div>")
+      style 16 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      17("<div style='font-weight: bold'>Retry Manager</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Handles retries with backoff</div>")
+      style 17 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      18("<div style='font-weight: bold'>Status Tracker</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Tracks operation status</div>")
+      style 18 fill:#85bbf0,stroke:#5d82a8,color:#000000
+    end
+
+  end

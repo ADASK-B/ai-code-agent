@@ -1,0 +1,83 @@
+@startuml
+set separator none
+title AI Code Agent - System Context
+
+left to right direction
+skinparam ranksep 60
+skinparam nodesep 30
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<AICodeAgent>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AzureDevOps>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<ClaudeAPI>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam person<<Developer>> {
+  BackgroundColor #08427b
+  FontColor #ffffff
+  BorderColor #052e56
+  shadowing false
+}
+skinparam rectangle<<GitHub>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<Ollama>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<OpenAIAPI>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+
+person "==Developer\n<size:10>[Person]</size>\n\nLöst Änderungen via Kommentar/Command im Repo aus." <<Developer>> as Developer
+rectangle "==Azure DevOps\n<size:10>[Software System]</size>\n\nQuell-Repo & Pull Requests." <<AzureDevOps>> as AzureDevOps
+rectangle "==GitHub\n<size:10>[Software System]</size>\n\nAlternative: Quell-Repo & Pull Requests." <<GitHub>> as GitHub
+rectangle "==Ollama\n<size:10>[Software System]</size>\n\nLocal LLM inference server" <<Ollama>> as Ollama
+rectangle "==Claude API\n<size:10>[Software System]</size>\n\nAnthropic's Claude LLM service" <<ClaudeAPI>> as ClaudeAPI
+rectangle "==OpenAI API\n<size:10>[Software System]</size>\n\nOpenAI's GPT models" <<OpenAIAPI>> as OpenAIAPI
+rectangle "==AI Code Agent\n<size:10>[Software System]</size>\n\nAutomatisiert Kommentar → Analyse → Patch → PR." <<AICodeAgent>> as AICodeAgent
+
+Developer .[#707070,thickness=2].> AICodeAgent : "<color:#707070>Kommentar/Command (z. B. /edit)\n<color:#707070><size:8>[HTTPS]</size>"
+AzureDevOps .[#707070,thickness=2].> AICodeAgent : "<color:#707070>Webhook: PR/Kommentar\n<color:#707070><size:8>[HTTPS]</size>"
+GitHub .[#707070,thickness=2].> AICodeAgent : "<color:#707070>Webhook: PR/Kommentar\n<color:#707070><size:8>[HTTPS]</size>"
+AICodeAgent .[#707070,thickness=2].> AzureDevOps : "<color:#707070>PR erstellen/aktualisieren\n<color:#707070><size:8>[REST API]</size>"
+AICodeAgent .[#707070,thickness=2].> GitHub : "<color:#707070>PR erstellen/aktualisieren\n<color:#707070><size:8>[REST API]</size>"
+AICodeAgent .[#707070,thickness=2].> Ollama : "<color:#707070>Generates code patches\n<color:#707070><size:8>[HTTP]</size>"
+AICodeAgent .[#707070,thickness=2].> ClaudeAPI : "<color:#707070>Generates code patches\n<color:#707070><size:8>[HTTPS]</size>"
+AICodeAgent .[#707070,thickness=2].> OpenAIAPI : "<color:#707070>Generates code patches\n<color:#707070><size:8>[HTTPS]</size>"
+@enduml

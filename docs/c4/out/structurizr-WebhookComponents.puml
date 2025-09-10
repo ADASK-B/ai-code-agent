@@ -1,0 +1,67 @@
+@startuml
+set separator none
+title AI Code Agent - Webhook Service - Components
+
+left to right direction
+skinparam ranksep 60
+skinparam nodesep 30
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<AICodeAgent.WebhookService.CorrelationManager>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.WebhookService.MetricsCollector>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.WebhookService.RateLimiter>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.WebhookService.RequestValidator>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.WebhookService.WebhookHandler>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.WebhookService>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+rectangle "Webhook Service\n<size:10>[Container: Empfängt Events (Kommentare/PR-Hooks) & validiert.]</size>" <<AICodeAgent.WebhookService>> {
+  rectangle "==Request Validator\n<size:10>[Component]</size>\n\nValidates and sanitizes requests" <<AICodeAgent.WebhookService.RequestValidator>> as AICodeAgent.WebhookService.RequestValidator
+  rectangle "==Correlation Manager\n<size:10>[Component]</size>\n\nManages request correlation IDs" <<AICodeAgent.WebhookService.CorrelationManager>> as AICodeAgent.WebhookService.CorrelationManager
+  rectangle "==Rate Limiter\n<size:10>[Component]</size>\n\nImplements rate limiting" <<AICodeAgent.WebhookService.RateLimiter>> as AICodeAgent.WebhookService.RateLimiter
+  rectangle "==Metrics Collector\n<size:10>[Component]</size>\n\nCollects and exports metrics" <<AICodeAgent.WebhookService.MetricsCollector>> as AICodeAgent.WebhookService.MetricsCollector
+  rectangle "==Webhook Handler\n<size:10>[Component]</size>\n\nProcesses incoming ADO webhooks" <<AICodeAgent.WebhookService.WebhookHandler>> as AICodeAgent.WebhookService.WebhookHandler
+}
+
+@enduml

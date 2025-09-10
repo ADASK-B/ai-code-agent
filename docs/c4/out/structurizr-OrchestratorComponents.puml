@@ -1,0 +1,59 @@
+@startuml
+set separator none
+title AI Code Agent - Orchestrator - Components
+
+left to right direction
+skinparam ranksep 60
+skinparam nodesep 30
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<AICodeAgent.Orchestrator.IdempotencyManager>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.Orchestrator.RetryManager>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.Orchestrator.StatusTracker>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.Orchestrator.WorkflowEngine>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.Orchestrator>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+rectangle "Orchestrator\n<size:10>[Container: Steuert Workflow, Idempotenz, Retry/Backoff.]</size>" <<AICodeAgent.Orchestrator>> {
+  rectangle "==Workflow Engine\n<size:10>[Component]</size>\n\nOrchestrates the edit workflow" <<AICodeAgent.Orchestrator.WorkflowEngine>> as AICodeAgent.Orchestrator.WorkflowEngine
+  rectangle "==Idempotency Manager\n<size:10>[Component]</size>\n\nEnsures idempotent operations" <<AICodeAgent.Orchestrator.IdempotencyManager>> as AICodeAgent.Orchestrator.IdempotencyManager
+  rectangle "==Retry Manager\n<size:10>[Component]</size>\n\nHandles retries with backoff" <<AICodeAgent.Orchestrator.RetryManager>> as AICodeAgent.Orchestrator.RetryManager
+  rectangle "==Status Tracker\n<size:10>[Component]</size>\n\nTracks operation status" <<AICodeAgent.Orchestrator.StatusTracker>> as AICodeAgent.Orchestrator.StatusTracker
+}
+
+@enduml

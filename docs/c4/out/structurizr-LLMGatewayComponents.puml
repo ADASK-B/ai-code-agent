@@ -1,0 +1,59 @@
+@startuml
+set separator none
+title AI Code Agent - LLM Gateway - Components
+
+left to right direction
+skinparam ranksep 60
+skinparam nodesep 30
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<AICodeAgent.LLMGateway.ConfidenceAnalyzer>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.LLMGateway.IntentProcessor>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.LLMGateway.PatchGenerator>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.LLMGateway.ProviderManager>> {
+  BackgroundColor #85bbf0
+  FontColor #000000
+  BorderColor #5d82a8
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.LLMGateway>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+rectangle "LLM Gateway\n<size:10>[Container: Provider-agnostische Schnittstelle zu Sprachmodellen (LLM).]</size>" <<AICodeAgent.LLMGateway>> {
+  rectangle "==Intent Processor\n<size:10>[Component]</size>\n\nProcesses natural language intents" <<AICodeAgent.LLMGateway.IntentProcessor>> as AICodeAgent.LLMGateway.IntentProcessor
+  rectangle "==Provider Manager\n<size:10>[Component]</size>\n\nManages multiple LLM providers" <<AICodeAgent.LLMGateway.ProviderManager>> as AICodeAgent.LLMGateway.ProviderManager
+  rectangle "==Patch Generator\n<size:10>[Component]</size>\n\nGenerates unified diff patches" <<AICodeAgent.LLMGateway.PatchGenerator>> as AICodeAgent.LLMGateway.PatchGenerator
+  rectangle "==Confidence Analyzer\n<size:10>[Component]</size>\n\nAnalyzes generation confidence" <<AICodeAgent.LLMGateway.ConfidenceAnalyzer>> as AICodeAgent.LLMGateway.ConfidenceAnalyzer
+}
+
+@enduml

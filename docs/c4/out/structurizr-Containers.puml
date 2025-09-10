@@ -1,0 +1,148 @@
+@startuml
+set separator none
+title AI Code Agent - Containers
+
+left to right direction
+skinparam ranksep 60
+skinparam nodesep 30
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<AICodeAgent.Adapter>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AzureDevOps>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<ClaudeAPI>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.EvalService>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<GitHub>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.KeyVault>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.LLMGateway>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<Ollama>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<OpenAIAPI>> {
+  BackgroundColor #1168bd
+  FontColor #ffffff
+  BorderColor #0b4884
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.Orchestrator>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.TelemetryOTelExporter>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.VectorStore>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent.WebhookService>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  roundCorner 20
+  shadowing false
+}
+skinparam rectangle<<AICodeAgent>> {
+  BorderColor #0b4884
+  FontColor #0b4884
+  shadowing false
+}
+
+rectangle "==Azure DevOps\n<size:10>[Software System]</size>\n\nQuell-Repo & Pull Requests." <<AzureDevOps>> as AzureDevOps
+rectangle "==GitHub\n<size:10>[Software System]</size>\n\nAlternative: Quell-Repo & Pull Requests." <<GitHub>> as GitHub
+rectangle "==Ollama\n<size:10>[Software System]</size>\n\nLocal LLM inference server" <<Ollama>> as Ollama
+rectangle "==Claude API\n<size:10>[Software System]</size>\n\nAnthropic's Claude LLM service" <<ClaudeAPI>> as ClaudeAPI
+rectangle "==OpenAI API\n<size:10>[Software System]</size>\n\nOpenAI's GPT models" <<OpenAIAPI>> as OpenAIAPI
+
+rectangle "AI Code Agent\n<size:10>[Software System]</size>" <<AICodeAgent>> {
+  rectangle "==Orchestrator\n<size:10>[Container: Steuert Workflow, Idempotenz, Retry/Backoff.]</size>\n\nFunctions/Container" <<AICodeAgent.Orchestrator>> as AICodeAgent.Orchestrator
+  rectangle "==LLM Gateway\n<size:10>[Container: Provider-agnostische Schnittstelle zu Sprachmodellen (LLM).]</size>\n\nService" <<AICodeAgent.LLMGateway>> as AICodeAgent.LLMGateway
+  rectangle "==Adapter\n<size:10>[Container: Azure DevOps integration]</size>\n\nService" <<AICodeAgent.Adapter>> as AICodeAgent.Adapter
+  rectangle "==Eval Service\n<size:10>[Container: Golden Tests, Metriken, Guardrails/Evals.]</size>\n\nService" <<AICodeAgent.EvalService>> as AICodeAgent.EvalService
+  rectangle "==Vector Store\n<size:10>[Container: Optional für RAG (Retrieval-Augmented Generation).]</size>\n\nDB" <<AICodeAgent.VectorStore>> as AICodeAgent.VectorStore
+  rectangle "==Telemetry/OTel Exporter\n<size:10>[Container: Logs/Metriken/Traces (OTel = OpenTelemetry).]</size>\n\nService" <<AICodeAgent.TelemetryOTelExporter>> as AICodeAgent.TelemetryOTelExporter
+  rectangle "==Key Vault\n<size:10>[Container: Serverseitige Secrets/Keys; Zugriff via Managed Identity.]</size>\n\nService" <<AICodeAgent.KeyVault>> as AICodeAgent.KeyVault
+  rectangle "==Webhook Service\n<size:10>[Container: Empfängt Events (Kommentare/PR-Hooks) & validiert.]</size>\n\nNode/TypeScript" <<AICodeAgent.WebhookService>> as AICodeAgent.WebhookService
+}
+
+AICodeAgent.WebhookService .[#707070,thickness=2].> AICodeAgent.Orchestrator : "<color:#707070>validierte Events\n<color:#707070><size:8>[internal]</size>"
+AICodeAgent.Orchestrator .[#707070,thickness=2].> AICodeAgent.LLMGateway : "<color:#707070>Prompts/Tools\n<color:#707070><size:8>[internal]</size>"
+AICodeAgent.Orchestrator .[#707070,thickness=2].> AICodeAgent.EvalService : "<color:#707070>Eval (offline/online)\n<color:#707070><size:8>[internal]</size>"
+AICodeAgent.Orchestrator .[#707070,thickness=2].> AICodeAgent.VectorStore : "<color:#707070>Kontextsuche (RAG)\n<color:#707070><size:8>[internal]</size>"
+AICodeAgent.Orchestrator .[#707070,thickness=2].> AzureDevOps : "<color:#707070>PR erstellen/aktualisieren\n<color:#707070><size:8>[REST API]</size>"
+AICodeAgent.Orchestrator .[#707070,thickness=2].> GitHub : "<color:#707070>PR erstellen/aktualisieren\n<color:#707070><size:8>[REST API]</size>"
+AICodeAgent.Orchestrator .[#707070,thickness=2].> AICodeAgent.KeyVault : "<color:#707070>Secrets/Token abrufen\n<color:#707070><size:8>[managed]</size>"
+AICodeAgent.Orchestrator .[#707070,thickness=2].> AICodeAgent.TelemetryOTelExporter : "<color:#707070>Traces/Metriken/Logs\n<color:#707070><size:8>[OTel]</size>"
+AICodeAgent.LLMGateway .[#707070,thickness=2].> AICodeAgent.KeyVault : "<color:#707070>Provider-Keys (serverseitig)\n<color:#707070><size:8>[managed]</size>"
+AICodeAgent.EvalService .[#707070,thickness=2].> AICodeAgent.TelemetryOTelExporter : "<color:#707070>Eval-Metriken\n<color:#707070><size:8>[OTel]</size>"
+AICodeAgent.LLMGateway .[#707070,thickness=2].> Ollama : "<color:#707070>Generates code patches\n<color:#707070><size:8>[HTTP]</size>"
+AICodeAgent.LLMGateway .[#707070,thickness=2].> ClaudeAPI : "<color:#707070>Generates code patches\n<color:#707070><size:8>[HTTPS]</size>"
+AICodeAgent.LLMGateway .[#707070,thickness=2].> OpenAIAPI : "<color:#707070>Generates code patches\n<color:#707070><size:8>[HTTPS]</size>"
+AICodeAgent.Orchestrator .[#707070,thickness=2].> AICodeAgent.Adapter : "<color:#707070>Requests ADO operations\n<color:#707070><size:8>[HTTP]</size>"
+AICodeAgent.Adapter .[#707070,thickness=2].> AzureDevOps : "<color:#707070>Creates branches, PRs, comments\n<color:#707070><size:8>[REST API]</size>"
+AICodeAgent.Adapter .[#707070,thickness=2].> GitHub : "<color:#707070>Creates branches, PRs, comments\n<color:#707070><size:8>[REST API]</size>"
+@enduml

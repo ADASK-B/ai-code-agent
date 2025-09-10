@@ -1,0 +1,20 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["AI Code Agent - LLM Gateway - Components"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 19 ["LLM Gateway"]
+      style 19 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+      20("<div style='font-weight: bold'>Intent Processor</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Processes natural language<br />intents</div>")
+      style 20 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      21("<div style='font-weight: bold'>Provider Manager</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Manages multiple LLM<br />providers</div>")
+      style 21 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      22("<div style='font-weight: bold'>Patch Generator</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Generates unified diff<br />patches</div>")
+      style 22 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      23("<div style='font-weight: bold'>Confidence Analyzer</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Analyzes generation<br />confidence</div>")
+      style 23 fill:#85bbf0,stroke:#5d82a8,color:#000000
+    end
+
+  end

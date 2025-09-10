@@ -1,0 +1,22 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["AI Code Agent - Webhook Service - Components"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 8 ["Webhook Service"]
+      style 8 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+      10("<div style='font-weight: bold'>Request Validator</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Validates and sanitizes<br />requests</div>")
+      style 10 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      11("<div style='font-weight: bold'>Correlation Manager</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Manages request correlation<br />IDs</div>")
+      style 11 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      12("<div style='font-weight: bold'>Rate Limiter</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Implements rate limiting</div>")
+      style 12 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      13("<div style='font-weight: bold'>Metrics Collector</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Collects and exports metrics</div>")
+      style 13 fill:#85bbf0,stroke:#5d82a8,color:#000000
+      9("<div style='font-weight: bold'>Webhook Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component]</div><div style='font-size: 80%; margin-top:10px'>Processes incoming ADO<br />webhooks</div>")
+      style 9 fill:#85bbf0,stroke:#5d82a8,color:#000000
+    end
+
+  end
