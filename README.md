@@ -213,112 +213,21 @@ graph TB
     LLM -->|Metrics| MONITOR
     ADAPTER -->|Metrics| MONITOR
 ```
-    
-    subgraph "⚙️ Business Logic Services"
-        ADAPTER[🟠 Adapter Service<br/>Port 3002<br/>Azure DevOps Integration<br/>Branch/PR Management]
-        LLMPATCH[🟣 LLM-Patch Service<br/>Port 3003<br/>AI Code Generation<br/>Intent Analysis]
-    end
-    
-    subgraph "🤖 AI Infrastructure"
-        OLLAMA[🧠 Ollama LLM<br/>Port 11434<br/>Local AI Models<br/>llama3.1:8b + llama3.2:1b]
-    end
-    
-    subgraph "💾 Storage & Infrastructure"
-        AZURITE[💽 Azurite<br/>Port 10000-10002<br/>Azure Storage Emulator<br/>Orchestrator Data]
-    end
-    
-    %% Main Workflow
-    USER -->|1. Writes Comment| ADO
-    ADO -->|2. Webhook| NGROK
-    NGROK -->|3. Tunnel| TRAEFIK
-    TRAEFIK -->|4. Route| GATEWAY
-    GATEWAY -->|5. Process| ORCHESTRATOR
-    
-    %% Orchestrator Coordination
-    ORCHESTRATOR -->|6a. Fetch PR Data| ADAPTER
-    ORCHESTRATOR -->|6b. Generate Code| LLMPATCH
-    ORCHESTRATOR -->|6c. Create Branches| ADAPTER
-    ORCHESTRATOR -->|6d. Create PRs| ADAPTER
-    
-    %% Service Dependencies
-    ADAPTER -.->|Git Operations| ADO
-    LLMPATCH -->|AI Requests| OLLAMA
-    ORCHESTRATOR -.->|State Storage| AZURITE
-    
-    %% Styling
-    style USER fill:#e3f2fd
-    style ADO fill:#0078d4,color:#fff
-    style NGROK fill:#1db954,color:#fff
-    style TRAEFIK fill:#326ce5,color:#fff
-    style GATEWAY fill:#ffeb3b
-    style ORCHESTRATOR fill:#f44336,color:#fff
-    style ADAPTER fill:#ff9800,color:#fff
-    style LLMPATCH fill:#9c27b0,color:#fff
-    style OLLAMA fill:#4caf50,color:#fff
-    style AZURITE fill:#607d8b,color:#fff
-```
 
 ### 📊 Monitoring & Observability Stack
 
-```mermaid
-graph TB
-    subgraph "🐳 All Container Services"
-        CORE[Core Services<br/>Gateway, Adapter, LLM-Patch<br/>Orchestrator, Ollama, etc.]
-    end
-    
-    subgraph "📝 Log Collection & Analysis"
-        PROMTAIL[📋 Promtail<br/>Internal<br/>Docker Log Collector]
-        LOKI[📚 Loki<br/>Port 3100<br/>Log Aggregation & Search]
-    end
-    
-    subgraph "📈 Metrics Collection"
-        CADVISOR[📊 cAdvisor<br/>Port 8081<br/>Container Metrics<br/>CPU, RAM, Network]
-        NODEEXP[🖥️ Node Exporter<br/>Port 9100<br/>Host System Metrics<br/>Disk, CPU, RAM]
-        PROMETHEUS[⚡ Prometheus<br/>Port 9090<br/>Metrics Database<br/>Alert Rules]
-    end
-    
-    subgraph "🚨 Alerting & Notifications"
-        ALERTMGR[🔔 Alertmanager<br/>Port 9093<br/>Alert Routing<br/>Notifications]
-    end
-    
-    subgraph "📈 Visualization & Dashboards"
-        GRAFANA[📊 Grafana<br/>Port 3000<br/>Dashboards & Visualization<br/>Logs + Metrics]
-    end
-    
-    subgraph "🏥 Health Monitoring"
-        HEALTHMON[❤️ Health Monitor<br/>Port 8888<br/>Service Status Checks<br/>All 15 Services]
-    end
-    
-    %% Log Flow
-    CORE -->|Docker Logs| PROMTAIL
-    PROMTAIL -->|Ship Logs| LOKI
-    LOKI -->|Query Logs| GRAFANA
-    
-    %% Metrics Flow
-    CORE -->|Container Stats| CADVISOR
-    CORE -->|Host Stats| NODEEXP
-    CADVISOR -->|Metrics| PROMETHEUS
-    NODEEXP -->|Metrics| PROMETHEUS
-    PROMETHEUS -->|Visualize| GRAFANA
-    
-    %% Alerting Flow
-    PROMETHEUS -->|Alert Rules| ALERTMGR
-    ALERTMGR -.->|Email/Slack/Webhook| EXTERNAL[📧 External Notifications]
-    
-    %% Health Monitoring
-    CORE -.->|Status Checks| HEALTHMON
-    
-    %% Styling
-    style CORE fill:#e8f5e8
-    style PROMTAIL fill:#ff9800
-    style LOKI fill:#2196f3,color:#fff
-    style CADVISOR fill:#4caf50,color:#fff
-    style NODEEXP fill:#9c27b0,color:#fff
-    style PROMETHEUS fill:#e74c3c,color:#fff
-    style ALERTMGR fill:#ff5722,color:#fff
-    style GRAFANA fill:#ff8c00,color:#fff
-    style HEALTHMON fill:#f50057,color:#fff
-```
+**Automatisierte Überwachung aller 15 Services mit professionellen Tools:**
+
+| Service | Port | Zweck | Dashboard |
+|---------|------|-------|-----------|
+| 🏥 **Health Monitor** | 8888 | Automatische Service-Überwachung | `http://localhost:8888` |
+| 📈 **Grafana** | 3000 | Professionelle Dashboards | `http://localhost:3000` (admin/admin) |
+| ⚡ **Prometheus** | 9090 | Metriken-Datenbank | `http://localhost:9090` |
+| 📚 **Loki** | 3100 | Log-Aggregation | Grafana → Explore → Loki |
+| � **cAdvisor** | 8081 | Container-Metriken | `http://localhost:8081` |
+| 🖥️ **Node Exporter** | 9100 | Host-System-Metriken | `http://localhost:9100/metrics` |
+| 🔔 **Alertmanager** | 9093 | Alert-Management | `http://localhost:9093` |
+| 📋 **Promtail** | Internal | Docker Log-Collector | (Internal Service) |
 
 ### 🔗 Complete Service Interaction Map
 
