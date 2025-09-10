@@ -123,6 +123,6 @@ Style Guidelines: ${styleGuide}
 - ADR-0003: Local vs. Cloud LLM Default Strategy
 
 ## References
-- [RAG Architecture Options](../docs/c4/workspace.dsl)
-- [Privacy Requirements](../docs/security/privacy-framework.md)
-- [Performance Benchmarks](../evals/context-vs-rag-comparison.md)
+- [RAG Architecture Options](../c4/workspace.dsl)
+- [Privacy Requirements](../security/privacy-framework.md)
+- Performance Benchmarks: Not yet implemented (placeholder for future evaluation framework)
