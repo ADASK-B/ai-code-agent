@@ -8,18 +8,26 @@
 
 ## 🎯 What does this Agent do?
 
-The **Automatisierte Überwachung aller 16 Services mit professionellen Tools:**
+The AI Code **Professional Monitoring & Observability - All 8 Services:**
 
-| Service | Port | Zweck | Dashboard |
-|---------|------|-------|-----------|
-| **Health Monitor** | 8888 | Automatische Service-Überwachung | `http://localhost:8888` |
-| **Grafana** | 3000 | Professionelle Dashboards | `http://localhost:3000` (admin/admin) |
-| **Prometheus** | 9090 | Metriken-Datenbank | `http://localhost:9090` |
-| **Loki** | 3100 | Log-Aggregation | Grafana → Explore → Loki |
-| **cAdvisor** | 8081 | Container-Metriken | `http://localhost:8081` |
-| **Node Exporter** | 9100 | Host-System-Metriken | `http://localhost:9100/metrics` |
-| **Alertmanager** | 9093 | Alert-Management | `http://localhost:9093` |
-| **Promtail** | Internal | Docker Log-Collector | (Internal Service) |t **responds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests **from the same codebase context** where the comment was posted.
+| Service | Purpose | Interactions | Technology Choice & Scalability |
+|---------|---------|--------------|--------------------------------|
+| **Health Monitor** | Automated Service Health Monitoring | Checks all 15 services → Prometheus | Custom health aggregator, real-time checks, horizontally scalable |
+| **Grafana** | Professional Dashboards & Visualization | ← Prometheus + Loki | Industry standard, plugin ecosystem, multi-tenant ready |
+| **Prometheus** | Metrics Database & Time Series Storage | ← cAdvisor + Node Exporter + All Services | Cloud-native monitoring, HA clustering, federation support |
+| **Loki** | Log Aggregation & Search Engine | ← Promtail (All Container Logs) | Prometheus-like labels, cost-effective storage, cloud-native |
+| **cAdvisor** | Container Metrics & Resource Monitoring | All Containers → Prometheus | Google-developed, minimal overhead, Kubernetes-ready |
+| **Node Exporter** | Host System Metrics Collection | Host System → Prometheus | Prometheus standard, minimal footprint, production-proven |
+| **Alertmanager** | Alert Routing & Notification Management | ← Prometheus (Alert Rules) | Prometheus ecosystem, sophisticated routing, multi-channel |
+| **Promtail** | Docker Log Collection Agent | All Containers → Loki | Loki ecosystem, efficient shipping, label extraction |onds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests **from the same codebase context** where the comment was posted.
+
+**🎯 Core Value Proposition:**
+- **Natural Language Processing**: Write simple comments like "@user /edit /2 make buttons red" instead of manual code changes
+- **Contextual AI Generation**: The agent understands your existing codebase and creates relevant modifications
+- **Multiple Variants**: Get 1-10 different implementation approaches to compare and choose from
+- **Seamless Integration**: Works directly within your existing Azure DevOps Pull Request workflow
+- **Privacy-First**: Runs locally with Ollama LLM (no external API calls required)
+- **Production-Ready**: Built with enterprise-grade observability, monitoring, and scalability
 
 ### ✨ Simple Usage
 
@@ -176,7 +184,7 @@ graph TB
 
 ### 🏗️ Core Application Services (8 Services)
 
-**Zweck:** Kern-Services für AI Code Generation und Azure DevOps Integration.
+**Purpose:** Core services for AI Code Generation and Azure DevOps Integration.
 
 ```mermaid
 graph TB
@@ -225,22 +233,22 @@ graph TB
     style ADO fill:#0078d4,color:#fff
 ```
 
-**Core Application Services im Detail:**
+**Core Application Services - Architecture Details:**
 
-| Service | Port | Zweck | Interaktionen |
-|---------|------|-------|---------------|
-| **ngrok** | 4040 | External Tunnel & Webhook Access | Azure DevOps → Traefik |
-| **Traefik** | 80/8080 | Reverse Proxy & Load Balancer | ← ngrok → Gateway/Adapter/LLM-Patch |
-| **Gateway** | 3001 | Webhook Receiver & Event Validator | ← Traefik → Orchestrator |
-| **Orchestrator** | 7071 | Azure Functions Workflow Engine | ← Gateway → Adapter + LLM-Patch |
-| **Adapter** | 3002 | Azure DevOps Integration & Git Operations | ← Orchestrator ↔ Azure DevOps |
-| **LLM-Patch** | 3003 | AI Code Generation & Intent Analysis | ← Orchestrator → Ollama |
-| **Ollama** | 11434 | Local LLM (llama3.1:8b + llama3.2:1b) | ← LLM-Patch (AI Generation) |
-| **Azurite** | 10000-10002 | Azure Storage Emulator | ← Orchestrator (State Management) |
+| Service | Purpose | Interactions | Technology Choice & Scalability |
+|---------|---------|--------------|--------------------------------|
+| **ngrok** | External Tunnel & Webhook Access | Azure DevOps → Traefik | Secure tunneling without firewall config, instant scaling |
+| **Traefik** | Reverse Proxy & Load Balancer | ← ngrok → Gateway/Adapter/LLM-Patch | Modern cloud-native proxy, auto-discovery, horizontal scaling |
+| **Gateway** | Webhook Receiver & Event Validator | ← Traefik → Orchestrator | Single entry point, rate limiting, easy to scale horizontally |
+| **Orchestrator** | Azure Functions Workflow Engine | ← Gateway → Adapter + LLM-Patch | Serverless auto-scaling, pay-per-execution, fault tolerance |
+| **Adapter** | Azure DevOps Integration & Git Operations | ← Orchestrator ↔ Azure DevOps | Specialized service, stateless design, parallel processing |
+| **LLM-Patch** | AI Code Generation & Intent Analysis | ← Orchestrator → Ollama | Dedicated AI workload, GPU scalable, model hot-swapping |
+| **Ollama** | Local LLM (llama3.1:8b + llama3.2:1b) | ← LLM-Patch (AI Generation) | Privacy-first, no API costs, local GPU acceleration |
+| **Azurite** | Azure Storage Emulator | ← Orchestrator (State Management) | Development storage, easy cloud migration, consistent API |
 
 ### 📊 Monitoring & Observability Stack (8 Services)
 
-**Zweck:** Professionelle Überwachung, Metriken, Logs und Alerting für alle Services.
+**Purpose:** Professional monitoring, metrics, logs and alerting for all services.
 
 ```mermaid
 graph TB
