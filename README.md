@@ -8,18 +8,6 @@
 
 ## 🎯 What does this Agent do?
 
-The AI Code **Professional Monitoring & Observability - All 8 Services:**
-
-| Service | Purpose | Interactions | Technology Choice & Scalability |
-|---------|---------|--------------|--------------------------------|
-| **Health Monitor** | Automated Service Health Monitoring | Checks all 15 services → Prometheus | Custom health aggregator, real-time checks, horizontally scalable |
-| **Grafana** | Professional Dashboards & Visualization | ← Prometheus + Loki | Industry standard, plugin ecosystem, multi-tenant ready |
-| **Prometheus** | Metrics Database & Time Series Storage | ← cAdvisor + Node Exporter + All Services | Cloud-native monitoring, HA clustering, federation support |
-| **Loki** | Log Aggregation & Search Engine | ← Promtail (All Container Logs) | Prometheus-like labels, cost-effective storage, cloud-native |
-| **cAdvisor** | Container Metrics & Resource Monitoring | All Containers → Prometheus | Google-developed, minimal overhead, Kubernetes-ready |
-| **Node Exporter** | Host System Metrics Collection | Host System → Prometheus | Prometheus standard, minimal footprint, production-proven |
-| **Alertmanager** | Alert Routing & Notification Management | ← Prometheus (Alert Rules) | Prometheus ecosystem, sophisticated routing, multi-channel |
-| **Promtail** | Docker Log Collection Agent | All Containers → Loki | Loki ecosystem, efficient shipping, label extraction |onds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests **from the same codebase context** where the comment was posted.
 
 **🎯 Core Value Proposition:**
 - **Natural Language Processing**: Write simple comments like "@user /edit /2 make buttons red" instead of manual code changes
@@ -311,16 +299,18 @@ graph TB
 
 **Automatisierte Überwachung aller 16 Services mit professionellen Tools:**
 
-| Service | Port | Zweck | Dashboard |
-|---------|------|-------|-----------|
-| 🏥 **Health Monitor** | 8888 | Automatische Service-Überwachung | `http://localhost:8888` |
-| 📈 **Grafana** | 3000 | Professionelle Dashboards | `http://localhost:3000` (admin/admin) |
-| ⚡ **Prometheus** | 9090 | Metriken-Datenbank | `http://localhost:9090` |
-| 📚 **Loki** | 3100 | Log-Aggregation | Grafana → Explore → Loki |
-| � **cAdvisor** | 8081 | Container-Metriken | `http://localhost:8081` |
-| 🖥️ **Node Exporter** | 9100 | Host-System-Metriken | `http://localhost:9100/metrics` |
-| 🔔 **Alertmanager** | 9093 | Alert-Management | `http://localhost:9093` |
-| 📋 **Promtail** | Internal | Docker Log-Collector | (Internal Service) |
+The AI Code **Professional Monitoring & Observability - All 8 Services:**
+
+| Service | Purpose | Interactions | Technology Choice & Scalability |
+|---------|---------|--------------|--------------------------------|
+| **Health Monitor** | Automated Service Health Monitoring | Checks all 15 services → Prometheus | Custom health aggregator, real-time checks, horizontally scalable |
+| **Grafana** | Professional Dashboards & Visualization | ← Prometheus + Loki | Industry standard, plugin ecosystem, multi-tenant ready |
+| **Prometheus** | Metrics Database & Time Series Storage | ← cAdvisor + Node Exporter + All Services | Cloud-native monitoring, HA clustering, federation support |
+| **Loki** | Log Aggregation & Search Engine | ← Promtail (All Container Logs) | Prometheus-like labels, cost-effective storage, cloud-native |
+| **cAdvisor** | Container Metrics & Resource Monitoring | All Containers → Prometheus | Google-developed, minimal overhead, Kubernetes-ready |
+| **Node Exporter** | Host System Metrics Collection | Host System → Prometheus | Prometheus standard, minimal footprint, production-proven |
+| **Alertmanager** | Alert Routing & Notification Management | ← Prometheus (Alert Rules) | Prometheus ecosystem, sophisticated routing, multi-channel |
+| **Promtail** | Docker Log Collection Agent | All Containers → Loki | Loki ecosystem, efficient shipping, label extraction |onds to natural language** in Azure DevOps Pull Request comments and **automatically creates code variants** as separate Draft Pull Requests **from the same codebase context** where the comment was posted.
 
 ## 🚀 Quick Start
 
