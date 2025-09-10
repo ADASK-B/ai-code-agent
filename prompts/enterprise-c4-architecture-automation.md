@@ -280,19 +280,34 @@ docs/c4/out/
 
 ## 🚀 **Deployment Checklist**
 
+### **Repository Setup:**
+```
+your-repo/
+├── .github/workflows/diagram.yml         # GitHub Actions Pipeline
+├── docs/c4/workspace.dsl                 # C4 DSL Source (create this)
+├── docs/c4/out/                          # Generated diagrams (auto-created)
+├── architecture.html                     # Website Frontend (create in ROOT!)
+└── README.md
+```
+
 ### **Pre-Deploy:**
-- [ ] DSL-Syntax validiert (`structurizr.sh validate`)
-- [ ] Alle Views definiert (System Context, Container, Components)
-- [ ] GitHub Actions Permissions gesetzt
-- [ ] Graphviz Installation im Workflow
-- [ ] HTML-Pfade korrekt
+- [ ] **Repository-Struktur:** `docs/c4/` Verzeichnis erstellt
+- [ ] **DSL-Datei:** `docs/c4/workspace.dsl` mit korrekter Syntax
+- [ ] **HTML-Frontend:** `architecture.html` im Repository-Root (nicht in docs/)
+- [ ] **DSL-Syntax validiert** (`structurizr.sh validate`)
+- [ ] **Alle Views definiert** (System Context, Container, Components)
+- [ ] **GitHub Actions Permissions** gesetzt (`contents: write`)
+- [ ] **Graphviz Installation** im Workflow
+- [ ] **HTML-Pfade korrekt** (`docs/c4/out/docs/c4/out/`)
+- [ ] **GitHub Pages aktiviert:** Settings → Pages → Deploy from branch → main, / (root)
 
 ### **Post-Deploy:**
-- [ ] Alle Diagramme laden ohne Fehler
-- [ ] PNG/SVG Downloads funktionieren
-- [ ] Mobile Responsiveness getestet
-- [ ] GitHub Pages Deployment erfolgreich
-- [ ] Auto-Update bei DSL-Änderungen verifiziert
+- [ ] **Website erreichbar:** `https://username.github.io/repo-name/architecture.html`
+- [ ] **Alle Diagramme laden** ohne Fehler
+- [ ] **PNG/SVG Downloads** funktionieren
+- [ ] **Mobile Responsiveness** getestet
+- [ ] **GitHub Pages Deployment** erfolgreich
+- [ ] **Auto-Update** bei DSL-Änderungen verifiziert
 
 ### **Monitoring:**
 - [ ] GitHub Actions Failure Notifications

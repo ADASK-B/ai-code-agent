@@ -90,9 +90,21 @@ jobs:
 </body>
 </html>
 ```
+**WICHTIG:** HTML-Datei im **Repository-Root** speichern (nicht in docs/)
 
-### 4. Aktivieren:
-- GitHub Pages auf `main` branch aktivieren
+### 4. Verzeichnis-Struktur:
+```
+your-repo/
+├── .github/workflows/diagrams.yml    # GitHub Actions
+├── docs/c4/workspace.dsl              # C4 DSL Quelle  
+├── docs/c4/out/                       # Generierte Diagramme (auto)
+├── architecture.html                  # Website (im Root!)
+└── README.md
+```
+
+### 5. Aktivieren:
+- GitHub Pages: **Settings → Pages → Source: Deploy from branch → main branch, / (root)**
 - DSL committen → Auto-Build → Live Diagrams!
+- Website verfügbar unter: `https://username.github.io/repo-name/architecture.html`
 
 **🎯 Result: Professional architecture documentation in 30 minutes!**
