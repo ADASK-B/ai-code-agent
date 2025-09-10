@@ -75,39 +75,39 @@ workspace "AI Code Agent" "C4-Modell für das ai-code-agent Repo" {
 
   views {
     // C1: System Context
-    systemContext aiAgent "C1 - System Context" {
+    systemContext aiAgent "SystemContext" {
       include *
       autoLayout lr
       description "Übersicht über das gesamte AI Code Agent System und externe Abhängigkeiten"
     }
 
     // C2: Container
-    container aiAgent "C2 - Container" {
+    container aiAgent "Containers" {
       include *
       autoLayout lr
       description "Detaillierte Darstellung der Microservices (Gateway, Orchestrator, LLM-Patch, Adapter)"
     }
 
     // C3: Component views
-    component aiAgent.webhook "C3 - Webhook Components" {
+    component aiAgent.webhook "WebhookComponents" {
       include *
       autoLayout lr
       description "Interne Struktur des Webhook Service"
     }
 
-    component aiAgent.orchestrator "C3 - Orchestrator Components" {
+    component aiAgent.orchestrator "OrchestratorComponents" {
       include *
       autoLayout lr
       description "Interne Struktur des Orchestrator Service"
     }
 
-    component aiAgent.llmGateway "C3 - LLM Gateway Components" {
+    component aiAgent.llmGateway "LLMGatewayComponents" {
       include *
       autoLayout lr
       description "Interne Struktur des LLM Gateway Service"
     }
 
-    component aiAgent.adapter "C3 - Adapter Components" {
+    component aiAgent.adapter "AdapterComponents" {
       include *
       autoLayout lr
       description "Interne Struktur des Adapter Service"
