@@ -49,15 +49,25 @@ jobs:
 
       # Render: .puml -> PNG
       - name: Render PlantUML to PNG
-        uses: plantuml/plantuml-action@v1
-        with:
-          args: docs/c4/out/*.puml -tpng -o docs/c4/out
+        run: |
+          # Install PlantUML via wget
+          wget -O plantuml.jar https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+          # Generate PNG files
+          for file in docs/c4/out/*.puml; do
+            if [ -f "$file" ]; then
+              java -jar plantuml.jar -tpng "$file" -o docs/c4/out
+            fi
+          done
 
       # Render: .puml -> SVG
       - name: Render PlantUML to SVG
-        uses: plantuml/plantuml-action@v1
-        with:
-          args: docs/c4/out/*.puml -tsvg -o docs/c4/out
+        run: |
+          # Generate SVG files
+          for file in docs/c4/out/*.puml; do
+            if [ -f "$file" ]; then
+              java -jar plantuml.jar -tsvg "$file" -o docs/c4/out
+            fi
+          done
 
       # Änderungen zurückschreiben (Commit)
       - name: Commit generated diagrams
