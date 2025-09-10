@@ -40,7 +40,7 @@ The AI Code Agent **responds to natural language** in Azure DevOps Pull Request 
 - 📝 **[Architecture Decisions (ADRs)](./docs/adr)** - Key technical decisions and rationale
 - 🎨 **[C4 Models](./docs/c4/workspace.dsl)** - Visual architecture models and diagrams
 
-### 🔄 System Context & Main Workflow
+### 🔄 System Overview & Main Workflow
 
 ```mermaid
 graph TB
@@ -50,28 +50,14 @@ graph TB
         EXTERNAL[🌐 External Access<br/>ngrok Public Tunnel<br/>Webhook Endpoint<br/>Traffic Inspector]
     end
     
-    subgraph "🏗️ Core Application Services (8 Services)"
+    subgraph "🏗️ Core Application Stack"
         direction TB
-        TRAEFIK[🔷 Traefik<br/>Port 80/8080<br/>Reverse Proxy & Load Balancer<br/>HTTP Router & Dashboard]
-        GATEWAY[🟡 Gateway Service<br/>Port 3001<br/>Webhook Receiver & Validator<br/>Azure DevOps Event Processing]
-        ORCHESTRATOR[🔴 Orchestrator<br/>Port 7071<br/>Azure Functions Workflow<br/>Business Logic & Coordination]
-        ADAPTER[🟠 Adapter Service<br/>Port 3002<br/>Azure DevOps Integration<br/>Branch/PR/Comment Management]
-        LLM_PATCH[🟣 LLM-Patch Service<br/>Port 3003<br/>AI Code Generation<br/>Intent Analysis & Patch Creation]
-        OLLAMA[🧠 Local Ollama LLM<br/>Port 11434<br/>Privacy-First AI Models<br/>llama3.1:8b + llama3.2:1b]
-        NGROK[🟢 ngrok Tunnel<br/>Port 4040<br/>External Webhook Access<br/>Traffic Inspector & Debugging]
-        AZURITE[💽 Azurite Storage<br/>Port 10000-10002<br/>Azure Storage Emulator<br/>Orchestrator State Management]
+        CORE[🎯 8 Core Services<br/>Gateway → Orchestrator → Adapter + LLM-Patch<br/>+ Traefik + ngrok + Ollama + Azurite]
     end
     
-    subgraph "📊 Monitoring & Observability Stack (8 Services)"
+    subgraph "📊 Monitoring & Observability"
         direction TB
-        HEALTH_MON[🏥 Health Monitor<br/>Port 8888<br/>Automated Service Health<br/>All-Service Status API]
-        GRAFANA[📈 Grafana<br/>Port 3000<br/>Professional Dashboards<br/>Metrics Visualization]
-        PROMETHEUS[⚡ Prometheus<br/>Port 9090<br/>Metrics Database<br/>Alert Rules & TSDB]
-        LOKI[📚 Loki<br/>Port 3100<br/>Log Aggregation<br/>Centralized Log Storage]
-        PROMTAIL[📋 Promtail<br/>Internal Service<br/>Docker Log Collector<br/>Container → Loki Pipeline]
-        CADVISOR[📊 cAdvisor<br/>Port 8081<br/>Container Metrics<br/>CPU/RAM/Network/Disk]
-        NODE_EXP[🖥️ Node Exporter<br/>Port 9100<br/>Host System Metrics<br/>OS-Level Performance]
-        ALERTMGR[🔔 Alertmanager<br/>Port 9093<br/>Alert Routing<br/>Notification Management]
+        MONITORING[📈 8 Monitoring Services<br/>Grafana + Prometheus + Loki + Health Monitor<br/>+ Alertmanager + cAdvisor + Node Exporter + Promtail]
     end
     
     subgraph "🤖 AI Provider Chain (Fallback Strategy)"
@@ -85,85 +71,142 @@ graph TB
     %% Main Workflow - PR Comment to AI Code Generation
     DEV -->|1. PR Comment<br/>@user /edit /N intent| ADO
     ADO -->|2. Webhook Event<br/>Pull Request Commented| EXTERNAL
-    EXTERNAL -->|3. HTTP Request<br/>/webhook/ado| TRAEFIK
-    TRAEFIK -->|4. Route Request| GATEWAY
-    GATEWAY -->|5. Process & Validate<br/>Webhook Event| ORCHESTRATOR
+    EXTERNAL -->|3. HTTP Request<br/>/webhook/ado| CORE
+    CORE -->|4. AI Code Generation<br/>N Variants| AI_LOCAL
+    CORE -.->|Fallback Chain| AI_CLAUDE
+    CORE -.->|Fallback Chain| AI_OPENAI  
+    CORE -.->|Final Fallback| AI_MOCK
+    CORE -->|5. Draft PRs<br/>Status Updates| ADO
     
-    %% Orchestrator Coordination (Azure Functions)
-    ORCHESTRATOR -->|6a. Fetch PR Metadata<br/>Files & Context| ADAPTER
-    ORCHESTRATOR -->|6b. Generate AI Patches<br/>N Variants| LLM_PATCH
-    ORCHESTRATOR -->|6c. Create Feature Branches<br/>agents/edit-prId-variant| ADAPTER
-    ORCHESTRATOR -->|6d. Apply Patches<br/>Commit Changes| ADAPTER
-    ORCHESTRATOR -->|6e. Create Draft PRs<br/>Review-Ready| ADAPTER
-    ORCHESTRATOR -->|6f. Post Status Updates<br/>Progress Comments| ADAPTER
-    
-    %% AI Provider Chain (Priority Order)
-    LLM_PATCH -.->|1st Choice: Local AI<br/>Privacy + No Cost| AI_LOCAL
-    LLM_PATCH -.->|2nd Choice: Enterprise AI<br/>High Quality| AI_CLAUDE
-    LLM_PATCH -.->|3rd Choice: Fallback AI<br/>Reliable Option| AI_OPENAI
-    LLM_PATCH -.->|Final Fallback: Mock<br/>No Dependencies| AI_MOCK
-    
-    %% Azure DevOps Integration
-    ADAPTER <-->|REST API Calls<br/>CRUD Operations| ADO
-    
-    %% Infrastructure Dependencies
-    ORCHESTRATOR -.->|State Storage<br/>Workflow Persistence| AZURITE
-    TRAEFIK -->|Load Balance<br/>Health Checks| GATEWAY
-    TRAEFIK -->|Route Traffic<br/>Service Discovery| ADAPTER
-    TRAEFIK -->|Route Traffic<br/>Service Discovery| LLM_PATCH
-    
-    %% Monitoring Data Flow
-    PROMTAIL -->|Collect Logs<br/>Docker Containers| LOKI
-    CADVISOR -->|Container Metrics<br/>Resource Usage| PROMETHEUS
-    NODE_EXP -->|Host Metrics<br/>System Performance| PROMETHEUS
-    GATEWAY -->|Service Metrics<br/>Request/Response| PROMETHEUS
-    ADAPTER -->|Service Metrics<br/>API Calls| PROMETHEUS
-    LLM_PATCH -->|Service Metrics<br/>AI Performance| PROMETHEUS
-    ORCHESTRATOR -->|Service Metrics<br/>Workflow Stats| PROMETHEUS
-    
-    %% Observability Stack
-    PROMETHEUS -->|Metrics Data<br/>Time Series| GRAFANA
-    LOKI -->|Log Data<br/>Text Search| GRAFANA
-    PROMETHEUS -->|Alert Rules<br/>Threshold Monitoring| ALERTMGR
-    HEALTH_MON -->|Service Health<br/>Status Aggregation| PROMETHEUS
-    
-    %% External Access
-    NGROK -->|Tunnel Traffic<br/>Webhook Endpoint| TRAEFIK
-    
-    %% Service Health Monitoring
-    HEALTH_MON -.->|Health Checks<br/>Service Status| GATEWAY
-    HEALTH_MON -.->|Health Checks<br/>Service Status| ADAPTER
-    HEALTH_MON -.->|Health Checks<br/>Service Status| LLM_PATCH
-    HEALTH_MON -.->|Health Checks<br/>Service Status| TRAEFIK
-    HEALTH_MON -.->|Health Checks<br/>Service Status| OLLAMA
+    %% Monitoring Integration
+    CORE -.->|Metrics & Logs| MONITORING
+    MONITORING -.->|Health Checks<br/>Alerts| CORE
     
     %% Styling
     style DEV fill:#e3f2fd
     style ADO fill:#0078d4,color:#fff
     style EXTERNAL fill:#1db954,color:#fff
-    style TRAEFIK fill:#326ce5,color:#fff
-    style GATEWAY fill:#ffeb3b
-    style ORCHESTRATOR fill:#f44336,color:#fff
-    style ADAPTER fill:#ff9800,color:#fff
-    style LLM_PATCH fill:#9c27b0,color:#fff
-    style OLLAMA fill:#4caf50,color:#fff
-    style NGROK fill:#1db954,color:#fff
-    style AZURITE fill:#607d8b,color:#fff
-    style HEALTH_MON fill:#f50057,color:#fff
-    style GRAFANA fill:#ff8c00,color:#fff
-    style PROMETHEUS fill:#e74c3c,color:#fff
-    style LOKI fill:#2196f3,color:#fff
-    style PROMTAIL fill:#8bc34a,color:#fff
-    style CADVISOR fill:#9c27b0,color:#fff
-    style NODE_EXP fill:#795548,color:#fff
-    style ALERTMGR fill:#ff5722,color:#fff
+    style CORE fill:#ff9800,color:#fff
+    style MONITORING fill:#2196f3,color:#fff
     style AI_LOCAL fill:#4caf50,color:#fff
     style AI_CLAUDE fill:#673ab7,color:#fff
     style AI_OPENAI fill:#00bcd4,color:#fff
     style AI_MOCK fill:#9e9e9e,color:#fff
 ```
 
-### 📊 Monitoring & Observability Stack
+### 🏗️ Core Application Services (8 Services)
+
+**Zweck:** Kern-Services für AI Code Generation und Azure DevOps Integration.
+
+```mermaid
+graph TB
+    subgraph "🌐 External Access Layer"
+        NGROK[🟢 ngrok Tunnel<br/>Port 4040<br/>External Webhook Access<br/>Traffic Inspector & Debugging]
+        TRAEFIK[🔷 Traefik<br/>Port 80/8080<br/>Reverse Proxy & Load Balancer<br/>HTTP Router & Dashboard]
+    end
+    
+    subgraph "🎯 Core Application Layer"
+        direction TB
+        GATEWAY[🟡 Gateway Service<br/>Port 3001<br/>Webhook Receiver & Validator<br/>Azure DevOps Event Processing]
+        ORCHESTRATOR[🔴 Orchestrator<br/>Port 7071<br/>Azure Functions Workflow<br/>Business Logic & Coordination]
+        ADAPTER[🟠 Adapter Service<br/>Port 3002<br/>Azure DevOps Integration<br/>Branch/PR/Comment Management]
+        LLM_PATCH[🟣 LLM-Patch Service<br/>Port 3003<br/>AI Code Generation<br/>Intent Analysis & Patch Creation]
+    end
+    
+    subgraph "🤖 AI & Storage Layer"
+        OLLAMA[🧠 Local Ollama LLM<br/>Port 11434<br/>Privacy-First AI Models<br/>llama3.1:8b + llama3.2:1b]
+        AZURITE[💽 Azurite Storage<br/>Port 10000-10002<br/>Azure Storage Emulator<br/>Orchestrator State Management]
+    end
+    
+    subgraph "🔵 External Systems"
+        ADO[🔵 Azure DevOps<br/>Source Repository<br/>Pull Requests & Webhooks]
+    end
+    
+    %% Main Data Flow
+    ADO -.->|Webhook| NGROK
+    NGROK --> TRAEFIK
+    TRAEFIK --> GATEWAY
+    GATEWAY --> ORCHESTRATOR
+    ORCHESTRATOR --> ADAPTER
+    ORCHESTRATOR --> LLM_PATCH
+    ADAPTER -.->|Git Operations| ADO
+    LLM_PATCH --> OLLAMA
+    ORCHESTRATOR -.->|State Storage| AZURITE
+    
+    %% Styling
+    style NGROK fill:#1db954,color:#fff
+    style TRAEFIK fill:#326ce5,color:#fff
+    style GATEWAY fill:#ffeb3b
+    style ORCHESTRATOR fill:#f44336,color:#fff
+    style ADAPTER fill:#ff9800,color:#fff
+    style LLM_PATCH fill:#9c27b0,color:#fff
+    style OLLAMA fill:#4caf50,color:#fff
+    style AZURITE fill:#607d8b,color:#fff
+    style ADO fill:#0078d4,color:#fff
+```
+
+### 📊 Monitoring & Observability Stack (8 Services)
+
+**Zweck:** Professionelle Überwachung, Metriken, Logs und Alerting für alle Services.
+
+```mermaid
+graph TB
+    subgraph "📈 Visualization & Dashboards"
+        GRAFANA[📊 Grafana<br/>Port 3000<br/>Professional Dashboards<br/>Metrics & Log Visualization<br/>admin/admin]
+        HEALTHMON[❤️ Health Monitor<br/>Port 8888<br/>Service Status Overview<br/>All-Service Health API<br/>Real-time Checks]
+    end
+    
+    subgraph "⚡ Metrics Collection & Storage"
+        PROMETHEUS[⚡ Prometheus<br/>Port 9090<br/>Metrics Database<br/>Time Series Storage<br/>Alert Rules Engine]
+        CADVISOR[📊 cAdvisor<br/>Port 8081<br/>Container Metrics<br/>CPU/RAM/Network/Disk<br/>Docker Performance]
+        NODEEXP[🖥️ Node Exporter<br/>Port 9100<br/>Host System Metrics<br/>OS-Level Performance<br/>Hardware Monitoring]
+    end
+    
+    subgraph "📚 Log Management"
+        LOKI[📚 Loki<br/>Port 3100<br/>Log Aggregation<br/>Centralized Log Storage<br/>Text Search Engine]
+        PROMTAIL[📋 Promtail<br/>Internal Service<br/>Docker Log Collector<br/>Container → Loki Pipeline<br/>Real-time Log Shipping]
+    end
+    
+    subgraph "🔔 Alerting & Notifications"
+        ALERTMGR[🔔 Alertmanager<br/>Port 9093<br/>Alert Routing<br/>Notification Management<br/>Email/Slack/Webhook]
+    end
+    
+    subgraph "🏗️ Monitored Core Services"
+        CORE_SERVICES[🎯 8 Core Application Services<br/>Gateway + Orchestrator + Adapter + LLM-Patch<br/>+ Traefik + ngrok + Ollama + Azurite<br/>All providing /metrics + logs]
+    end
+    
+    %% Metrics Flow
+    CORE_SERVICES -->|HTTP /metrics<br/>Prometheus Format| PROMETHEUS
+    CADVISOR -->|Container Metrics<br/>Resource Usage| PROMETHEUS
+    NODEEXP -->|Host Metrics<br/>System Performance| PROMETHEUS
+    HEALTHMON -->|Service Health<br/>Status Checks| PROMETHEUS
+    
+    %% Log Flow
+    CORE_SERVICES -->|Docker Logs<br/>stdout/stderr| PROMTAIL
+    PROMTAIL -->|Structured Logs<br/>JSON Format| LOKI
+    
+    %% Visualization
+    PROMETHEUS -->|Metrics Data<br/>Time Series| GRAFANA
+    LOKI -->|Log Data<br/>Text Search| GRAFANA
+    
+    %% Alerting
+    PROMETHEUS -->|Alert Rules<br/>Threshold Violations| ALERTMGR
+    ALERTMGR -.->|Notifications<br/>Critical Issues| GRAFANA
+    
+    %% Health Monitoring
+    HEALTHMON -.->|Periodic Checks<br/>Service Status| CORE_SERVICES
+    
+    %% Styling
+    style GRAFANA fill:#ff8c00,color:#fff
+    style HEALTHMON fill:#f50057,color:#fff
+    style PROMETHEUS fill:#e74c3c,color:#fff
+    style CADVISOR fill:#9c27b0,color:#fff
+    style NODEEXP fill:#795548,color:#fff
+    style LOKI fill:#2196f3,color:#fff
+    style PROMTAIL fill:#8bc34a,color:#fff
+    style ALERTMGR fill:#ff5722,color:#fff
+    style CORE_SERVICES fill:#607d8b,color:#fff
+```
 
 **Automatisierte Überwachung aller 16 Services mit professionellen Tools:**
 
@@ -177,107 +220,6 @@ graph TB
 | 🖥️ **Node Exporter** | 9100 | Host-System-Metriken | `http://localhost:9100/metrics` |
 | 🔔 **Alertmanager** | 9093 | Alert-Management | `http://localhost:9093` |
 | 📋 **Promtail** | Internal | Docker Log-Collector | (Internal Service) |
-
-### 🔗 Service Interaction & Data Flow Map
-
-**Zweck:** Zeigt alle Services im Detail mit korrekten Ports und Interaktionen zwischen den Komponenten.
-
-```mermaid
-graph TB
-    subgraph "🎯 Core Application Services (8)"
-        TRAEFIK[🔷 Traefik<br/>Port 80/8080<br/>Load Balancer]
-        GATEWAY[🟡 Gateway<br/>Port 3001<br/>API Gateway]
-        ADAPTER[🟠 Adapter<br/>Port 3002<br/>Azure DevOps Integration]
-        LLMPATCH[🟣 LLM-Patch<br/>Port 3003<br/>Code Generation]
-        ORCHESTRATOR[🔴 Orchestrator<br/>Port 7071<br/>Workflow Coordination]
-        NGROK[🟢 ngrok<br/>Port 4040<br/>External Tunnel]
-        OLLAMA[🧠 Ollama<br/>Port 11434<br/>Local LLM]
-        AZURITE[💽 Azurite<br/>Port 10000-10002<br/>Storage Emulator]
-        AZURITE[💽 Azurite<br/>Port 10000-10002<br/>Storage Emulator]
-    end
-    
-    subgraph "📊 Monitoring & Observability (8)"
-        HEALTHMON[❤️ Health Monitor<br/>Port 8888<br/>Status Checks]
-        GRAFANA[📊 Grafana<br/>Port 3000<br/>Dashboards]
-        PROMETHEUS[⚡ Prometheus<br/>Port 9090<br/>Metrics DB]
-        NODEEXP[🖥️ Node Exporter<br/>Port 9100<br/>System Metrics]
-        CADVISOR[📊 cAdvisor<br/>Port 8081<br/>Container Metrics]
-        LOKI[📚 Loki<br/>Port 3100<br/>Log Storage]
-        ALERTMGR[🔔 Alertmanager<br/>Port 9093<br/>Notifications]
-        PROMTAIL[📋 Promtail<br/>Internal<br/>Log Collector]
-    end
-    
-    subgraph "💾 Infrastructure & Storage (1)"
-        AZURITE[💽 Azurite<br/>Port 10000-10002<br/>Storage Emulator]
-    end
-    
-    subgraph "🌍 External Systems"
-        ADO[🔵 Azure DevOps<br/>Git Repository<br/>Pull Requests]
-    end
-    
-    %% Main Application Flow
-    ADO -.->|Webhook| NGROK
-    NGROK --> TRAEFIK
-    TRAEFIK --> GATEWAY
-    GATEWAY --> ORCHESTRATOR
-    ORCHESTRATOR --> ADAPTER
-    ORCHESTRATOR --> LLMPATCH
-    ADAPTER -.->|Git Ops| ADO
-    LLMPATCH --> OLLAMA
-    ORCHESTRATOR -.->|Data| AZURITE
-    
-    %% Monitoring Connections
-    GATEWAY --> PROMETHEUS
-    ADAPTER --> PROMETHEUS
-    LLMPATCH --> PROMETHEUS
-    ORCHESTRATOR --> PROMETHEUS
-    OLLAMA --> PROMETHEUS
-    TRAEFIK --> PROMETHEUS
-    CADVISOR --> PROMETHEUS
-    NODEEXP --> PROMETHEUS
-    
-    %% Log Collection
-    GATEWAY --> PROMTAIL
-    ADAPTER --> PROMTAIL
-    LLMPATCH --> PROMTAIL
-    ORCHESTRATOR --> PROMTAIL
-    OLLAMA --> PROMTAIL
-    TRAEFIK --> PROMTAIL
-    PROMTAIL --> LOKI
-    
-    %% Visualization & Alerting
-    PROMETHEUS --> GRAFANA
-    LOKI --> GRAFANA
-    PROMETHEUS --> ALERTMGR
-    
-    %% Health Monitoring
-    HEALTHMON -.->|Check| GATEWAY
-    HEALTHMON -.->|Check| ADAPTER
-    HEALTHMON -.->|Check| LLMPATCH
-    HEALTHMON -.->|Check| ORCHESTRATOR
-    HEALTHMON -.->|Check| OLLAMA
-    HEALTHMON -.->|Check| TRAEFIK
-    HEALTHMON -.->|Check| GRAFANA
-    HEALTHMON -.->|Check| PROMETHEUS
-    HEALTHMON -.->|Check| LOKI
-    HEALTHMON -.->|Check| ALERTMGR
-    
-    %% Styling
-    style ADO fill:#0078d4,color:#fff
-    style NGROK fill:#1db954,color:#fff
-    style TRAEFIK fill:#326ce5,color:#fff
-    style GATEWAY fill:#ffeb3b
-    style ORCHESTRATOR fill:#f44336,color:#fff
-    style ADAPTER fill:#ff9800,color:#fff
-    style LLMPATCH fill:#9c27b0,color:#fff
-    style OLLAMA fill:#4caf50,color:#fff
-    style AZURITE fill:#607d8b,color:#fff
-    style HEALTHMON fill:#f50057,color:#fff
-    style GRAFANA fill:#ff8c00,color:#fff
-    style PROMETHEUS fill:#e74c3c,color:#fff
-    style LOKI fill:#2196f3,color:#fff
-    style ALERTMGR fill:#ff5722,color:#fff
-```
 
 ## 🚀 Quick Start
 
