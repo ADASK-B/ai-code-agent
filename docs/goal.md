@@ -8,7 +8,7 @@ _Status:_ **Enterprise-Candidate** (Phase-1 in Umsetzung, Phase-2 geplant)
 ## 1) Vision Statement
 
 **Von PR-Automation zur Enterprise-KI-Plattform.**  
-Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-Automation-Tool zu einer **unternehmensweiten KI-Plattform** mit klaren **Governance-, Security- und Betriebsstandards** (Cloud/On-prem/Edge). Die Plattform dient als **Referenzarchitektur** für industrielle KI-Governance und beschleunigt TRUMPF-typische Anwendungsfälle (Assistenzsysteme, Code-Automation, Predictive/Visual Inspection).
+Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-Automation-Tool zu einer **unternehmensweiten KI-Plattform** mit klaren **Governance-, Security- und Betriebsstandards** (Cloud/On-prem/Edge). Die Plattform dient als **Referenzarchitektur** für industrielle KI-Governance und beschleunigt typische Enterprise-Anwendungsfälle (Assistenzsysteme, Code-Automation, Predictive/Visual Inspection).
 
 **EN (one-liner):** From a PR bot to a governed, observable, multi-tenant **Enterprise AI Platform** that works across cloud and edge.
 
