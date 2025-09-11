@@ -291,9 +291,9 @@ docker system df > "docker-info-$timestamp.txt"
 
 ### Community Resources
 - **GitHub Issues:** [ai-code-agent/issues](https://github.com/arthur-schwan/ai-code-agent/issues)
-- **Documentation:** [Full documentation](../README.md)
-- **Architecture:** [System Architecture](system-architecture.md)
+- **Documentation:** [Full documentation](../../README.md)
+- **Architecture:** [System Architecture](../architecture/system-architecture.md)
 
 ---
 
-**Need more help?** Check the [Monitoring Guide](system-monitoring.md) for detailed health checking procedures.
+**Need more help?** Check the [Monitoring Guide](../operations/system-monitoring.md) for detailed health checking procedures.

@@ -132,4 +132,4 @@ docker exec agent-local-llm ollama list
 
 ---
 
-**Next:** [Quick Setup Guide](../README.md#quick-start) for installation instructions.
+**Next:** [Quick Setup Guide](../../README.md#quick-start) for installation instructions.

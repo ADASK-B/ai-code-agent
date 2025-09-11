@@ -96,4 +96,4 @@ Azure DevOps  Ollama AI
 
 ---
 
-**Next Steps:** See [Platform Evolution](goal.md) for planned extensions and enterprise features.
+**Next Steps:** See [Platform Evolution](../design/goal.md) for planned extensions and enterprise features.

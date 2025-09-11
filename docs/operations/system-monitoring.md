@@ -210,4 +210,4 @@ curl http://localhost:3003/metrics
 
 ---
 
-**Next:** [Troubleshooting Guide](troubleshooting.md) for common issues and solutions.
+**Next:** [Troubleshooting Guide](../guides/troubleshooting.md) for common issues and solutions.

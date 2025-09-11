@@ -191,4 +191,4 @@ Try: "@user /edit /2 [specific description]"
 
 ---
 
-**Next:** [System Monitoring](system-monitoring.md) to track AI generation performance.
+**Next:** [System Monitoring](../operations/system-monitoring.md) to track AI generation performance.
