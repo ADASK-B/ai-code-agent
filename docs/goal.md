@@ -1,25 +1,25 @@
-# AI Code Agent – Enterprise Platform Transformation
+# AI Code Agent – Platform Evolution
 
 _Author: Arthur Schwan_  
 _Last Updated: 2025-09-11_  
-_Status:_ **Enterprise-Candidate** (Phase-1 in Umsetzung, Phase-2 geplant)
+_Status:_ **Development Roadmap** (Foundation established, extensions planned)
 
 ---
 
 ## 1) Vision Statement
 
-**Von PR-Automation zur Enterprise-KI-Plattform.**  
-Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-Automation-Tool zu einer **unternehmensweiten KI-Plattform** mit klaren **Governance-, Security- und Betriebsstandards** (Cloud/On-prem/Edge). Die Plattform dient als **Referenzarchitektur** für industrielle KI-Governance und beschleunigt typische Enterprise-Anwendungsfälle (Assistenzsysteme, Code-Automation, Predictive/Visual Inspection).
+**Von PR-Automation zu einer erweiterbaren KI-Plattform.**  
+Wir entwickeln den bestehenden **AI Code Agent** von einem fokussierten PR-Automation-Tool zu einer **erweiterbaren KI-Plattform** mit **Governance-, Security- und Betriebsstandards** (Cloud/On-prem). Die Plattform kann als **Referenz** für KI-Governance dienen und typische Anwendungsfälle unterstützen (Assistenzsysteme, Code-Automation).
 
-**EN (one-liner):** From a PR bot to a governed, observable, multi-tenant **Enterprise AI Platform** that works across cloud and edge.
+**EN (one-liner):** From a PR bot to a governed, observable, multi-tenant **AI Platform** that works across environments.
 
 ---
 
-## 2) Enterprise Pain Points → Ziele
+## 2) Current Pain Points → Goals
 
 **Ausgangslage (Pain Points)**  
 - 🏢 **Multi-Tenancy:** Keine saubere Mandantentrennung/Isolation.  
-- 🔐 **Enterprise Auth:** OIDC/RBAC fehlt, kein SSO.  
+- 🔐 **Auth:** OIDC/RBAC fehlt, kein SSO.  
 - 🧾 **Compliance/Governance:** Fehlende Auditability, Modell- und Daten-Lineage.  
 - ⚡ **Skalierung:** Docker Compose statt Kubernetes (Prod).  
 - 🔄 **Integration:** Fokus auf Azure DevOps, Multi-SCM fehlt (GitHub/GitLab).  
@@ -35,11 +35,11 @@ Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-A
 
 ---
 
-## 3) Enterprise Tech-Stack Matrix
+## 3) Tech-Stack Evolution Matrix
 
 ### 🚀 Core Application Services (aktuell/nahe Zukunft)
 
-| Component (Port) | Status | Purpose (Enterprise) | Integration & Dependencies |
+| Component (Port) | Status | Purpose | Integration & Dependencies |
 |---|---|---|---|
 | **Traefik (80/8080)** | **Keep & Extend** | Reverse Proxy / LB (Prod) | ← Ingress, ↔ Service Discovery, TLS, mTLS (Mesh) |
 | **Gateway (3001)** | **Refactor** | Multi-Tenant API GW, Webhooks, Rate-Limiting | ← Traefik, → Orchestrator, ↔ Redis (Rate), → Prometheus |
@@ -65,7 +65,7 @@ Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-A
 | **Node Exporter (9100)** | **Keep** | Host-Metriken | → Prometheus |
 | **OpenTelemetry Collector** | **Create** | Standardisierte Telemetrie-Pipeline | ← Services/SDKs, → Prom/Tempo/Loki |
 
-### 🔐 Enterprise Security & Auth
+### 🔐 Security & Auth
 
 | Component | Status | Purpose | Integration & Dependencies |
 |---|---|---|---|
@@ -75,7 +75,7 @@ Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-A
 | **WAF (Cloud/Ingress)** | **Create** | OWASP Top 10, DDoS | ← External, → Traefik/Ingress, ↔ Threat-Intel |
 | **Supply-Chain Security** | **Create** | SBOM, Signing, Policies | Syft/SBOM, Cosign, Trivy/Grype, OPA/Kyverno |
 
-### 💾 Enterprise Data Layer
+### 💾 Data Layer
 
 | Component | Status | Purpose | Integration & Dependencies |
 |---|---|---|---|
@@ -102,7 +102,7 @@ Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-A
 | **Service Mesh (Istio/Linkerd)** | **Create** | mTLS, Traffic Mgmt | ↔ Services, → Telemetry |
 | **Ingress Controller** | **Create** | Prod Ingress (TLS) | ← External, → Mesh/Services |
 
-### 🔄 Enterprise Integration (Async)
+### 🔄 Integration (Async)
 
 | Component | Status | Purpose | Integration & Dependencies |
 |---|---|---|---|
@@ -154,9 +154,9 @@ Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-A
 - **Model Registry (MLflow)** + Promotion-Gates.  
 - **Backup/DR** (Velero + WAL-G), **Thanos** für Long-Term-Metrics.
 
-**SLO-Ziele:** Verfügbarkeit 99,9 %, P95 < 5 s, 50+ Tenants.
+**SLO-Ziele:** Verfügbarkeit 99,9 %, P95 < 5 s, 100+ Tenants.
 
-### Phase 3 – **Enterprise Features (Monat 5–6)**  
+### Phase 3 – **Advanced Features (Monat 5–6)**  
 - **GraphQL Gateway** (Schema-Stitching) über REST hinweg.  
 - **Vector DB** (pgvector/Weaviate) → RAG.  
 - **GitOps-Pipelines** (Argo CD App-of-Apps).  
@@ -171,17 +171,17 @@ Wir transformieren den bestehenden **AI Code Agent** von einem fokussierten PR-A
 
 ---
 
-## 7) Enterprise Success Criteria (SLI/SLO)
+## 7) Success Criteria (SLI/SLO)
 
-| Metric | Current | Target (Enterprise) | Timeline |
+| Metric | Current | Target | Timeline |
 |---|---:|---:|---:|
 | **Availability** | 99,0 % | **99,9 %** | 6 Monate |
 | **Latency** | P95 15 s | **P95 < 5 s** | 3 Monate |
-| **Concurrent Users** | 10 | **500+** | 6 Monate |
+| **Concurrent Users** | 10 | **100+** | 6 Monate |
 | **Multi-Tenancy** | ❌ | **✅ Vollständig** | 4 Monate |
-| **Compliance** | Basic | **SOC2-ready / ISO27001-controls** | 8 Monate |
+| **Compliance** | Basic | **SOC2-ready** | 8 Monate |
 
-**Enterprise SLOs (Beispiel, PromQL/YAML):**
+**SLOs (Beispiel, PromQL/YAML):**
 ```yaml
 availability:
   target: 99.9%
@@ -208,18 +208,18 @@ tenant_isolation:
 - **Core Services (8):** Traefik, Gateway, Orchestrator, Adapter, LLM-Patch, ngrok, Ollama, Azurite
 - **Observability (8):** Health Monitor, Prometheus, Grafana, Loki, Promtail, Alertmanager, cAdvisor, Node Exporter
 
-**🔧 Enterprise Extensions Required:**
+**🔧 Extensions Required:**
 - **Security:** OIDC, RBAC, Vault, WAF, Supply-Chain Security
 - **Data:** PostgreSQL HA, Redis, MinIO/S3, Backup/DR
 - **AI/ML:** Model Registry, Vector DB, Feature Store, GPU Scaling
 - **Cloud-Native:** Kubernetes, GitOps, Service Mesh, Ingress Controller
 - **Integration:** Kafka, Message Queues, OpenTelemetry/Tempo
 
-**🎯 Migration Strategy:** Incremental transformation preserving current functionality while adding enterprise capabilities layer by layer.
+**🎯 Migration Strategy:** Incremental evolution preserving current functionality while adding capabilities layer by layer.
 
 ---
 
-**Platform Architecture:** Enterprise AI Solution  
+**Platform Evolution:** AI Solution Development  
 **Technology Owner:** Solution Architecture Team  
-**Enterprise Readiness:** ✅ Foundation Ready, Enterprise Extensions in Progress  
-**Status:** 🚀 **Enterprise-Candidate Platform**
+**Readiness:** ✅ Foundation Ready, Extensions in Progress  
+**Status:** 🚀 **Platform Evolution in Progress**
