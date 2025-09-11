@@ -2,6 +2,7 @@
 
 **Document Classification:** Confidential - Security Architecture  
 **Security Level:** Enterprise-Grade Zero Trust  
+**Author:** Arthur Schwan  
 **Last Updated:** September 11, 2025  
 **Review Cycle:** Quarterly Security Assessment
 

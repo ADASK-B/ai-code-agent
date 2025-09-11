@@ -2,6 +2,7 @@
 ## AI Code Agent Enterprise Platform
 
 **Document Classification:** Business Critical - Operations  
+**Author:** Arthur Schwan  
 **Effective Date:** September 11, 2025  
 **Review Cycle:** Quarterly Business Review  
 **Escalation:** C-Level Executive Team

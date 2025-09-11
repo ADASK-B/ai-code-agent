@@ -1,5 +1,6 @@
 # AI Code Agent – Enterprise Platform Transformation
 
+_Author: Arthur Schwan_  
 _Last Updated: 2025-09-11_  
 _Status:_ **Enterprise-Candidate** (Phase-1 in Umsetzung, Phase-2 geplant)
 
