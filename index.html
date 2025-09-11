@@ -170,6 +170,7 @@
         
         .status-complete { background: #d4edda; color: #155724; }
         .status-wip { background: #fff3cd; color: #856404; }
+        .status-planned { background: #e2e3e5; color: #495057; }
         .status-missing { background: #f8d7da; color: #721c24; }
         
         .warning-box {
@@ -259,6 +260,20 @@
                         <p>Grafana, Prometheus, Loki, Alertmanager, cAdvisor, Node Exporter, Health Monitor</p>
                         <a href="docs/md.html?path=architecture/monitoring-stack.md" class="btn">View Details →</a>
                     </div>
+                    
+                    <div class="card">
+                        <h4>🔐 Security Layer</h4>
+                        <span class="status-badge status-planned">Architecture Design</span>
+                        <p>Enterprise authentication, authorization, audit trails, and zero-trust network security integration.</p>
+                        <a href="docs/md.html?path=architecture/security-framework.md" class="btn">Security Layer →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🏢 Multi-Tenant Isolation</h4>
+                        <span class="status-badge status-planned">Design Phase</span>
+                        <p>Data separation, network segmentation, resource quotas, and tenant management architecture.</p>
+                        <a href="docs/md.html?path=architecture/multi-tenancy.md" class="btn">Tenancy Design →</a>
+                    </div>
                 </div>
                 
                 <div class="demo-box">
@@ -323,6 +338,69 @@
                         <p>Strategic vision, transformation roadmap, and technical objectives for the AI Code Agent platform.</p>
                         <a href="docs/md.html?path=design/goal.md" class="btn">View Strategy →</a>
                     </div>
+                    
+                    <div class="card">
+                        <h4>🔐 Security Architecture</h4>
+                        <span class="status-badge status-planned">Framework Design</span>
+                        <p>Enterprise security framework with OIDC, RBAC, audit trails, secrets management, and zero-trust networking.</p>
+                        <a href="docs/md.html?path=architecture/security-framework.md" class="btn">Security Design →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🏢 Multi-Tenancy Design</h4>
+                        <span class="status-badge status-planned">Architecture Phase</span>
+                        <p>Complete tenant isolation architecture for data separation, network segmentation, and resource management.</p>
+                        <a href="docs/md.html?path=architecture/multi-tenancy.md" class="btn">Tenancy Guide →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📋 Compliance Framework</h4>
+                        <span class="status-badge status-planned">Requirements Analysis</span>
+                        <p>GDPR, SOX compliance framework with audit trails, data lineage, and regulatory reporting capabilities.</p>
+                        <a href="docs/md.html?path=operations/compliance-framework.md" class="btn">Compliance Guide →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enterprise Readiness -->
+        <div class="section">
+            <div class="section-header">🏢 Enterprise Readiness</div>
+            <div class="section-content">
+                <p><span class="status-badge status-wip">Planning Phase</span> Enterprise-grade features currently under consideration for large-scale production deployment.</p>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h4>🔐 Security & Governance</h4>
+                        <span class="status-badge status-planned">Under Evaluation</span>
+                        <p>OIDC/OAuth2 authentication, RBAC authorization, audit trails, secrets management, and zero-trust networking.</p>
+                        <a href="docs/md.html?path=design/goal.md#tech-stack-evolution-matrix" class="btn">Security Framework →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🏢 Multi-Tenancy</h4>
+                        <span class="status-badge status-planned">Architecture Phase</span>
+                        <p>Complete tenant isolation: data separation, network segmentation, resource quotas, and billing separation.</p>
+                        <a href="docs/md.html?path=design/goal.md#2-current-pain-points--goals" class="btn">Tenancy Design →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📋 Compliance & Audit</h4>
+                        <span class="status-badge status-planned">Requirements Gathering</span>
+                        <p>GDPR/SOX compliance, comprehensive audit trails, data lineage tracking, and model governance frameworks.</p>
+                        <a href="docs/md.html?path=design/goal.md#2-current-pain-points--goals" class="btn">Compliance Guide →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>☁️ Cloud-Native Deployment</h4>
+                        <span class="status-badge status-planned">Technology Evaluation</span>
+                        <p>Kubernetes migration, Helm charts, GitOps workflows, service mesh, and horizontal auto-scaling.</p>
+                        <a href="docs/md.html?path=design/goal.md#3-tech-stack-evolution-matrix" class="btn">K8s Migration →</a>
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 1.5rem; border-left: 4px solid #ffc107;">
+                    <p style="margin: 0;"><strong>Current Status:</strong> The AI Code Agent is a proven <strong>developer tool</strong> with solid microservices architecture. Enterprise features are being evaluated based on user feedback and market requirements for large-scale deployment scenarios.</p>
                 </div>
             </div>
         </div>
@@ -388,6 +466,27 @@
                         <span class="status-badge status-missing">Missing - 404</span>
                         <p><strong>Planned Content:</strong> Systematic evaluation of AI code generation quality, performance benchmarks, provider comparisons, and testing methodologies.</p>
                         <a href="#" class="btn" style="opacity: 0.6;">Coming Soon →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🔐 Enterprise Security Documentation</h4>
+                        <span class="status-badge status-planned">Framework Development</span>
+                        <p><strong>Planned Content:</strong> Complete security documentation including authentication, authorization, audit logging, and compliance procedures.</p>
+                        <a href="docs/md.html?path=operations/enterprise-security.md" class="btn" style="opacity: 0.8;">Security Docs →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📋 Compliance Reports</h4>
+                        <span class="status-badge status-planned">Requirements Phase</span>
+                        <p><strong>Planned Content:</strong> GDPR, SOX compliance documentation, audit reports, data protection impact assessments, and regulatory frameworks.</p>
+                        <a href="docs/md.html?path=operations/compliance-reports.md" class="btn" style="opacity: 0.8;">Compliance Docs →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🏢 Multi-Tenant Operations</h4>
+                        <span class="status-badge status-planned">Design Phase</span>
+                        <p><strong>Planned Content:</strong> Tenant management procedures, isolation verification, resource monitoring, and operational runbooks for multi-tenant deployment.</p>
+                        <a href="docs/md.html?path=operations/multi-tenant-ops.md" class="btn" style="opacity: 0.8;">Operations Guide →</a>
                     </div>
                 </div>
             </div>
