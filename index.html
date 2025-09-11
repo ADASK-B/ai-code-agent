@@ -1,36 +1,54 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 AI Code Agent - Professional Architecture Portfolio</title>
+    <title>🤖 AI Code Agent - Developer Documentation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8f9fa;
             min-height: 100vh;
             color: #333;
+            line-height: 1.6;
         }
         
-        .hero {
-            text-align: center;
-            padding: 4rem 2rem;
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
+            padding: 2rem;
+            text-align: center;
         }
         
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            font-weight: 300;
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
         }
         
-        .hero p {
-            font-size: 1.2rem;
+        .header p {
+            font-size: 1.1rem;
             opacity: 0.9;
             max-width: 600px;
             margin: 0 auto;
+        }
+        
+        .nav-breadcrumb {
+            background: white;
+            padding: 1rem 2rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .nav-breadcrumb a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .nav-breadcrumb a:hover {
+            text-decoration: underline;
         }
         
         .container {
@@ -39,148 +57,362 @@
             padding: 2rem;
         }
         
-        .cards {
+        .section {
+            background: white;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #34495e;
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+        }
+        
+        .demo-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .demo-box h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+        }
+        
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1rem 0;
         }
         
         .card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
         }
         
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #3498db;
         }
         
-        .card h3 {
-            color: #2E86AB;
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
+        .card h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
         }
         
         .card p {
             color: #666;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
         }
         
         .btn {
             display: inline-block;
-            background: linear-gradient(135deg, #2E86AB, #A23B72);
+            background: #3498db;
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 0.6rem 1.2rem;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.3s ease;
         }
         
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(46, 134, 171, 0.4);
+            background: #2980b9;
+            transform: translateY(-1px);
         }
         
-        .badges {
-            display: flex;
-            gap: 0.5rem;
-            margin: 1rem 0;
-            flex-wrap: wrap;
+        .btn-secondary {
+            background: #95a5a6;
+            margin-left: 0.5rem;
         }
         
-        .badge {
-            background: #28a745;
-            color: white;
-            padding: 0.25rem 0.75rem;
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
             border-radius: 12px;
             font-size: 0.8rem;
-            font-weight: 500;
+            font-weight: 600;
+            margin-left: 0.5rem;
         }
         
-        .badge.professional { background: #6f42c1; }
-        .badge.automated { background: #fd7e14; }
-        .badge.github { background: #212529; }
+        .status-complete { background: #d4edda; color: #155724; }
+        .status-wip { background: #fff3cd; color: #856404; }
+        .status-missing { background: #f8d7da; color: #721c24; }
         
-        .footer {
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .warning-box h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .architecture-flow {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
             text-align: center;
-            padding: 2rem;
-            color: white;
-            opacity: 0.8;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
         
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-            .cards { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2rem; }
+            .grid { grid-template-columns: 1fr; }
             .container { padding: 1rem; }
         }
     </style>
 </head>
 <body>
-    <div class="hero">
+    <div class="header">
         <h1>🤖 AI Code Agent</h1>
-        <p>AI-powered code generation system with architecture documentation</p>
+        <p>AI-powered Pull Request automation for Azure DevOps - Turn PR comments into code changes</p>
+    </div>
+    
+    <div class="nav-breadcrumb">
+        <a href="../">🏠 Repository Home</a> → 📚 Developer Documentation
     </div>
 
     <div class="container">
-        <div class="cards">
-            <div class="card">
-                <h3>🏗️ System Architecture</h3>
-                <p>Complete C4 models showing system context, containers, components, and deployment views. Generated automatically from Structurizr DSL.</p>
-                <a href="architecture.html" class="btn">View Architecture Diagrams →</a>
-            </div>
-
-            <div class="card">
-                <h3>🎯 Project Goals & SLOs</h3>
-                <p>Business objectives, service level objectives, and measurable outcomes. Includes performance targets and quality metrics.</p>
-                <a href="docs/md.html?path=goal.md" class="btn">View Business Goals →</a>
-            </div>
-
-            <div class="card">
-                <h3>📚 Arc42 Documentation</h3>
-                <p>Comprehensive system documentation following arc42 template. Covers requirements, constraints, context, and solution strategy.</p>
-                <a href="docs/md.html?path=arc42/README.md" class="btn">Read Documentation →</a>
-            </div>
-
-            <div class="card">
-                <h3>📝 Architecture Decisions</h3>
-                <p>Architecture Decision Records (ADRs) documenting key technical decisions, alternatives considered, and rationale.</p>
-                <a href="docs/adr/" class="btn">Browse ADRs →</a>
-            </div>
-
-            <div class="card">
-                <h3>📊 Quality Framework</h3>
-                <p>AI code quality evaluation framework with golden tests, provider comparisons, and automated quality gates.</p>
-                <a href="evals/" class="btn">View Quality Tests →</a>
-            </div>
-
-            <div class="card">
-                <h3>⚙️ Source Code</h3>
-                <p>Complete implementation with microservices architecture, Docker deployment, and comprehensive monitoring stack.</p>
-                <a href="https://github.com/ADASK-B/ai-code-agent" class="btn">Explore Code →</a>
+        
+        <!-- What it does -->
+        <div class="section">
+            <div class="section-header">🎯 What does this tool do?</div>
+            <div class="section-content">
+                <p><strong>AI Code Agent</strong> is a developer tool that responds to natural language comments in Azure DevOps Pull Requests and automatically creates code variants as separate Draft Pull Requests.</p>
+                
+                <div class="demo-box">
+                    <h4>📝 Simple Usage:</h4>
+                    <div class="demo-code">@YourUsername /edit /2 Add error handling to the login function</div>
+                    <p><strong>↓ The system automatically creates:</strong></p>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>🔀 2 separate feature branches with different implementations</li>
+                        <li>📝 AI-generated code changes applied to your existing code</li>
+                        <li>🔄 Draft Pull Requests you can review and merge</li>
+                        <li>💬 Status updates posted back to your original PR</li>
+                    </ul>
+                </div>
+                
+                <div class="architecture-flow">
+                    Azure DevOps PR Comment → Webhook → AI Analysis → Code Generation → New Draft PRs
+                </div>
             </div>
         </div>
 
-        <div class="card" style="margin-top: 3rem; text-align: center;">
-            <h3>🚀 Live System Demo</h3>
-            <p>Experience the AI Code Agent in action. Write a comment in Azure DevOps and watch AI generate code variants automatically.</p>
-            <div style="margin: 1rem 0;">
-                <code style="background: #f8f9fa; padding: 0.5rem 1rem; border-radius: 4px; color: #e83e8c;">
-                    @user /edit /2 Add error handling to login function
-                </code>
+        <!-- System Architecture -->
+        <div class="section">
+            <div class="section-header">🏗️ System Architecture</div>
+            <div class="section-content">
+                <p>Production-ready microservices architecture with observability and monitoring.</p>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h4>Core Services (8)</h4>
+                        <span class="status-badge status-complete">Running</span>
+                        <p>Gateway, Orchestrator, Adapter, LLM-Patch, Traefik, ngrok, Ollama, Azurite</p>
+                        <a href="../README.html#-complete-service-overview" class="btn">View Details →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Monitoring Stack (8)</h4>
+                        <span class="status-badge status-complete">Running</span>
+                        <p>Grafana, Prometheus, Loki, Alertmanager, cAdvisor, Node Exporter, Health Monitor</p>
+                        <a href="../README.html#-service-health--monitoring" class="btn">Health Dashboard →</a>
+                    </div>
+                </div>
+                
+                <div class="demo-box">
+                    <h4>🚀 One-Command Deployment:</h4>
+                    <div class="demo-code">docker-compose -f docker-compose.full.yml up -d --build</div>
+                    <p>Starts all 16 services with monitoring, health checks, and AI models.</p>
+                </div>
             </div>
-            <a href="README.html" class="btn">Setup Instructions →</a>
         </div>
-    </div>
 
-    <div class="footer">
-        <p>🏗️ Professional Architecture Documentation • Auto-generated with GitHub Actions</p>
-        <p>Following industry standards and best practices</p>
+        <!-- Getting Started -->
+        <div class="section">
+            <div class="section-header">🚀 Getting Started</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>Quick Setup Guide</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Environment setup, Docker deployment, Azure DevOps webhook configuration, and first test.</p>
+                        <a href="../README.html#-quick-start" class="btn">Setup Guide →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>System Requirements</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Docker, ngrok account, Azure DevOps project. Optional: GPU for local LLM performance.</p>
+                        <a href="../README.html#-system-requirements" class="btn">Requirements →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Usage Examples</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Real examples of PR comments and the code changes they generate.</p>
+                        <a href="../README.html#-usage-examples" class="btn">Examples →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Documentation -->
+        <div class="section">
+            <div class="section-header">📖 Technical Documentation</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>Architecture Decisions (ADRs)</h4>
+                        <span class="status-badge status-wip">2 ADRs</span>
+                        <p>Documented technical decisions: LLM provider agnostic design, RAG vs context-only approach.</p>
+                        <a href="adr/" class="btn">Browse ADRs →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>C4 Architecture Diagrams</h4>
+                        <span class="status-badge status-complete">Auto-generated</span>
+                        <p>Visual system architecture with Context, Container, Component views. Generated from Structurizr DSL.</p>
+                        <a href="../architecture.html" class="btn">View Diagrams →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Project Goals & Vision</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Strategic vision, transformation roadmap, and technical objectives for the AI Code Agent platform.</p>
+                        <a href="md.html?path=goal.md" class="btn">View Strategy →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitoring & Health -->
+        <div class="section">
+            <div class="section-header">📊 System Monitoring</div>
+            <div class="section-content">
+                <p>Professional monitoring stack with real-time health checks, metrics, and alerting.</p>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h4>Real-time Health Dashboard</h4>
+                        <span class="status-badge status-complete">Live</span>
+                        <p>Automated health checks of all 16 services with status overview and performance metrics.</p>
+                        <a href="http://localhost:8888" class="btn">Health Monitor →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Grafana Dashboards</h4>
+                        <span class="status-badge status-complete">Live</span>
+                        <p>Professional dashboards for system metrics, container performance, and application logs.</p>
+                        <a href="http://localhost:3000" class="btn">Grafana →</a>
+                        <span style="font-size: 0.8rem; color: #666;">(admin/admin)</span>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Prometheus Metrics</h4>
+                        <span class="status-badge status-complete">Live</span>
+                        <p>Time-series database with custom metrics, alert rules, and performance monitoring.</p>
+                        <a href="http://localhost:9090" class="btn">Prometheus →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation Status -->
+        <div class="section">
+            <div class="section-header">📚 Documentation Status</div>
+            <div class="section-content">
+                <div class="warning-box">
+                    <h4>⚠️ Work in Progress</h4>
+                    <p>Some documentation sections are being developed. Dummy placeholders indicate planned content.</p>
+                </div>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h4>Arc42 System Documentation</h4>
+                        <span class="status-badge status-missing">Empty - Planned</span>
+                        <p><strong>Planned Content:</strong> Comprehensive system documentation following arc42 template. Will include requirements, constraints, solution strategy, building blocks, runtime views, deployment views, concepts, design decisions, quality requirements, risks, and glossary.</p>
+                        <a href="md.html?path=arc42/README.md" class="btn" style="opacity: 0.6;">Placeholder →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Quality Framework & Testing</h4>
+                        <span class="status-badge status-missing">Missing - Planned</span>
+                        <p><strong>Planned Content:</strong> AI code quality evaluation framework with golden tests, provider comparisons, automated quality gates, and testing strategies for LLM-generated code.</p>
+                        <a href="#" class="btn" style="opacity: 0.6;">Coming Soon →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Evaluation Framework</h4>
+                        <span class="status-badge status-missing">Missing - 404</span>
+                        <p><strong>Planned Content:</strong> Systematic evaluation of AI code generation quality, performance benchmarks, provider comparisons, and testing methodologies.</p>
+                        <a href="#" class="btn" style="opacity: 0.6;">Coming Soon →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Development Resources -->
+        <div class="section">
+            <div class="section-header">💻 Development Resources</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>Source Code Repository</h4>
+                        <span class="status-badge status-complete">Live</span>
+                        <p>Complete source code with microservices implementation, Docker configuration, and deployment scripts.</p>
+                        <a href="https://github.com/ADASK-B/ai-code-agent" class="btn">GitHub Repository →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Operational Documentation</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Detailed startup procedures, health verification, troubleshooting, and system maintenance guides.</p>
+                        <a href="../AgentsMd/Initialisierung/Agents.md" class="btn">Operations Guide →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
