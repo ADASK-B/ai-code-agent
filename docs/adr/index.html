@@ -1,24 +1,246 @@
-<!doctype html>
-<html lang="de">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Code Agent – ADR Index</title>
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:860px;margin:40px auto;padding:0 16px;line-height:1.5}
-    h1{font-size:1.8rem;margin-bottom:0.5rem}
-    .back{margin-bottom:16px}
-    ul{margin:0;padding-left:20px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 AI Code Agent - Architecture Decision Records</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .nav-breadcrumb {
+            background: rgba(255,255,255,0.9);
+            padding: 1rem 2rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .nav-breadcrumb a {
+            color: #2E86AB;
+            text-decoration: none;
+        }
+        
+        .nav-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .adr-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+        
+        .adr-header {
+            background: linear-gradient(135deg, #2E86AB, #A23B72);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        
+        .adr-content {
+            padding: 2rem;
+        }
+        
+        .adr-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .adr-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #2E86AB;
+        }
+        
+        .adr-item h3 {
+            color: #2E86AB;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .adr-item p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .adr-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .status-accepted { background: #d4edda; color: #155724; }
+        .status-superseded { background: #f8d7da; color: #721c24; }
+        .status-deprecated { background: #fff3cd; color: #856404; }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #2E86AB, #A23B72);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(46, 134, 171, 0.4);
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .info-box h4 {
+            color: #2E86AB;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box code {
+            background: #e9ecef;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .container { padding: 1rem; }
+        }
+    </style>
 </head>
 <body>
-  <div class="back"><a href="../">← Zurück zu Docs</a></div>
-  <h1>Architecture Decision Records (ADR)</h1>
-  <p>Übersicht der dokumentierten Architekturentscheidungen:</p>
-  <ul>
-    <li><a href="../md.html?path=adr/0001-llm-gateway-provider-agnostisch.md">ADR-0001: LLM Gateway provider-agnostisch</a></li>
-    <li><a href="../md.html?path=adr/0002-rag-vs-context-only.md">ADR-0002: RAG vs. Context-only</a></li>
-  </ul>
-  <p>Neue ADRs bitte als <code>docs/adr/NNNN-title.md</code> anlegen.</p>
+    <div class="header">
+        <h1>📝 Architecture Decision Records</h1>
+        <p>Documented technical decisions and their rationale</p>
+    </div>
+    
+    <div class="nav-breadcrumb">
+        <a href="../../">🏠 Portfolio Home</a> → <a href="../">📚 Documentation Hub</a> → 📝 ADRs
+    </div>
+
+    <div class="container">
+        <div class="adr-list">
+            <div class="adr-header">📋 Current Architecture Decisions</div>
+            <div class="adr-content">
+                <div class="adr-item">
+                    <h3>ADR-0001: LLM Gateway Provider-Agnostic</h3>
+                    <div class="adr-meta">
+                        <span class="status-badge status-accepted">Accepted</span>
+                        <span>📅 Date: August 2025</span>
+                        <span>👤 Author: Architecture Team</span>
+                    </div>
+                    <p>Decision to implement a provider-agnostic LLM gateway that supports multiple AI providers (Ollama, Claude, OpenAI) with fallback mechanisms for reliability and vendor independence.</p>
+                    <a href="../md.html?path=adr/0001-llm-gateway-provider-agnostisch.md" class="btn">Read ADR-0001 →</a>
+                </div>
+                
+                <div class="adr-item">
+                    <h3>ADR-0002: RAG vs. Context-Only</h3>
+                    <div class="adr-meta">
+                        <span class="status-badge status-accepted">Accepted</span>
+                        <span>📅 Date: August 2025</span>
+                        <span>👤 Author: AI Team</span>
+                    </div>
+                    <p>Analysis of Retrieval-Augmented Generation (RAG) versus context-only approaches for code generation. Decision factors include latency, accuracy, and implementation complexity.</p>
+                    <a href="../md.html?path=adr/0002-rag-vs-context-only.md" class="btn">Read ADR-0002 →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h4>📚 About Architecture Decision Records</h4>
+            <p>ADRs document important architectural decisions made during the project. Each ADR includes:</p>
+            <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                <li><strong>Context:</strong> The issue motivating this decision</li>
+                <li><strong>Decision:</strong> The change we're proposing or have agreed to</li>
+                <li><strong>Consequences:</strong> What becomes easier or harder to do</li>
+                <li><strong>Alternatives:</strong> Other options considered</li>
+            </ul>
+            <p style="margin-top: 1rem;">New ADRs should be created as <code>docs/adr/NNNN-title.md</code> following the MADR template.</p>
+        </div>
+
+        <div class="adr-list">
+            <div class="adr-header">🚀 Upcoming ADRs</div>
+            <div class="adr-content">
+                <div class="adr-item">
+                    <h3>ADR-0003: Enterprise Target Architecture</h3>
+                    <div class="adr-meta">
+                        <span class="status-badge status-deprecated">Planned</span>
+                        <span>📅 Expected: September 2025</span>
+                        <span>👤 Author: Enterprise Team</span>
+                    </div>
+                    <p>Decision on enterprise transformation approach: incremental migration vs. big bang rewrite. Covers OIDC, PostgreSQL, Kubernetes, and compliance frameworks.</p>
+                    <a href="../md.html?path=goal.md#implementation-roadmap" class="btn">View Context →</a>
+                </div>
+                
+                <div class="adr-item">
+                    <h3>ADR-0004: Observability Strategy</h3>
+                    <div class="adr-meta">
+                        <span class="status-badge status-deprecated">Planned</span>
+                        <span>📅 Expected: October 2025</span>
+                        <span>👤 Author: DevOps Team</span>
+                    </div>
+                    <p>Enhanced observability with OpenTelemetry, distributed tracing with Tempo/Jaeger, and structured logging for enterprise compliance and debugging.</p>
+                    <a href="../md.html?path=goal.md#phase-1-foundation-months-1-3" class="btn">View Context →</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

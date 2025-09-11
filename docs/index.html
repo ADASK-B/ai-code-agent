@@ -1,28 +1,376 @@
-<!doctype html>
-<html lang="de">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Code Agent – Docs</title>
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:860px;margin:40px auto;padding:0 16px;line-height:1.5}
-    h1{font-size:1.8rem;margin-bottom:0.5rem}
-    .note{background:#f6f8fa;border:1px solid #d0d7de;border-radius:8px;padding:12px;margin:16px 0}
-    ul{margin:0;padding-left:20px}
-    code{background:#f3f3f3;padding:2px 4px;border-radius:4px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 AI Code Agent - Documentation Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .nav-breadcrumb {
+            background: rgba(255,255,255,0.9);
+            padding: 1rem 2rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .nav-breadcrumb a {
+            color: #2E86AB;
+            text-decoration: none;
+        }
+        
+        .nav-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .section {
+            background: white;
+            margin: 2rem 0;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #2E86AB, #A23B72);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        
+        .section-content {
+            padding: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #2E86AB;
+        }
+        
+        .card h4 {
+            color: #2E86AB;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #2E86AB, #A23B72);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(46, 134, 171, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-left: 0.5rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .status-complete { background: #d4edda; color: #155724; }
+        .status-wip { background: #fff3cd; color: #856404; }
+        .status-planned { background: #e2e3e5; color: #495057; }
+        
+        .quick-links {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .quick-links h4 {
+            margin-bottom: 1rem;
+            color: #2E86AB;
+        }
+        
+        .quick-links ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+        
+        .quick-links a {
+            color: #2E86AB;
+            text-decoration: none;
+            padding: 0.3rem 0;
+            display: block;
+        }
+        
+        .quick-links a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+        }
+    </style>
 </head>
 <body>
-  <h1>AI Code Agent – Documentation</h1>
-  <p>Willkommen! Wähle einen Bereich:</p>
-  <ul>
-    <li><a href="./adr/">Architecture Decisions (ADR)</a></li>
-    <li><a href="../architecture.html">Architektur-Übersicht (HTML)</a></li>
-    <li><a href="./md.html?path=goal.md">Ziele (goal.md)</a></li>
-    <li><a href="../README.md">Projekt-README</a></li>
-  </ul>
-  <div class="note">
-    Hinweis: Diese Seite ist der Einstiegspunkt für GitHub Pages. Stelle sicher, dass GitHub Pages auf <b>Deploy from branch</b> und den Ordner <code>/docs</code> zeigt.
-  </div>
+    <div class="header">
+        <h1>🤖 AI Code Agent</h1>
+        <p>Complete Documentation & Architecture Hub</p>
+    </div>
+    
+    <div class="nav-breadcrumb">
+        <a href="../">🏠 Portfolio Home</a> → 📚 Documentation Hub
+    </div>
+
+    <div class="container">
+        <!-- Quick Access Overview -->
+        <div class="quick-links">
+            <h4>🚀 Quick Access - Enterprise Documentation</h4>
+            <ul>
+                <li><a href="md.html?path=executive/executive-summary.md">📊 Executive Summary & ROI</a></li>
+                <li><a href="md.html?path=goal.md">� Strategic Vision & Roadmap</a></li>
+                <li><a href="../architecture.html">🏗️ Solution Architecture</a></li>
+                <li><a href="md.html?path=security/security-framework.md">�️ Security Framework</a></li>
+                <li><a href="md.html?path=operations/sla-matrix.md">📋 Service Level Agreements</a></li>
+                <li><a href="https://github.com/ADASK-B/ai-code-agent">💾 Source Code Repository</a></li>
+            </ul>
+        </div>
+
+        <!-- Executive & Business -->
+        <div class="section">
+            <div class="section-header">📊 Executive & Business Documentation</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>Executive Summary & ROI</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>C-Level business case with $7.1M annual benefits, 208% ROI, and 5-year financial projections. Enterprise market analysis and competitive positioning.</p>
+                        <a href="md.html?path=executive/executive-summary.md" class="btn">View Executive Summary →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Strategic Vision & Transformation</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Enterprise platform transformation roadmap from PR automation to multi-tenant AI platform with governance framework.</p>
+                        <a href="md.html?path=goal.md" class="btn">View Strategy →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Business Case & TCO Analysis</h4>
+                        <span class="status-badge status-planned">Planned</span>
+                        <p>Total cost of ownership analysis, competitive benchmarking, and detailed financial modeling for enterprise deployment scenarios.</p>
+                        <a href="#" class="btn" style="opacity: 0.6;">Coming Soon →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture Documentation -->
+        <div class="section">
+            <div class="section-header">🏗️ Architecture Documentation</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>C4 Architecture Models</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Visual system architecture with Context, Container, Component, and Code views. Auto-generated from Structurizr DSL.</p>
+                        <a href="../architecture.html" class="btn">View Diagrams →</a>
+                        <a href="c4/" class="btn btn-secondary">DSL Source →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Architecture Decisions (ADRs)</h4>
+                        <span class="status-badge status-wip">2 ADRs</span>
+                        <p>Documented technical decisions with context, alternatives, and consequences. Following MADR template.</p>
+                        <a href="adr/" class="btn">Browse ADRs →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Arc42 System Documentation</h4>
+                        <span class="status-badge status-wip">In Progress</span>
+                        <p>Comprehensive system documentation following arc42 template. Covers all architectural aspects.</p>
+                        <a href="md.html?path=arc42/README.md" class="btn">Read Arc42 →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Implementation -->
+        <div class="section">
+            <div class="section-header">⚙️ Technical Implementation</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>System Architecture Overview</h4>
+                        <span class="status-badge status-complete">16 Services</span>
+                        <p>Complete microservices architecture: 8 core services + 8 monitoring. Docker Compose deployment.</p>
+                        <a href="../README.html#-system-architecture" class="btn">View Architecture →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Setup & Installation Guide</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>One-command deployment with Docker Compose. Includes environment setup and health verification.</p>
+                        <a href="../README.html#-quick-start" class="btn">Setup Guide →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Service Configuration</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Detailed service topology, ports, interactions, and monitoring endpoints for all 16 services.</p>
+                        <a href="../README.html#-complete-service-overview" class="btn">Service Details →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security & Compliance -->
+        <div class="section">
+            <div class="section-header">�️ Security & Compliance</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>Security Framework</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Zero-trust architecture with SOC2/ISO27001 compliance, multi-tenant isolation, and enterprise-grade threat detection.</p>
+                        <a href="md.html?path=security/security-framework.md" class="btn">View Security →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Compliance Matrix</h4>
+                        <span class="status-badge status-wip">In Progress</span>
+                        <p>GDPR, SOC2, ISO27001, HIPAA compliance mapping with automated audit trails and regulatory reporting.</p>
+                        <a href="#" class="btn" style="opacity: 0.6;">Coming Soon →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Threat Model & Risk Assessment</h4>
+                        <span class="status-badge status-planned">Planned</span>
+                        <p>Comprehensive threat modeling with AI-specific security controls and enterprise risk mitigation strategies.</p>
+                        <a href="#" class="btn" style="opacity: 0.6;">Coming Soon →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations & SLA -->
+        <div class="section">
+            <div class="section-header">📋 Operations & Service Levels</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>Service Level Agreements (SLA)</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Enterprise SLA matrix with 99.95% uptime, response time guarantees, and 24/7 support with financial service credits.</p>
+                        <a href="md.html?path=operations/sla-matrix.md" class="btn">View SLAs →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Monitoring & Observability</h4>
+                        <span class="status-badge status-complete">Complete</span>
+                        <p>Professional monitoring stack: Prometheus, Grafana, Loki, Alertmanager. Real-time health checks and performance dashboards.</p>
+                        <a href="../README.html#-service-health--monitoring" class="btn">View Monitoring →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Incident Response & DR</h4>
+                        <span class="status-badge status-planned">Planned</span>
+                        <p>24/7 SOC with automated incident response, disaster recovery procedures, and business continuity planning.</p>
+                        <a href="#" class="btn" style="opacity: 0.6;">Coming Soon →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- External Resources -->
+        <div class="section">
+            <div class="section-header">🔗 External Resources</div>
+            <div class="section-content">
+                <div class="grid">
+                    <div class="card">
+                        <h4>Source Code Repository</h4>
+                        <span class="status-badge status-complete">Live</span>
+                        <p>Complete source code with microservices implementation, Docker configuration, and CI/CD pipelines.</p>
+                        <a href="https://github.com/ADASK-B/ai-code-agent" class="btn">GitHub Repository →</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>Live System Demo</h4>
+                        <span class="status-badge status-complete">Available</span>
+                        <p>Interactive demonstration of AI code generation. Test with Azure DevOps PR comments.</p>
+                        <a href="../README.html#-usage-examples" class="btn">Try Demo →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
